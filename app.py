@@ -2,7 +2,7 @@ import streamlit as st
 from datetime import datetime
 import uuid
 
-from src.agents.langgraph_core import run_langgraph_cycle
+from src.agents.langgraph_core import run_langgraph_cycle, COMPETITION_WEIGHTS, RUBRIC_DIM_NAMES
 from src.utils.database import (
     authenticate_user,
     create_user,
@@ -273,7 +273,46 @@ def render_chat_message(role: str, content: str, state: dict = None):
                     with st.expander("证据链追溯"):
                         for item in state.get("evidence", []):
                             st.markdown(f"**{item.get('step')}**: {item.get('detail')}")
-
+                
+                # ── A5: 赛事 Rubric 评分面板 ──
+                rubric = state.get("rubric_scores", {})
+                if rubric:
+                    with st.expander("🏆 赛事 Rubric 评分", expanded=True):
+                        comp_name = st.selectbox(
+                            "选择赛事权重",
+                            list(COMPETITION_WEIGHTS.keys()),
+                            key=f"comp_{id(state)}",
+                        )
+                        weights = COMPETITION_WEIGHTS.get(comp_name, COMPETITION_WEIGHTS["互联网+"])
+                        
+                        score_cols = st.columns(5)
+                        weighted_total = 0.0
+                        for idx, (dim, dim_name) in enumerate(RUBRIC_DIM_NAMES.items()):
+                            dim_data = rubric.get(dim, {})
+                            score = dim_data.get("score", 0)
+                            w = weights.get(dim, 0.2)
+                            weighted_total += score * w
+                            with score_cols[idx]:
+                                color = "🔴" if score <= 2 else ("🟡" if score <= 3 else "🟢")
+                                st.metric(f"{color} {dim_name}", f"{score}/5")
+                        
+                        st.metric(f"📊 {comp_name} 加权综合分", f"{weighted_total:.2f}/5.00")
+                        
+                        # Missing Evidence & Minimal Fix
+                        weak_dims = [
+                            (dim, rubric.get(dim, {}))
+                            for dim in RUBRIC_DIM_NAMES
+                            if rubric.get(dim, {}).get("score", 5) <= 2
+                        ]
+                        if weak_dims:
+                            st.divider()
+                            st.markdown("**⚠️ 薄弱项行动建议**")
+                            for dim, dim_data in weak_dims:
+                                st.error(
+                                    f"**{RUBRIC_DIM_NAMES[dim]}** (得分 {dim_data.get('score', 0)}/5)\n\n"
+                                    f"❌ 缺失证据: {dim_data.get('missing_evidence', 'N/A')}\n\n"
+                                    f"✅ 最小修复: {dim_data.get('minimal_fix', 'N/A')}"
+                                )
 
 def main():
     init_session_state()

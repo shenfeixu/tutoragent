@@ -76,6 +76,7 @@ class AgentState(BaseModel):
     evidence: List[EvidenceItem] = Field(default_factory=list, description="Evidence trail supporting each node/rule assessment.")
     conversation_history: List[Dict[str, str]] = Field(default_factory=list, description="历史对话记录")
     accumulated_info: Dict[str, Any] = Field(default_factory=dict, description="已累积提取的项目信息")
+    rubric_scores: Dict[str, Any] = Field(default_factory=dict, description="Rubric 0-5 逐项评分及建议")
 
 
 class EntityExtractionSchema(BaseModel):
@@ -142,6 +143,52 @@ FALLACY_STRATEGY_LIBRARY: Dict[str, str] = {
     "H20": "增长飞轮逻辑：你的增长模式是否自增强？请说明新用户如何帮助获取更多用户。",
 }
 DEFAULT_FALLACY_STRATEGY = "继续逐条验证关键前提，别让幻觉的数字偷偷爬过审计线。"
+
+# ── A5: 赛事 Rubric 评分维度与权重 ──────────────────────────────────
+RUBRIC_FALLACY_MAP: Dict[str, List[str]] = {
+    "pain_point":    ["H3", "H5"],
+    "planning":      ["H6", "H11"],
+    "modeling":       ["H4", "H7", "H8", "H16"],
+    "leverage":       ["H9", "H10", "H18"],
+    "presentation":   ["H13", "H19", "H20"],
+}
+
+RUBRIC_DIM_NAMES: Dict[str, str] = {
+    "pain_point": "痛点发现",
+    "planning": "方案策划",
+    "modeling": "商业建模",
+    "leverage": "资源杠杆",
+    "presentation": "路演表达",
+}
+
+RUBRIC_MISSING_FIX: Dict[str, Dict[str, str]] = {
+    "pain_point": {
+        "missing": "缺少清晰的用户画像和价值主张描述",
+        "fix": "用「谁、在什么场景、遇到什么问题、我们如何解决」四要素重新定义痛点",
+    },
+    "planning": {
+        "missing": "缺少获客渠道和时间规划",
+        "fix": "列出前 3 个月的里程碑和预期获客路径，附上每个节点的验证指标",
+    },
+    "modeling": {
+        "missing": "缺少可信的市场规模数据或单位经济验证",
+        "fix": "用自下而上法重新估算 TAM/SAM/SOM，并计算 LTV/CAC 比值",
+    },
+    "leverage": {
+        "missing": "缺少团队、融资或现金流生存计划",
+        "fix": "制作 12 个月现金流预测表，标注盈亏平衡点和融资窗口",
+    },
+    "presentation": {
+        "missing": "缺少技术壁垒、护城河或增长飞轮的清晰阐述",
+        "fix": "用一页纸说明你的核心壁垒来源（专利/数据/网络效应）和增长的自增强逻辑",
+    },
+}
+
+COMPETITION_WEIGHTS: Dict[str, Dict[str, float]] = {
+    "互联网+": {"pain_point": 0.25, "planning": 0.20, "modeling": 0.25, "leverage": 0.15, "presentation": 0.15},
+    "挑战杯":  {"pain_point": 0.20, "planning": 0.15, "modeling": 0.20, "leverage": 0.20, "presentation": 0.25},
+    "创青春":  {"pain_point": 0.20, "planning": 0.25, "modeling": 0.20, "leverage": 0.20, "presentation": 0.15},
+}
 
 def _get_chat_client() -> ChatOpenAI:
     if not LANGCHAIN_AVAILABLE:
@@ -1136,6 +1183,49 @@ def generate_rebuttal(state: AgentState) -> AgentState:
             f"在当前轮次我发现以下规则被触发：{issues}。请按照策略 '{strategy_text}' 进一步澄清。"
         )
     return state
+
+
+def rubric_scorer(state: AgentState) -> AgentState:
+    """A5: 根据 Rubric 维度对项目进行 0-5 逐项评分，并为薄弱项生成 Missing Evidence + Minimal Fix。"""
+    fallacies = set(state.detected_fallacies)
+    scores: Dict[str, Any] = {}
+
+    for dim, related_rules in RUBRIC_FALLACY_MAP.items():
+        triggered = [r for r in related_rules if r in fallacies]
+        total_rules = len(related_rules)
+        fail_ratio = len(triggered) / total_rules if total_rules > 0 else 0
+
+        # 0-5 分：全部通过=5, 全部未通过=0
+        raw_score = round(5 * (1 - fail_ratio))
+        raw_score = max(0, min(5, raw_score))  # clamp
+
+        dim_result: Dict[str, Any] = {
+            "score": raw_score,
+            "name": RUBRIC_DIM_NAMES[dim],
+            "triggered_rules": triggered,
+        }
+
+        if raw_score <= 2:
+            dim_result["missing_evidence"] = RUBRIC_MISSING_FIX[dim]["missing"]
+            dim_result["minimal_fix"] = RUBRIC_MISSING_FIX[dim]["fix"]
+
+        scores[dim] = dim_result
+
+    # 按默认赛事（互联网+）计算加权综合分
+    default_weights = COMPETITION_WEIGHTS["互联网+"]
+    weighted_total = sum(
+        scores[dim]["score"] * default_weights.get(dim, 0.2) for dim in scores
+    )
+
+    scores["_summary"] = {
+        "weighted_total": round(weighted_total, 2),
+        "default_competition": "互联网+",
+        "available_competitions": list(COMPETITION_WEIGHTS.keys()),
+    }
+
+    state.rubric_scores = scores
+    LOGGER.info("【A5 Rubric 评分】%s", {d: scores[d]["score"] for d in RUBRIC_FALLACY_MAP})
+    return state
 try:
     from langgraph import Node, StateGraph
     NODE_CLASS_AVAILABLE = True
@@ -1176,12 +1266,14 @@ def build_state_graph() -> StateGraph:
         Node(name="hypergraph_critic", function=hypergraph_critic),
         Node(name="strategy_selector", function=strategy_selector),
         Node(name="generate_rebuttal", function=generate_rebuttal),
+        Node(name="rubric_scorer", function=rubric_scorer),
     ]
     for node in nodes:
         graph.add_node(node)
     graph.connect("extract_entities", "hypergraph_critic")
     graph.connect("hypergraph_critic", "strategy_selector")
     graph.connect("strategy_selector", "generate_rebuttal")
+    graph.connect("generate_rebuttal", "rubric_scorer")
     graph.compile()
     return graph
 
