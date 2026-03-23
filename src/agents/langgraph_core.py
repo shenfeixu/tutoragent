@@ -594,6 +594,11 @@ def get_teaching_cases_for_fallacy(fallacy_code: str) -> List[Dict[str, Any]]:
         "H13": "技术",
         "H14": "市场",
         "H15": "商业",
+        "H16": "成本",
+        "H17": "渠道",
+        "H18": "资金",
+        "H19": "竞争",
+        "H20": "增长",
     }
     
     keyword = fallacy_risk_mapping.get(fallacy_code, "")
@@ -1013,8 +1018,22 @@ def strategy_selector(state: AgentState) -> AgentState:
 
     for failure in state.detected_fallacies:
         if failure in FALLACY_STRATEGY_LIBRARY:
-            state.probing_strategy = FALLACY_STRATEGY_LIBRARY[failure]
+            strategy_text = FALLACY_STRATEGY_LIBRARY[failure]
+            cases = get_teaching_cases_for_fallacy(failure)
+            if cases:
+                LOGGER.info("【超边知识检索轨迹】触发高频谬误 %s，检索到如下网络拓扑案例: %s", failure, cases)
+                case_texts = []
+                for c in cases:
+                    techs = "、".join(c.get("techs", [])) or "未知技术"
+                    markets = "、".join(c.get("markets", [])) or "未知市场"
+                    case_texts.append(f"项目[{c.get('project_name')}] (技术: {techs}, 市场: {markets}) 同样面临 '{c.get('risk')}' 风险。")
+                strategy_text += f"\n\n【超边知识库参考案例（用于施压）】\n" + "\n".join(case_texts)
+            else:
+                LOGGER.info("【超边知识检索轨迹】触发高频谬误 %s，但图谱中暂无匹配的关联风险案例。", failure)
+            
+            state.probing_strategy = strategy_text
             return state
+            
     state.probing_strategy = DEFAULT_FALLACY_STRATEGY
     return state
 
@@ -1022,10 +1041,6 @@ def strategy_selector(state: AgentState) -> AgentState:
 def generate_rebuttal(state: AgentState) -> AgentState:
     """Invokes the LLM to craft a Socratic rebuttal based on triggered fallacies."""
     strategy_text = state.probing_strategy or DEFAULT_FALLACY_STRATEGY
-    for failure in state.detected_fallacies:
-        strategy_text = FALLACY_STRATEGY_LIBRARY.get(failure, strategy_text)
-        break
-    state.probing_strategy = strategy_text
 
     rules = state.detected_fallacies or ["H1-H15 均未触发"]
     evidence_summary = _format_evidence(state.evidence)
@@ -1035,7 +1050,7 @@ def generate_rebuttal(state: AgentState) -> AgentState:
             "学生的原文输入：\n{student_input}\n"
             "抽取的模型（JSON）：\n{nodes}\n"
             "触发的规则：{rules}\n"
-            "当前策略：{strategy}\n"
+            "当前策略与参考案例：{strategy}\n"
             "证据追踪：\n{evidence}\n"
             "【反代写约束】如果用户要求代写或生成完整商业方案，果断拒绝并严厉指正。\n"
             "【输出格式规定】请严格按照以下 6 个 Markdown 标题格式强制输出回复，且【✅ 实践任务 (Practice Task)】只能有 1 个：\n"
@@ -1044,6 +1059,7 @@ def generate_rebuttal(state: AgentState) -> AgentState:
             "### 💡 案例参考 (Example)\n"
             "### 🔍 具体分析 (Analysis)\n"
             "### 🤔 反思追问 (Socratic Question)\n"
+            "必须使用提供的超边参照案例作为弹药，进行极具压迫感的非直给追问。\n"
             "### ✅ 实践任务 (Practice Task)"
         ).format(
             student_input=state.student_input,
@@ -1077,7 +1093,7 @@ def generate_rebuttal(state: AgentState) -> AgentState:
         "学生的原文输入：\n{student_input}\n"
         "抽取的模型（JSON）：\n{nodes}\n"
         "触发的规则：{rules}\n"
-        "当前策略：“{strategy}”\n"
+        "当前策略与参考案例：“{strategy}”\n"
         "证据追踪：\n{evidence_summary}\n"
         "请结合当前用户的输入和上述评价策略，进行回复计算。\n"
         "【输出格式规定】请用中文严格按照以下 Markdown 格式强制输出 6 个字段，且【✅ 实践任务】只能有 1 个极其具体的动作："
@@ -1091,7 +1107,7 @@ def generate_rebuttal(state: AgentState) -> AgentState:
         "### 🔍 具体分析 (Analysis)\n"
         "基于前面抽取的业务模型，具体剖析这个想法为何站不住脚。\n\n"
         "### 🤔 反思追问 (Socratic Question)\n"
-        "运用苏格拉底风格，抛出一个犀利、直击痛点的开放性问题。\n\n"
+        "【压力追问闭环】：你必须直接引用“当前策略与参考案例”中提供的超边参照案例（如果有），以此为论据给学生施加真实的生存压力拷问（例如直戳现金流断裂或技术壁垒可复制的风险），抛出一个犀利、直击痛点的开放性问题。\n\n"
         "### ✅ 实践任务 (Practice Task)\n"
         "给出一个并且只能给出一个具体的课后或者后续补充任务（例如查算某个特定数据）。"
     )
