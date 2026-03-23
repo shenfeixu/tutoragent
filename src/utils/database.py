@@ -497,4 +497,286 @@ def get_student_scores() -> List[Dict[str, Any]]:
     return sorted(results, key=lambda x: x["total_score"])
 
 
+class Neo4jManager:
+    """Neo4j 知识图谱管理类"""
+    
+    def __init__(self, uri: str, user: str, password: str, database: str = "neo4j"):
+        self.uri = uri
+        self.user = user
+        self.password = password
+        self.database = database
+        self._driver = None
+    
+    def _get_driver(self):
+        if self._driver is None:
+            try:
+                from neo4j import GraphDatabase
+                auth = (self.user, self.password) if self.password else None
+                self._driver = GraphDatabase.driver(self.uri, auth=auth)
+            except ImportError:
+                raise RuntimeError("neo4j package not installed")
+        return self._driver
+    
+    def clear_graph(self):
+        """清空图谱中的所有节点和关系"""
+        driver = self._get_driver()
+        with driver.session(database=self.database) as session:
+            session.run("MATCH (n) DETACH DELETE n")
+    
+    def create_project_nodes(self, projects: List[Dict]):
+        """批量创建项目节点"""
+        driver = self._get_driver()
+        query = """
+        UNWIND $projects AS p
+        CREATE (project:Project {
+            id: p.id,
+            name: p.name,
+            description: p.description
+        })
+        """
+        with driver.session(database=self.database) as session:
+            session.run(query, projects=projects)
+    
+    def create_tech_nodes(self, techs: List[Dict]):
+        """批量创建技术节点"""
+        driver = self._get_driver()
+        query = """
+        UNWIND $techs AS t
+        CREATE (tech:Tech {
+            project_id: t.project_id,
+            name: t.name,
+            maturity: t.maturity,
+            barrier: t.barrier
+        })
+        """
+        with driver.session(database=self.database) as session:
+            session.run(query, techs=techs)
+    
+    def create_market_nodes(self, markets: List[Dict]):
+        """批量创建市场节点"""
+        driver = self._get_driver()
+        query = """
+        UNWIND $markets AS m
+        CREATE (market:Market {
+            project_id: m.project_id,
+            name: m.name,
+            tam: m.tam,
+            sam: m.sam,
+            som: m.som
+        })
+        """
+        with driver.session(database=self.database) as session:
+            session.run(query, markets=markets)
+    
+    def create_risk_nodes(self, risks: List[Dict]):
+        """批量创建风险节点"""
+        driver = self._get_driver()
+        query = """
+        UNWIND $risks AS r
+        CREATE (risk:Risk {
+            project_id: r.project_id,
+            name: r.name,
+            severity: r.severity
+        })
+        """
+        with driver.session(database=self.database) as session:
+            session.run(query, risks=risks)
+    
+    def create_value_loop_edges(self, edges: List[Dict]):
+        """批量创建价值闭环超边节点"""
+        driver = self._get_driver()
+        query = """
+        UNWIND $edges AS e
+        CREATE (vle:ValueLoopEdge {
+            id: e.id,
+            name: e.name,
+            description: e.description,
+            project_id: e.project_id,
+            ltv: e.ltv,
+            cac: e.cac,
+            revenue_model: e.revenue_model
+        })
+        """
+        with driver.session(database=self.database) as session:
+            session.run(query, edges=edges)
+    
+    def create_risk_pattern_edges(self, edges: List[Dict]):
+        """批量创建风险模式超边节点"""
+        driver = self._get_driver()
+        query = """
+        UNWIND $edges AS e
+        CREATE (rpe:RiskPatternEdge {
+            id: e.id,
+            name: e.name,
+            description: e.description,
+            project_id: e.project_id,
+            mitigation: e.mitigation
+        })
+        """
+        with driver.session(database=self.database) as session:
+            session.run(query, edges=edges)
+    
+    def create_relationships(self, project_ids: List[str]):
+        """批量创建关系"""
+        driver = self._get_driver()
+        
+        with driver.session(database=self.database) as session:
+            session.run("""
+                UNWIND $ids AS pid
+                MATCH (p:Project {id: pid})
+                MATCH (t:Tech {project_id: pid})
+                MERGE (p)-[:USE]->(t)
+            """, ids=project_ids)
+            
+            session.run("""
+                UNWIND $ids AS pid
+                MATCH (p:Project {id: pid})
+                MATCH (m:Market {project_id: pid})
+                MERGE (p)-[:TARGET]->(m)
+            """, ids=project_ids)
+            
+            session.run("""
+                UNWIND $ids AS pid
+                MATCH (p:Project {id: pid})
+                MATCH (r:Risk {project_id: pid})
+                MERGE (p)-[:TRIGGER_RISK]->(r)
+            """, ids=project_ids)
+            
+            session.run("""
+                UNWIND $ids AS pid
+                MATCH (p:Project {id: pid})
+                MATCH (vle:ValueLoopEdge {project_id: pid})
+                MERGE (p)-[:HAS_VALUE_LOOP]->(vle)
+            """, ids=project_ids)
+            
+            session.run("""
+                UNWIND $ids AS pid
+                MATCH (p:Project {id: pid})
+                MATCH (rpe:RiskPatternEdge {project_id: pid})
+                MERGE (p)-[:HAS_RISK_PATTERN]->(rpe)
+            """, ids=project_ids)
+            
+            session.run("""
+                UNWIND $ids AS pid
+                MATCH (vle:ValueLoopEdge {project_id: pid})
+                MATCH (t:Tech {project_id: pid})
+                MERGE (vle)-[:INVOLVES_TECH]->(t)
+            """, ids=project_ids)
+            
+            session.run("""
+                UNWIND $ids AS pid
+                MATCH (vle:ValueLoopEdge {project_id: pid})
+                MATCH (m:Market {project_id: pid})
+                MERGE (vle)-[:INVOLVES_MARKET]->(m)
+            """, ids=project_ids)
+            
+            session.run("""
+                UNWIND $ids AS pid
+                MATCH (rpe:RiskPatternEdge {project_id: pid})
+                MATCH (t:Tech {project_id: pid})
+                MERGE (rpe)-[:INVOLVES_TECH]->(t)
+            """, ids=project_ids)
+            
+            session.run("""
+                UNWIND $ids AS pid
+                MATCH (rpe:RiskPatternEdge {project_id: pid})
+                MATCH (r:Risk {project_id: pid})
+                MERGE (rpe)-[:INVOLVES_RISK]->(r)
+            """, ids=project_ids)
+    
+    def load_kg_from_json(self, json_path: str) -> Dict[str, Any]:
+        """从 JSON 文件加载知识图谱数据"""
+        with open(json_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        projects_data = data.get("projects", [])
+        
+        projects = []
+        techs = []
+        markets = []
+        risks = []
+        value_loop_edges = []
+        risk_pattern_edges = []
+        project_ids = []
+        
+        for p in projects_data:
+            project_ids.append(p["id"])
+            
+            projects.append({
+                "id": p["id"],
+                "name": p["name"],
+                "description": p.get("description", "")
+            })
+            
+            tech = p.get("tech", {})
+            techs.append({
+                "project_id": p["id"],
+                "name": tech.get("name", ""),
+                "maturity": tech.get("maturity", "概念验证"),
+                "barrier": tech.get("barrier", "中")
+            })
+            
+            market = p.get("market", {})
+            markets.append({
+                "project_id": p["id"],
+                "name": market.get("name", ""),
+                "tam": market.get("tam", 0),
+                "sam": market.get("sam", 0),
+                "som": market.get("som", 0)
+            })
+            
+            risk = p.get("risk", {})
+            risks.append({
+                "project_id": p["id"],
+                "name": risk.get("name", ""),
+                "severity": risk.get("severity", "中")
+            })
+            
+            vle = p.get("value_loop_edge", {})
+            metrics = vle.get("metrics", {})
+            value_loop_edges.append({
+                "id": vle.get("id", f"vl_{p['id']}"),
+                "name": vle.get("name", ""),
+                "description": vle.get("description", ""),
+                "project_id": p["id"],
+                "ltv": metrics.get("ltv", 0),
+                "cac": metrics.get("cac", 0),
+                "revenue_model": metrics.get("revenue_model", "")
+            })
+            
+            rpe = p.get("risk_pattern_edge", {})
+            risk_pattern_edges.append({
+                "id": rpe.get("id", f"rp_{p['id']}"),
+                "name": rpe.get("name", ""),
+                "description": rpe.get("description", ""),
+                "project_id": p["id"],
+                "mitigation": rpe.get("mitigation", "")
+            })
+        
+        self.clear_graph()
+        
+        self.create_project_nodes(projects)
+        self.create_tech_nodes(techs)
+        self.create_market_nodes(markets)
+        self.create_risk_nodes(risks)
+        self.create_value_loop_edges(value_loop_edges)
+        self.create_risk_pattern_edges(risk_pattern_edges)
+        self.create_relationships(project_ids)
+        
+        return {
+            "success": True,
+            "projects_count": len(projects),
+            "techs_count": len(techs),
+            "markets_count": len(markets),
+            "risks_count": len(risks),
+            "value_loop_edges_count": len(value_loop_edges),
+            "risk_pattern_edges_count": len(risk_pattern_edges),
+        }
+    
+    def close(self):
+        if self._driver:
+            self._driver.close()
+            self._driver = None
+
+
 init_database()

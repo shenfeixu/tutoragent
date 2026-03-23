@@ -96,6 +96,11 @@ class EntityExtractionSchema(BaseModel):
     funding_stage: str = Field(default="种子轮", description="融资阶段")
     time_to_market: int = Field(default=12, description="预计上市时间（月）")
     key_risks: str = Field(default="", description="主要风险点")
+    marginal_cost: str = Field(default="", description="边际成本特征：固定成本主导/边际成本递减")
+    cash_runway: int = Field(default=12, description="现金跑道（月）")
+    monthly_burn: float = Field(default=0.0, description="月度烧钱率（元）")
+    moat: str = Field(default="", description="竞争壁垒/护城河")
+    growth_model: str = Field(default="", description="增长模式/飞轮效应")
     additional_context: Optional[str] = Field(None, description="其他辅助说明，可选")
 
 
@@ -115,9 +120,26 @@ MOCK_ENTITY_EXTRACTION: Dict[str, Any] = {
 
 
 FALLACY_STRATEGY_LIBRARY: Dict[str, str] = {
-    "H1": "你此前提到的渠道能触达指定客户，但Neo4j没找到那条路径。把你手头的渠道/客户证据摊出来，让我看看哪一步被夸大了？",
-    "H4": "TAM/SAM/SOM 的比例目前不像三层金字塔。给我一条你验证过的市场口径，我想知道到底哪个环节装了放大镜。",
-    "H8": "LTV < 3*CAC，商业模式脆弱。别急着说你的再营销能扛住，先说明每个客户到底为你贡献了多少现金流。",
+    "H1": "广义竞争逻辑：你提到的技术-市场组合在图谱中没有先例。请说明你的技术壁垒能否抵御现有竞争者的快速跟进？",
+    "H2": "技术成熟度逻辑：技术处于早期阶段，请说明从原型到商业化的关键里程碑和验证节点。",
+    "H3": "用户画像逻辑：目标客户描述模糊。请用「谁、在什么场景、遇到什么问题」三要素重新定义。",
+    "H4": "市场口径逻辑：TAM/SAM/SOM 比例异常。请说明这三个数字的计算依据和数据来源。",
+    "H5": "价值主张逻辑：价值主张不够清晰。请用「我们帮助X用户解决Y问题，实现Z价值」的句式重新表述。",
+    "H6": "渠道触达逻辑：获客渠道描述不足。请说明你的目标客户在哪里聚集，你如何触达他们。",
+    "H7": "收入验证逻辑：收入预测缺失。请说明你的定价策略和付费意愿验证情况。",
+    "H8": "单位经济逻辑：LTV/CAC 比例不健康。请说明你的客户留存率和复购周期。",
+    "H9": "团队能力逻辑：团队规模偏小。请说明核心团队的技能互补性和执行力验证。",
+    "H10": "融资匹配逻辑：融资阶段与技术成熟度不匹配。请说明资金用途和里程碑规划。",
+    "H11": "时间规划逻辑：上市时间过于乐观。请说明关键路径和潜在瓶颈。",
+    "H12": "风险识别逻辑：风险识别不充分。请列出技术、市场、团队三方面的主要风险。",
+    "H13": "技术壁垒逻辑：技术描述过短。请说明你的核心技术壁垒和专利布局。",
+    "H14": "市场验证逻辑：市场规模数据可能缺乏验证。请说明市场调研的方法和样本量。",
+    "H15": "商业闭环逻辑：商业模式闭环不完整。请说明从获客到变现的完整路径。",
+    "H16": "单位经济幻觉逻辑：你的单位经济模型存在矛盾。请说明边际成本是否随规模下降，还是固定成本占主导？",
+    "H17": "渠道错位逻辑：你的渠道与目标用户群体可能不匹配。请说明渠道的用户画像与你的目标客户重合度。",
+    "H18": "现金流生存逻辑：请说明你的现金跑道和盈亏平衡点。在没有新融资的情况下能支撑多久？",
+    "H19": "护城河逻辑：你的竞争优势是否可持续？请说明网络效应、规模效应或品牌效应如何形成。",
+    "H20": "增长飞轮逻辑：你的增长模式是否自增强？请说明新用户如何帮助获取更多用户。",
 }
 DEFAULT_FALLACY_STRATEGY = "继续逐条验证关键前提，别让幻觉的数字偷偷爬过审计线。"
 
@@ -223,55 +245,301 @@ def _get_neo4j_driver():
     return _NEO4J_DRIVER
 
 
-def check_tech_market_match(tech: Optional[str], market: Optional[str]) -> Tuple[bool, str]:
-    """检查技术是否适用于目标市场（基于Neo4j图谱）"""
+def extract_keywords_with_llm(text: str, max_keywords: int = 5) -> List[str]:
+    """使用 LLM 从文本中提取关键词"""
+    if not text:
+        return []
+    
+    try:
+        client = _get_chat_client()
+        prompt = f"""从以下文本中提取 {max_keywords} 个最重要的技术或市场关键词，用于在知识图谱中搜索匹配。
+
+文本: {text}
+
+要求:
+1. 提取核心技术名词、市场领域名词
+2. 每个关键词 2-4 个字，越短越好
+3. 优先提取专有名词、技术术语、核心概念
+4. 避免提取泛化词汇如"技术"、"系统"、"市场"、"服务"
+5. 只输出关键词，用逗号分隔，不要其他解释
+
+关键词:"""
+        
+        response = client.invoke(prompt)
+        content = response.content if hasattr(response, "content") else str(response)
+        
+        keywords = [kw.strip() for kw in content.replace("，", ",").split(",") if kw.strip()]
+        keywords = [kw for kw in keywords if len(kw) >= 2 and kw not in ["技术", "系统", "市场", "服务", "产品", "平台", "解决方案"]]
+        return keywords[:max_keywords]
+    except Exception as e:
+        LOGGER.warning(f"LLM 关键词提取失败，回退到本地算法: {e}")
+        return extract_keywords_local(text, max_keywords)
+
+
+def extract_keywords_local(text: str, max_keywords: int = 5) -> List[str]:
+    """本地算法提取关键词（作为后备方案）"""
+    if not text:
+        return []
+    
+    import re
+    
+    stopwords = {"的", "和", "与", "及", "等", "是", "在", "有", "为", "对", "将", "能", "可", "以", "了", "着", "过", "被", "把", "让", "给", "向", "从", "到", "基于", "通过", "进行", "实现", "提供", "支持", "系统", "平台", "服务", "产品", "技术", "解决方案", "应用", "开发", "研究", "设计", "构建", "打造", "创建", "建立", "帮助", "制定", "分析", "诊断", "调控", "制备", "制造", "加工", "检测", "监测", "管理", "控制"}
+    
+    entity_patterns = [
+        r'[\u4e00-\u9fa5]{2,4}(?:无人机|机器人|传感器|激光|雷达|成像|遥感|光谱|智能|精密|量子|芯片|算法|模型|平台|网络|数据|云|大数据|人工智能|机器学习|深度学习|物联网|区块链)',
+        r'(?:无人机|机器人|传感器|激光|雷达|成像|遥感|光谱|智能|精密|量子|芯片|算法|模型)[\u4e00-\u9fa5]{0,4}',
+        r'[A-Z][a-z]+(?:[A-Z][a-z]+)*',
+        r'[A-Z]{2,}',
+    ]
+    
+    keywords = []
+    
+    for pattern in entity_patterns:
+        matches = re.findall(pattern, text)
+        keywords.extend(matches)
+    
+    english_words = re.findall(r'[A-Za-z]{2,}', text)
+    for word in english_words:
+        if word.lower() not in ['the', 'and', 'for', 'with', 'from', 'this', 'that', 'has', 'have', 'are', 'was', 'were', 'been']:
+            keywords.append(word)
+    
+    chinese_chunks = re.findall(r'[\u4e00-\u9fa5]{2,}', text)
+    for chunk in chinese_chunks:
+        if chunk in stopwords:
+            continue
+        if len(chunk) == 2:
+            keywords.append(chunk)
+        elif len(chunk) == 3:
+            keywords.append(chunk)
+        elif len(chunk) == 4:
+            keywords.append(chunk)
+        elif len(chunk) >= 5:
+            keywords.append(chunk[:4])
+            keywords.append(chunk[:3])
+            keywords.append(chunk[1:4] if len(chunk) >= 4 else chunk[1:])
+    
+    unique_keywords = []
+    seen = set()
+    for kw in keywords:
+        kw_lower = kw.lower() if kw.isascii() else kw
+        if kw_lower not in seen and kw not in stopwords and len(kw) >= 2:
+            seen.add(kw_lower)
+            unique_keywords.append(kw)
+    
+    return unique_keywords[:max_keywords]
+
+
+def check_tech_market_match(tech: Optional[str], market: Optional[str]) -> Tuple[bool, str, Dict[str, Any]]:
+    """检查技术是否适用于目标市场（基于Neo4j图谱），返回详细匹配过程"""
+    match_details = {
+        "tech_original": tech,
+        "market_original": market,
+        "tech_keywords": [],
+        "market_keywords": [],
+        "query_attempts": [],
+        "matched_projects": [],
+    }
+    
     if not tech or not market:
-        return False, "缺少技术描述或目标市场，无法完成技术-市场匹配校验。"
+        return False, "缺少技术描述或目标市场，无法完成技术-市场匹配校验。", match_details
     driver = _get_neo4j_driver()
     if not driver:
-        return False, "Neo4j 连接不可用；请确认环境变量。"
+        return False, "Neo4j 连接不可用；请确认环境变量。", match_details
 
-    query = """
-    MATCH (p:Project)-[:USE]->(t:Tech)
-    MATCH (p)-[:TARGET]->(m:Market)
-    WHERE t.name CONTAINS $tech OR $tech CONTAINS t.name
-    AND (m.name CONTAINS $market OR $market CONTAINS m.name)
-    RETURN count(distinct p) AS hits, collect(distinct p.name) AS projects
-    """
-    with driver.session(database=NEO4J_DATABASE) as session:
-        result = session.run(query, tech=tech[:50], market=market[:50])
-        record = result.single()
-        hits = record["hits"] if record else 0
-        projects = record["projects"] if record and record.get("projects") else []
-        if hits:
-            project_names = ", ".join(projects[:3]) if projects else "未知项目"
-            return True, f"图谱中找到 {hits} 个类似技术应用于相关市场的案例：{project_names}"
-        return False, f"图谱中未找到技术「{tech[:20]}...」应用于市场「{market[:20]}...」的案例。"
+    tech_keywords = extract_keywords_with_llm(tech, max_keywords=5)
+    market_keywords = extract_keywords_with_llm(market, max_keywords=5)
+    
+    match_details["tech_keywords"] = tech_keywords
+    match_details["market_keywords"] = market_keywords
+    
+    if not tech_keywords or not market_keywords:
+        return False, f"无法从描述中提取有效关键词。技术关键词: {tech_keywords}, 市场关键词: {market_keywords}", match_details
+
+    all_results = []
+    
+    for tech_kw in tech_keywords:
+        for market_kw in market_keywords:
+            query = """
+            MATCH (p:Project)-[:USE]->(t:Tech)
+            MATCH (p)-[:TARGET]->(m:Market)
+            WHERE t.name CONTAINS $tech_kw AND m.name CONTAINS $market_kw
+            RETURN distinct p.name AS project
+            LIMIT 3
+            """
+            try:
+                with driver.session(database=NEO4J_DATABASE) as session:
+                    result = session.run(query, tech_kw=tech_kw, market_kw=market_kw)
+                    projects = [record["project"] for record in result]
+                    match_details["query_attempts"].append({
+                        "tech_keyword": tech_kw,
+                        "market_keyword": market_kw,
+                        "found": len(projects),
+                        "projects": projects,
+                    })
+                    all_results.extend(projects)
+            except Exception as e:
+                LOGGER.warning(f"H1 query failed for {tech_kw}/{market_kw}: {e}")
+                match_details["query_attempts"].append({
+                    "tech_keyword": tech_kw,
+                    "market_keyword": market_kw,
+                    "found": 0,
+                    "error": str(e),
+                })
+    
+    if not all_results:
+        for tech_kw in tech_keywords:
+            query_tech_only = """
+            MATCH (p:Project)-[:USE]->(t:Tech)
+            WHERE t.name CONTAINS $tech_kw
+            RETURN distinct p.name AS project
+            LIMIT 3
+            """
+            try:
+                with driver.session(database=NEO4J_DATABASE) as session:
+                    result = session.run(query_tech_only, tech_kw=tech_kw)
+                    projects = [record["project"] for record in result]
+                    if projects:
+                        match_details["query_attempts"].append({
+                            "tech_keyword": tech_kw,
+                            "market_keyword": "(任意)",
+                            "found": len(projects),
+                            "projects": projects,
+                            "mode": "技术单匹配",
+                        })
+                        all_results.extend(projects)
+            except Exception as e:
+                LOGGER.warning(f"H1 tech-only query failed: {e}")
+        
+        for market_kw in market_keywords:
+            query_market_only = """
+            MATCH (p:Project)-[:TARGET]->(m:Market)
+            WHERE m.name CONTAINS $market_kw
+            RETURN distinct p.name AS project
+            LIMIT 3
+            """
+            try:
+                with driver.session(database=NEO4J_DATABASE) as session:
+                    result = session.run(query_market_only, market_kw=market_kw)
+                    projects = [record["project"] for record in result]
+                    if projects:
+                        match_details["query_attempts"].append({
+                            "tech_keyword": "(任意)",
+                            "market_keyword": market_kw,
+                            "found": len(projects),
+                            "projects": projects,
+                            "mode": "市场单匹配",
+                        })
+                        all_results.extend(projects)
+            except Exception as e:
+                LOGGER.warning(f"H1 market-only query failed: {e}")
+    
+    unique_projects = list(dict.fromkeys(all_results))
+    match_details["matched_projects"] = unique_projects
+    
+    if unique_projects:
+        return True, f"图谱中找到 {len(unique_projects)} 个相关案例：{', '.join(unique_projects[:3])}", match_details
+    return False, f"图谱中未找到匹配案例（技术关键词: {tech_keywords}, 市场关键词: {market_keywords}）", match_details
 
 
-def check_tech_risks(tech: Optional[str]) -> Tuple[bool, List[str]]:
-    """H12: 检查技术相关风险"""
+def check_tech_risks(tech: Optional[str]) -> Tuple[bool, List[str], Dict[str, Any]]:
+    """H12: 检查技术相关风险，返回详细匹配过程"""
+    risk_details = {
+        "tech_original": tech,
+        "tech_keywords": [],
+        "query_attempts": [],
+        "risks_found": [],
+    }
+    
     if not tech:
-        return False, []
+        return False, [], risk_details
     driver = _get_neo4j_driver()
     if not driver:
-        return False, []
+        return False, [], risk_details
+    
+    tech_keywords = extract_keywords_with_llm(tech)
+    risk_details["tech_keywords"] = tech_keywords
+    
+    if not tech_keywords:
+        return False, [], risk_details
 
     query = """
     MATCH (p:Project)-[:USE]->(t:Tech)
     MATCH (p)-[:TRIGGER_RISK]->(r:Risk)
-    WHERE t.name CONTAINS $tech OR $tech CONTAINS t.name
+    WHERE ANY(kw IN $tech_keywords WHERE t.name CONTAINS kw)
     RETURN distinct r.name AS risk
     LIMIT 5
     """
     try:
         with driver.session(database=NEO4J_DATABASE) as session:
-            result = session.run(query, tech=tech[:50])
+            result = session.run(query, tech_keywords=tech_keywords)
             risks = [record["risk"] for record in result]
-            return len(risks) > 0, risks
+            risk_details["risks_found"] = risks
+            risk_details["query_attempts"].append({
+                "keywords": tech_keywords,
+                "found": len(risks),
+            })
+            return len(risks) > 0, risks, risk_details
     except Exception as e:
         LOGGER.warning(f"H12 check failed: {e}")
-        return False, []
+        risk_details["query_attempts"].append({
+            "keywords": tech_keywords,
+            "error": str(e),
+        })
+        return False, [], risk_details
+
+
+def get_value_loop_examples(tech: Optional[str] = None, market: Optional[str] = None) -> List[Dict[str, Any]]:
+    """获取价值闭环超边示例"""
+    driver = _get_neo4j_driver()
+    if not driver:
+        return []
+    
+    tech_keywords = extract_keywords(tech) if tech else []
+    market_keywords = extract_keywords(market) if market else []
+    
+    query = """
+    MATCH (vle:ValueLoopEdge)-[:INVOLVES_TECH]->(t:Tech)
+    MATCH (vle)-[:INVOLVES_MARKET]->(m:Market)
+    MATCH (p:Project)-[:HAS_VALUE_LOOP]->(vle)
+    WHERE ($tech_keywords IS NULL OR SIZE($tech_keywords) = 0 OR ANY(kw IN $tech_keywords WHERE t.name CONTAINS kw))
+    AND ($market_keywords IS NULL OR SIZE($market_keywords) = 0 OR ANY(kw IN $market_keywords WHERE m.name CONTAINS kw))
+    RETURN p.name AS project, vle.name AS value_loop, vle.description AS description,
+           vle.ltv AS ltv, vle.cac AS cac, vle.revenue_model AS revenue_model
+    LIMIT 5
+    """
+    try:
+        with driver.session(database=NEO4J_DATABASE) as session:
+            result = session.run(query, tech_keywords=tech_keywords if tech_keywords else None, market_keywords=market_keywords if market_keywords else None)
+            return [dict(record) for record in result]
+    except Exception as e:
+        LOGGER.warning(f"Value loop query failed: {e}")
+        return []
+
+
+def get_risk_pattern_examples(tech: Optional[str] = None) -> List[Dict[str, Any]]:
+    """获取风险模式超边示例"""
+    driver = _get_neo4j_driver()
+    if not driver:
+        return []
+    
+    tech_keywords = extract_keywords(tech) if tech else []
+    
+    query = """
+    MATCH (rpe:RiskPatternEdge)-[:INVOLVES_TECH]->(t:Tech)
+    MATCH (rpe)-[:INVOLVES_RISK]->(r:Risk)
+    MATCH (p:Project)-[:HAS_RISK_PATTERN]->(rpe)
+    WHERE $tech_keywords IS NULL OR SIZE($tech_keywords) = 0 OR ANY(kw IN $tech_keywords WHERE t.name CONTAINS kw)
+    RETURN p.name AS project, rpe.name AS risk_pattern, rpe.description AS description,
+           rpe.mitigation AS mitigation, r.name AS risk
+    LIMIT 5
+    """
+    try:
+        with driver.session(database=NEO4J_DATABASE) as session:
+            result = session.run(query, tech_keywords=tech_keywords if tech_keywords else None)
+            return [dict(record) for record in result]
+    except Exception as e:
+        LOGGER.warning(f"Risk pattern query failed: {e}")
+        return []
 
 
 def get_teaching_cases_for_risk(risk_keyword: str) -> List[Dict[str, Any]]:
@@ -354,6 +622,11 @@ def _map_structured_to_nodes(structured: Dict[str, Any]) -> Dict[str, Any]:
         "funding_stage": structured.get("funding_stage"),
         "time_to_market": structured.get("time_to_market"),
         "key_risks": structured.get("key_risks"),
+        "marginal_cost": structured.get("marginal_cost"),
+        "cash_runway": structured.get("cash_runway"),
+        "monthly_burn": structured.get("monthly_burn"),
+        "moat": structured.get("moat"),
+        "growth_model": structured.get("growth_model"),
         "additional_context": structured.get("additional_context"),
         "structured_summary": structured,
     }
@@ -454,15 +727,24 @@ def extract_entities(state: AgentState) -> AgentState:
 
 
 def hypergraph_critic(state: AgentState) -> AgentState:
-    """Runs H1-H15 checks against the hypergraph inputs."""
+    """Runs H1-H20 checks against the hypergraph inputs."""
     failures: List[str] = []
     nodes = state.extracted_nodes
     excerpt = "[已分析]"
 
     tech = nodes.get("tech_description", "")
     market = nodes.get("target_market", "")
-    h1_passed, h1_detail = check_tech_market_match(tech, market)
-    state.evidence.append(EvidenceItem(step="H1", detail=h1_detail, source_excerpt=excerpt))
+    h1_passed, h1_detail, h1_match_details = check_tech_market_match(tech, market)
+    
+    keyword_match_info = f"技术关键词: {h1_match_details.get('tech_keywords', [])}, 市场关键词: {h1_match_details.get('market_keywords', [])}"
+    query_attempts = h1_match_details.get('query_attempts', [])
+    query_info = " | ".join([f"({q['tech_keyword']}+{q['market_keyword']}→{q.get('found', 0)}条)" for q in query_attempts[:3]])
+    
+    state.evidence.append(EvidenceItem(
+        step="H1", 
+        detail=f"{h1_detail} | {keyword_match_info} | 查询: {query_info}", 
+        source_excerpt=excerpt
+    ))
     if not h1_passed:
         failures.append("H1")
 
@@ -593,20 +875,21 @@ def hypergraph_critic(state: AgentState) -> AgentState:
     else:
         state.evidence.append(EvidenceItem(step="H11", detail=f"预计上市时间：{time_to_market}个月", source_excerpt=excerpt))
 
-    has_risks, graph_risks = check_tech_risks(tech)
+    has_risks, graph_risks, h12_details = check_tech_risks(tech)
     key_risks = nodes.get("key_risks", "")
+    h12_keyword_info = f"技术关键词: {h12_details.get('tech_keywords', [])}"
     if has_risks and graph_risks:
         if not key_risks or len(key_risks) < 10:
             failures.append("H12")
             state.evidence.append(EvidenceItem(
                 step="H12",
-                detail=f"风险识别不充分。图谱中类似技术存在风险。",
+                detail=f"风险识别不充分。图谱中类似技术存在风险: {graph_risks[:2]}。{h12_keyword_info}",
                 source_excerpt=excerpt,
             ))
         else:
-            state.evidence.append(EvidenceItem(step="H12", detail=f"已识别风险：{key_risks[:30]}...", source_excerpt=excerpt))
+            state.evidence.append(EvidenceItem(step="H12", detail=f"已识别风险：{key_risks[:30]}... | {h12_keyword_info}", source_excerpt=excerpt))
     else:
-        state.evidence.append(EvidenceItem(step="H12", detail="风险识别检查完成。", source_excerpt=excerpt))
+        state.evidence.append(EvidenceItem(step="H12", detail=f"风险识别检查完成。{h12_keyword_info}", source_excerpt=excerpt))
 
     if tech and len(tech) < 20:
         failures.append("H13")
@@ -652,6 +935,74 @@ def hypergraph_critic(state: AgentState) -> AgentState:
             source_excerpt=excerpt,
         ))
 
+    marginal_cost = nodes.get("marginal_cost", "")
+    if ltv > 0 and cac > 0 and revenue > 0:
+        if ltv > 10 * cac and revenue < 1000000:
+            failures.append("H16")
+            state.evidence.append(EvidenceItem(
+                step="H16",
+                detail=f"单位经济幻觉：LTV/CAC={ltv/cac:.1f}过高但收入仅{revenue:,.0f}，数据可能失真。",
+                source_excerpt=excerpt,
+            ))
+        else:
+            state.evidence.append(EvidenceItem(step="H16", detail=f"单位经济模型合理。", source_excerpt=excerpt))
+    else:
+        state.evidence.append(EvidenceItem(step="H16", detail="单位经济模型待验证。", source_excerpt=excerpt))
+
+    if channel and customer:
+        channel_keywords = ["线上", "线下", "B端", "C端", "直销", "代理", "平台"]
+        customer_keywords = ["企业", "个人", "政府", "学生", "老人", "儿童"]
+        channel_type = "B端" if any(k in channel for k in ["企业", "B端", "行业"]) else "C端" if any(k in channel for k in ["个人", "C端", "消费者"]) else ""
+        customer_type = "B端" if any(k in customer for k in ["企业", "公司", "机构"]) else "C端" if any(k in customer for k in ["个人", "用户", "消费者"]) else ""
+        if channel_type and customer_type and channel_type != customer_type:
+            failures.append("H17")
+            state.evidence.append(EvidenceItem(
+                step="H17",
+                detail=f"渠道错位：渠道类型({channel_type})与客户类型({customer_type})不匹配。",
+                source_excerpt=excerpt,
+            ))
+        else:
+            state.evidence.append(EvidenceItem(step="H17", detail=f"渠道与客户群体匹配。", source_excerpt=excerpt))
+    else:
+        state.evidence.append(EvidenceItem(step="H17", detail="渠道与客户匹配度待验证。", source_excerpt=excerpt))
+
+    cash_runway = nodes.get("cash_runway", 0)
+    monthly_burn = _safe_float(nodes.get("monthly_burn"))
+    if monthly_burn > 0:
+        if cash_runway < 6:
+            failures.append("H18")
+            state.evidence.append(EvidenceItem(
+                step="H18",
+                detail=f"现金流风险：现金跑道仅{cash_runway}个月，生存压力大。",
+                source_excerpt=excerpt,
+            ))
+        else:
+            state.evidence.append(EvidenceItem(step="H18", detail=f"现金跑道：{cash_runway}个月", source_excerpt=excerpt))
+    else:
+        state.evidence.append(EvidenceItem(step="H18", detail="现金流情况待补充。", source_excerpt=excerpt))
+
+    moat = nodes.get("moat", "") or nodes.get("competitive_advantage", "")
+    if tech and not moat:
+        failures.append("H19")
+        state.evidence.append(EvidenceItem(
+            step="H19",
+            detail=f"护城河未明确：有技术但未说明竞争壁垒如何形成。",
+            source_excerpt=excerpt,
+        ))
+    else:
+        state.evidence.append(EvidenceItem(step="H19", detail=f"护城河：{moat[:30] if moat else '待补充'}...", source_excerpt=excerpt))
+
+    growth_model = nodes.get("growth_model", "") or nodes.get("growth_strategy", "")
+    if revenue > 0 and not growth_model:
+        failures.append("H20")
+        state.evidence.append(EvidenceItem(
+            step="H20",
+            detail=f"增长飞轮未定义：有收入但未说明增长模式如何自增强。",
+            source_excerpt=excerpt,
+        ))
+    else:
+        state.evidence.append(EvidenceItem(step="H20", detail=f"增长模式：{growth_model[:30] if growth_model else '待补充'}...", source_excerpt=excerpt))
+
     state.detected_fallacies = failures
     return state
 def strategy_selector(state: AgentState) -> AgentState:
@@ -681,12 +1032,21 @@ def generate_rebuttal(state: AgentState) -> AgentState:
 
     if not LANGCHAIN_AVAILABLE:
         human_prompt = (
+            "学生的原文输入：\n{student_input}\n"
             "抽取的模型（JSON）：\n{nodes}\n"
             "触发的规则：{rules}\n"
             "当前策略：{strategy}\n"
             "证据追踪：\n{evidence}\n"
-            "请用中文输出，保持犀利、冷静，有点冷幽默，直接引导学生自查，不交代结论。"
+            "【反代写约束】如果用户要求代写或生成完整商业方案，果断拒绝并严厉指正。\n"
+            "【输出格式规定】请严格按照以下 6 个 Markdown 标题格式强制输出回复，且【✅ 实践任务 (Practice Task)】只能有 1 个：\n"
+            "### 🎯 诊断问题 (Issue)\n"
+            "### 📖 概念解析 (Definition)\n"
+            "### 💡 案例参考 (Example)\n"
+            "### 🔍 具体分析 (Analysis)\n"
+            "### 🤔 反思追问 (Socratic Question)\n"
+            "### ✅ 实践任务 (Practice Task)"
         ).format(
+            student_input=state.student_input,
             nodes=json.dumps(state.extracted_nodes or {}, ensure_ascii=False, indent=2),
             rules="、".join(rules),
             strategy=strategy_text,
@@ -697,7 +1057,8 @@ def generate_rebuttal(state: AgentState) -> AgentState:
             " You do not provide solutions; you only expose logic holes."
         )
         try:
-            state.response = _call_openai_manual(manual_system, human_prompt).strip()
+            content = _call_openai_manual(manual_system, human_prompt).strip()
+            state.response = content
         except Exception as exc:
             LOGGER.warning("OpenAI 直接调用失败：%s", exc)
             issues = "、".join(state.detected_fallacies) if state.detected_fallacies else "无"
@@ -708,14 +1069,31 @@ def generate_rebuttal(state: AgentState) -> AgentState:
 
     system_prompt = (
         "You are a sharp venture coach whose tone is professional, precise, and tinged with cold humor. "
-        "You never hand out answers, only diagnostics that force the student to self-correct."
+        "You never hand out answers, only diagnostics that force the student to self-correct.\n"
+        "【ANTI-GHOSTWRITING GUARDRAIL】如果你检测到用户的『原文输入』中在要求你直接生成完整的商业计划书(BP)、电梯演讲稿、或直接为你写出项目的段落内容，"
+        "你必须果断且清晰地拒绝。你的角色是创新创业教练，绝不能越俎代庖代写任何文档代码。你必须在你的『🎯 诊断问题 (Issue)』字段优先表达对这种代写要求的严厉拒绝，随后引导对话回到商业逻辑的校验上。"
     )
     human_template = (
+        "学生的原文输入：\n{student_input}\n"
         "抽取的模型（JSON）：\n{nodes}\n"
         "触发的规则：{rules}\n"
         "当前策略：“{strategy}”\n"
         "证据追踪：\n{evidence_summary}\n"
-        "请用中文输出，保持犀利、冷静，不直接告诉学生结论，而是把他们往逻辑漏洞里拽。"
+        "请结合当前用户的输入和上述评价策略，进行回复计算。\n"
+        "【输出格式规定】请用中文严格按照以下 Markdown 格式强制输出 6 个字段，且【✅ 实践任务】只能有 1 个极其具体的动作："
+        "\n\n"
+        "### 🎯 诊断问题 (Issue)\n"
+        "一句话指出当前逻辑中存在的漏洞（或指出你绝不代写）。\n\n"
+        "### 📖 概念解析 (Definition)\n"
+        "客观解释该谬误涉及的创新创业概念或原理。\n\n"
+        "### 💡 案例参考 (Example)\n"
+        "给出一个相关的正向或反向商业案例以加强理解。\n\n"
+        "### 🔍 具体分析 (Analysis)\n"
+        "基于前面抽取的业务模型，具体剖析这个想法为何站不住脚。\n\n"
+        "### 🤔 反思追问 (Socratic Question)\n"
+        "运用苏格拉底风格，抛出一个犀利、直击痛点的开放性问题。\n\n"
+        "### ✅ 实践任务 (Practice Task)\n"
+        "给出一个并且只能给出一个具体的课后或者后续补充任务（例如查算某个特定数据）。"
     )
     prompt = ChatPromptTemplate.from_messages(
         [
@@ -726,6 +1104,7 @@ def generate_rebuttal(state: AgentState) -> AgentState:
 
     try:
         prompt_payload = prompt.format_prompt(
+            student_input=state.student_input,
             nodes=json.dumps(state.extracted_nodes or {}, ensure_ascii=False, indent=2),
             rules="、".join(rules),
             strategy=strategy_text,
@@ -733,7 +1112,7 @@ def generate_rebuttal(state: AgentState) -> AgentState:
         ).to_messages()
         response = _get_chat_client().invoke(prompt_payload)
         content = getattr(response, "content", None) or (response.choices[0].message.content if response.choices else "")
-        state.response = _sanitize_llm_json(content)
+        state.response = content.strip()
     except Exception as exc:  # pragma: no cover
         LOGGER.warning("Rebuttal generation failed; falling back messaging (%s)", exc)
         issues = "、".join(state.detected_fallacies) if state.detected_fallacies else "无"
