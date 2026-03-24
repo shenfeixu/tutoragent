@@ -1259,6 +1259,37 @@ except ImportError:  # pragma: no cover - minimal fallback graph
             return state
 
 
+def generate_intervention_plan(stats: Dict[str, Any]) -> str:
+    """A6: 根据全班高频错误生成下周教学干预计划。"""
+    system_prompt = (
+        "你是资深的创新创业导师。需要根据教师端传入的班级近期错误统计数据，设定『下周教学干预计划』。\n"
+        "要求：分点列出教学重点、课堂互动形式建议、课后练习设定等。要求内容具体、有执行路径，"
+        "使用Markdown进行结构化排版，突出痛点和建议。"
+    )
+    human_prompt = f"班级错题/高频漏洞统计：\n{stats}\n请生成下周的教学干预重点和针对性行动计划。"
+    try:
+        return _call_openai_manual(system_prompt, human_prompt)
+    except Exception as e:
+        LOGGER.error(f"Error generating intervention plan: {e}")
+        return f"生成干预计划失败：{e}"
+
+
+def generate_student_profile(student_data: Dict[str, Any]) -> str:
+    """A6: 根据单个学生的历史记录和得分生成动态能力画像与教师辅导建议。"""
+    system_prompt = (
+        "你是资深的创新创业导师。请根据该学生的『项目得分情况』和『经常触发的薄弱逻辑规则』，"
+        "定量+定性地分析其创新创业能力画像。\n"
+        "要求：指出其能力优势与认知死角，最后单独分出一节为授课教师提供针对该学生的『辅导话术』与『一对一干预重点』。\n"
+        "使用Markdown格式输出，排版清晰美观。"
+    )
+    human_prompt = f"该学生数据分析：\n{student_data}\n请输出综合能力画像及教师1对1辅导策略。"
+    try:
+        return _call_openai_manual(system_prompt, human_prompt)
+    except Exception as e:
+        LOGGER.error(f"Error generating student profile: {e}")
+        return f"生成能力画像失败：{e}"
+
+
 def build_state_graph() -> StateGraph:
     graph = StateGraph(name="HypergraphCoach")
     nodes = [

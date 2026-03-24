@@ -129,6 +129,22 @@ def render_class_overview():
             text="触发率",
         )
         st.plotly_chart(fig, use_container_width=True)
+        
+        # A6: 教学干预计划生成
+        st.divider()
+        with st.expander("✨ AI 自动生成：下周教学干预计划", expanded=False):
+            if st.button("生成/刷新干预计划"):
+                with st.spinner("AI 正在分析班级数据，生成教学计划中..."):
+                    from src.agents.langgraph_core import generate_intervention_plan
+                    stats_data = {
+                        "total_sessions": stats.get("total_sessions", 0),
+                        "top_5_fallacies": [{"rule": f, "desc": FALLACY_DESCRIPTIONS.get(f, ""), "count": c} for f, c in stats.get("top_5", [])]
+                    }
+                    plan_md = generate_intervention_plan(stats_data)
+                    st.session_state.intervention_plan = plan_md
+            
+            if "intervention_plan" in st.session_state:
+                st.markdown(st.session_state.intervention_plan)
     else:
         st.info("暂无错误数据，请等待学生完成对话。")
     
@@ -207,7 +223,7 @@ def render_detailed_analysis(user):
         st.info("暂无学生数据，请等待学生完成对话。")
         return
     
-    tab1, tab2, tab3 = st.tabs(["量化评分", "高风险项目", "证据链追溯"])
+    tab1, tab2, tab3, tab4 = st.tabs(["量化评分", "高风险项目", "证据链追溯", "✨ 动态能力画像"])
     
     with tab1:
         st.subheader("基于 Rubric 的量化评价")
@@ -288,6 +304,41 @@ def render_detailed_analysis(user):
                             st.write("暂无证据记录")
             else:
                 st.info("该学生暂无会话记录。")
+                
+    with tab4:
+        st.subheader("🤖 动态能力画像评估")
+        
+        student_options = {s["display_name"]: s for s in student_scores}
+        selected_student = st.selectbox("选择要分析的学生", list(student_options.keys()), key="profile_student")
+        
+        if selected_student:
+            student = student_options[selected_student]
+            
+            if st.button("✨ 生成能力画像"):
+                with st.spinner(f"正在分析 {selected_student} 的综合能力..."):
+                    from src.agents.langgraph_core import generate_student_profile
+                    
+                    student_data = {
+                        "name": student["display_name"],
+                        "total_score": round(student["total_score"], 1),
+                        "risk_level": student["risk_level"],
+                        "rubric_scores": {
+                            "pain_point": student["pain_point_score"],
+                            "planning": student["planning_score"],
+                            "modeling": student["modeling_score"],
+                            "leverage": student["leverage_score"],
+                            "presentation": student["presentation_score"],
+                        },
+                        "frequent_fallacies": student["fallacies"],
+                        "session_count": len(student["sessions"])
+                    }
+                    
+                    profile_md = generate_student_profile(student_data)
+                    st.session_state[f"profile_{selected_student}"] = profile_md
+            
+            profile_key = f"profile_{selected_student}"
+            if profile_key in st.session_state:
+                st.markdown(st.session_state[profile_key])
 
 
 def render_teaching_cases():
