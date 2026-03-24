@@ -4,7 +4,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime
 
-from src.agents.langgraph_core import get_teaching_cases_for_risk
+from src.agents.langgraph_core import get_teaching_cases_for_risk, COMPETITION_WEIGHTS
 from src.utils.database import (
     get_class_fallacy_stats,
     get_student_scores,
@@ -12,6 +12,9 @@ from src.utils.database import (
     get_all_students,
     add_student_to_teacher,
     get_student_sessions_for_teacher,
+    get_all_intervention_rules,
+    add_intervention_rule,
+    delete_intervention_rule,
 )
 
 st.set_page_config(
@@ -80,7 +83,7 @@ def render_sidebar(user):
         
         page = st.radio(
             "导航",
-            ["📊 班级概览", "👥 学生管理", "📈 详细分析", "📚 教学案例"],
+            ["📊 班级概览", "👥 学生管理", "📈 详细分析", "🛠 教学干预", "📚 教学案例"],
             key="teacher_page",
         )
         
@@ -217,7 +220,17 @@ def render_student_management(user):
 def render_detailed_analysis(user):
     st.header("📈 详细分析")
     
-    student_scores = get_student_scores()
+    # 赛事权重选择
+    col_a, col_b = st.columns([2, 3])
+    with col_a:
+        target_comp = st.selectbox(
+            "评估基准：",
+            list(COMPETITION_WEIGHTS.keys()),
+            key="teacher_target_comp"
+        )
+    weights = COMPETITION_WEIGHTS[target_comp]
+    
+    student_scores = get_student_scores(weights)
     
     if not student_scores:
         st.info("暂无学生数据，请等待学生完成对话。")
@@ -397,6 +410,48 @@ def render_teaching_cases():
         st.info("暂无班级薄弱项数据，请等待学生完成对话。")
 
 
+def render_teacher_intervention(user):
+    st.header("🛠 教学干预中心")
+    st.markdown("在此下发针对全班或特定学生的“AI 指令”，实时干预 AI 教练的反馈偏好。")
+    
+    col1, col2 = st.columns([1, 1])
+    
+    with col1:
+        st.subheader("➕ 新增干预规则")
+        with st.form("add_rule_form"):
+            students = get_teacher_students(user["id"])
+            student_options = {"全班 (Class-wide)": None}
+            for s in students:
+                student_options[f"{s['display_name']} ({s['username']})"] = s["id"]
+            
+            target = st.selectbox("针对对象", list(student_options.keys()))
+            rule_content = st.text_area("指令内容", placeholder="例如：本周重点考核商业模式的闭环性，对财务数据不全的项目请严厉指出。")
+            
+            if st.form_submit_button("发布指令"):
+                if rule_content.strip():
+                    add_intervention_rule(user["id"], rule_content, student_options[target])
+                    st.success("指令发布成功！")
+                    st.rerun()
+                else:
+                    st.error("请输入指令内容")
+    
+    with col2:
+        st.subheader("📋 当前有效指令")
+        rules = get_all_intervention_rules(user["id"])
+        if rules:
+            for rule in rules:
+                target_str = f"🎯 {rule['student_name']}" if rule['student_id'] else "📢 全班"
+                status_color = "green" if rule['is_active'] else "gray"
+                
+                with st.expander(f"{target_str} | {rule['created_at'][:16]}", expanded=True):
+                    st.markdown(f"**指令**: {rule['content']}")
+                    if st.button("删除指令", key=f"del_{rule['id']}"):
+                        delete_intervention_rule(rule["id"])
+                        st.rerun()
+        else:
+            st.info("当前没有活跃的干预指令。")
+
+
 def main():
     if "user" not in st.session_state or not st.session_state.user:
         st.error("请先登录")
@@ -419,6 +474,8 @@ def main():
         render_student_management(user)
     elif page == "📈 详细分析":
         render_detailed_analysis(user)
+    elif page == "🛠 教学干预":
+        render_teacher_intervention(user)
     elif page == "📚 教学案例":
         render_teaching_cases()
 

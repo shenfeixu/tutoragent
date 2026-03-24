@@ -37,6 +37,49 @@ def main():
     cols[3].metric("📈 预估消息数", stats["estimated_messages"])
     
     st.divider()
+    
+    # ── A6-5: 全局健康度与漏洞看板 ──
+    from src.utils.database import get_global_fallacy_stats, get_global_health_metrics
+    import plotly.express as px
+    
+    col1, col2 = st.columns([1, 1])
+    
+    with col1:
+        st.subheader("🛡️ 全局教练健康度")
+        health = get_global_health_metrics()
+        st.metric("全局平均分 (Global Health Index)", f"{health['avg_total']:.2f} / 100")
+        
+        # 维度细分
+        avg_dims = health["avg_dims"]
+        dim_labels = {
+            "pain_point": "痛点发现",
+            "planning": "方案策划",
+            "modeling": "商业建模",
+            "leverage": "资源杠杆",
+            "presentation": "路演表达"
+        }
+        health_data = [{"维度": dim_labels[k], "得分": v} for k, v in avg_dims.items()]
+        fig_health = px.line_polar(pd.DataFrame(health_data), r="得分", theta="维度", line_close=True, range_r=[0, 100])
+        st.plotly_chart(fig_health, use_container_width=True)
+
+    with col2:
+        st.subheader("🚩 TOP 5 逻辑漏洞榜单")
+        f_stats = get_global_fallacy_stats()
+        if f_stats["top_5"]:
+            df_fallacy = pd.DataFrame(f_stats["top_5"], columns=["漏洞代码", "触发频次"])
+            fig_fallacy = px.bar(
+                df_fallacy, 
+                x="触发频次", 
+                y="漏洞代码", 
+                orientation='h',
+                color="触发频次",
+                color_continuous_scale="Reds"
+            )
+            st.plotly_chart(fig_fallacy, use_container_width=True)
+        else:
+            st.info("暂无漏洞统计数据")
+    
+    st.divider()
     st.subheader("👥 用户列表")
     
     users = get_all_users()

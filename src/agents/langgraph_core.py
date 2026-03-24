@@ -78,6 +78,7 @@ class AgentState(BaseModel):
     accumulated_info: Dict[str, Any] = Field(default_factory=dict, description="已累积提取的项目信息")
     rubric_scores: Dict[str, Any] = Field(default_factory=dict, description="Rubric 0-5 逐项评分及建议")
     target_competition: str = Field(default="互联网+", description="当前选定的评估赛事")
+    intervention_rules: List[str] = Field(default_factory=list, description="教师下发的实时干预指令")
 
 
 class EntityExtractionSchema(BaseModel):
@@ -788,7 +789,7 @@ def hypergraph_critic(state: AgentState) -> AgentState:
     excerpt = "学生原文：[系统已依据上下文推理，暂未抓取确切原句]"
     
     # Check if this is a high-quality D003 project
-    is_high_quality = nodes.get("revenue", 0) > 1000000 and len(nodes.get("moat", "")) > 20
+    is_high_quality = (nodes.get("revenue") or 0) > 1000000 and len(nodes.get("moat") or "") > 20
     
     tech = nodes.get("tech_description", "")
     market = nodes.get("target_market", "")
@@ -1105,6 +1106,12 @@ def generate_rebuttal(state: AgentState) -> AgentState:
     rules = state.detected_fallacies or ["H1-H15 均未触发"]
     evidence_summary = _format_evidence(state.evidence)
 
+    # 教师干预指令注入
+    intervention_text = ""
+    if state.intervention_rules:
+        rules_str = "\n".join([f"- {r}" for r in state.intervention_rules])
+        intervention_text = f"\n### ⚠️ 教师特别干预指令 (优先级最高):\n{rules_str}\n"
+
     if not LANGCHAIN_AVAILABLE:
         human_prompt = (
             "学生的原文输入：\n{student_input}\n"
@@ -1112,30 +1119,34 @@ def generate_rebuttal(state: AgentState) -> AgentState:
             "触发的规则：{rules}\n"
             "当前策略与参考案例：{strategy}\n"
             "证据追踪：\n{evidence}\n"
+            "{intervention_text}\n"
             "【反代写约束】如果用户要求代写或生成完整商业方案，果断拒绝并严厉指正。\n"
-            "【输出格式规定】请严格按照以下 6 个 Markdown 标题格式强制输出回复，且【✅ 实践任务】只能有 1 个：\n"
+            "【输出格式规定】请严格按照以下 6 个 Markdown 标题格式强制输出回复，且【✅ 实践任务】只能有 1 个：\n\n"
             "### 🎯 诊断问题 (Issue)\n"
-            "一句话指出当前逻辑中存在的漏洞。你必须包含一句引用：“『学生原文：...』”。\n"
-            "### 📖 概念解析 (Definition)\n"
-            "### 💡 案例参考 (Example)\n"
-            "### 🔍 具体分析 (Analysis)\n"
+            "一句话指出当前逻辑中存在的漏洞。你必须包含一句引用：“『学生原文：...』”。\n\n"
+            "### 📖 概念解析 (Definition)\n\n"
+            "### 💡 案例参考 (Example)\n\n"
+            "### 🔍 具体分析 (Analysis)\n\n"
             "### 🤔 反思追问 (Socratic Question)\n"
-            "必须使用提供的超边参照案例作为弹药，进行极具压迫感的非直给追问。\n"
+            "【对照组施压】：你必须直接引用提供的“参考案例”作为对比。你需要表达为：‘相比于 [案例名称]，你的项目在 [维度] 上...’。绝对严禁在主语上将学生项目与参照案例项目混淆！\n\n"
             "### ✅ 实践任务 (Practice Task)\n"
-            "提供且仅提供 1 个可执行的微步动作。严禁列出多个任务。"
+            "提供且仅提供 1 个可执行的微步动作。注意：如果存在【教师特别干预指令】，你的诊断、分析和任务必须高度围绕该指令展开！"
         ).format(
             student_input=state.student_input,
             nodes=json.dumps(state.extracted_nodes or {}, ensure_ascii=False, indent=2),
             rules="、".join(rules),
             strategy=strategy_text,
             evidence=evidence_summary,
+            intervention_text=intervention_text,
         )
         manual_system = (
-            "You are a sharp venture coach whose tone is professional, precise, and tinged with cold humor."
-            " You do not provide solutions; you only expose logic holes."
+            f"你是一名极度犀利、且具有批判性思维的‘超图教练’，专门负责创新创业项目的初筛与辅导。"
+            f"你永远不会直接给出答案，只会通过诊断逻辑漏洞引导学生自我修正。当前赛道：{state.target_competition}。"
         )
         try:
             content = _call_openai_manual(manual_system, human_prompt).strip()
+            if intervention_text:
+                content = intervention_text + "\n" + content
             state.response = content
         except Exception as exc:
             LOGGER.warning("OpenAI 直接调用失败：%s", exc)
@@ -1145,19 +1156,27 @@ def generate_rebuttal(state: AgentState) -> AgentState:
             )
         return state
 
-    system_prompt = (
-        "You are a sharp venture coach whose tone is professional, precise, and tinged with cold humor. "
-        "You never hand out answers, only diagnostics that force the student to self-correct.\n"
-        "【ANTI-GHOSTWRITING GUARDRAIL】如果你检测到用户的『原文输入』中在要求你直接生成完整的商业计划书(BP)、电梯演讲稿、或直接为你写出项目的段落内容，"
-        "你必须果断且清晰地拒绝。你的角色是创新创业教练，绝不能越俎代庖代写任何文档代码。你必须在你的『🎯 诊断问题 (Issue)』字段优先表达对这种代写要求的严厉拒绝，随后引导对话回到商业逻辑的校验上。"
-    )
+    system_prompt = f"""你是一名极度犀利、且具有批判性思维的‘超图教练’，专门负责创新创业项目的初筛与辅导。
+你的任务是根据学生的创业想法，结合底层知识图谱和双创竞赛 Rubric（当前赛道：{state.target_competition}），给出‘字字珠玑’的反馈。
+
+{intervention_text}
+
+### 核心反馈原则：
+1. **证据为先**：每一条负面反馈必须引用『学生原文：...』。
+2. **反代写约束**：如果用户要求代写或生成完整商业方案，果断拒绝并严厉指正。
+
+You are a sharp venture coach whose tone is professional, precise, and tinged with cold humor. 
+You never hand out answers, only diagnostics that force the student to self-correct.
+【ANTI-GHOSTWRITING GUARDRAIL】如果你检测到用户的『原文输入』中在要求你直接生成完整的商业计划书(BP)、电梯演讲稿、或直接为你写出项目的段落内容，
+你必须果断且清晰地拒绝。你的角色是创新创业教练，绝不能越俎代庖代写任何文档代码。你必须在你的『🎯 诊断问题 (Issue)』字段优先表达对这种代写要求的严厉拒绝，随后引导对话回到商业逻辑的校验上。"""
     human_template = (
         "学生的原文输入：\n{student_input}\n"
         "抽取的模型（JSON）：\n{nodes}\n"
         "触发的规则：{rules}\n"
         "当前策略与参考案例：“{strategy}”\n"
         "证据追踪：\n{evidence_summary}\n"
-        "请结合当前用户的输入和上述评价策略，进行回复计算。\n"
+        "{intervention_text}\n"
+        "请结合当前用户的输入和上述评价策略（尤其是【教师特别干预指令】），进行回复计算。\n"
         "【输出格式规定】请用中文严格按照以下 Markdown 格式强制输出 6 个字段，且【✅ 实践任务】只能有 1 个极其具体的动作："
         "\n\n"
         "### 🎯 诊断问题 (Issue)\n"
@@ -1169,9 +1188,9 @@ def generate_rebuttal(state: AgentState) -> AgentState:
         "### 🔍 具体分析 (Analysis)\n"
         "基于前面抽取的业务模型，具体剖析这个想法为何站不住脚。\n\n"
         "### 🤔 反思追问 (Socratic Question)\n"
-        "【压力追问闭环】：你必须直接引用“当前策略与参考案例”中提供的超边参照案例（如果有），以此为论据给学生施加真实的生存压力拷问（例如直戳现金流断裂或技术壁垒可复制的风险），抛出一个犀利、直击痛点的开放性问题。\n\n"
+        "【对照组施压】：你必须直接引用“当前策略与参考案例”中提供的超边参照案例作为对标。你需要清晰地表达‘对比 [参照案例名称]，你的项目在 [具体逻辑] 上是否存在...’。绝对严禁在主语上将学生项目与参照案例项目混淆！请抛出一个犀利、直击痛点的开放性问题。\n\n"
         "### ✅ 实践任务 (Practice Task)\n"
-        "提供且仅提供 1 个具体的课后微步动作（例如查算某个特定数据）。不要罗列 1.2.3. 多项！"
+        "提供且仅提供 1 个具体的课后微步动作（例如查算某个特定数据）。不要罗列 1.2.3. 多项！注意：如果存在【教师特别干预指令】，你的诊断、分析和任务必须高度围绕该指令展开！"
     )
     prompt = ChatPromptTemplate.from_messages(
         [
@@ -1187,6 +1206,7 @@ def generate_rebuttal(state: AgentState) -> AgentState:
             rules="、".join(rules),
             strategy=strategy_text,
             evidence_summary=evidence_summary,
+            intervention_text=intervention_text,
         ).to_messages()
         response = _get_chat_client().invoke(prompt_payload)
         content = getattr(response, "content", None) or (response.choices[0].message.content if response.choices else "")
@@ -1203,12 +1223,16 @@ def generate_rebuttal(state: AgentState) -> AgentState:
                first_task = re.split(r'\n(?:\d+\.|-|\*)\s+', task_blocks.strip())[1] 
             content = f"{pre_task.strip()}\n\n### ✅ 实践任务 (Practice Task)\n{first_task.strip()}"
             
+        if intervention_text:
+            content = intervention_text + "\n" + content
         state.response = content
     except Exception as exc:  # pragma: no cover
         LOGGER.warning("Rebuttal generation failed; falling back messaging (%s)", exc)
         issues = "、".join(state.detected_fallacies) if state.detected_fallacies else "无"
         state.response = (
-            f"在当前轮次我发现以下规则被触发：{issues}。请按照策略 '{strategy_text}' 进一步澄清。"
+            f"⚠️ **分析引擎提示**：详细的教练模型生成失败（原因：{str(exc)}）。\n\n"
+            f"**初步诊断**：在当前轮次我发现以下规则被触发：{issues}。\n\n"
+            f"**策略提示**：{strategy_text}"
         )
     return state
 
@@ -1246,7 +1270,8 @@ def rubric_scorer(state: AgentState) -> AgentState:
     
     current_weights = COMPETITION_WEIGHTS[target_comp]
     weighted_total = sum(
-        scores[dim]["score"] * current_weights.get(dim, 0.2) for dim in scores
+        scores[dim]["score"] * current_weights.get(dim, 0.2) 
+        for dim in RUBRIC_FALLACY_MAP.keys() if dim in scores
     )
 
     scores["_summary"] = {
@@ -1307,12 +1332,19 @@ def generate_intervention_plan(stats: Dict[str, Any]) -> str:
 
 
 def generate_student_profile(student_data: Dict[str, Any]) -> str:
-    """A6: 根据单个学生的历史记录和得分生成动态能力画像与教师辅导建议。"""
+    """A6-4: 根据项目历史生成 3 阶段动态画像 (价值发现 -> 压力测试 -> 执行可行性)。"""
     system_prompt = (
         "你是资深的创新创业导师。请根据该学生的『项目得分情况』和『经常触发的薄弱逻辑规则』，"
-        "定量+定性地分析其创新创业能力画像。\n"
-        "要求：指出其能力优势与认知死角，最后单独分出一节为授课教师提供针对该学生的『辅导话术』与『一对一干预重点』。\n"
-        "使用Markdown格式输出，排版清晰美观。"
+        "按照以下三个核心阶段生成『学生动态能力画像报告』：\n\n"
+        "### 第一阶段：价值发现能力 (Value Detection)\n"
+        "分析学生发现真实痛点、定义价值主张的能力及敏感度。\n\n"
+        "### 第二阶段：压力测试表现 (Pressure Test)\n"
+        "评估学生在面对逻辑挑战、盈亏平衡拷问及竞争风险时的防御与修正能力。\n\n"
+        "### 第三阶段：执行可行性 (Execution Feasibility)\n"
+        "判断学生对市场渠道、成本结构及落地微步动作的理解深度。\n\n"
+        "### 💡 教师辅导建议\n"
+        "为授课教师提供针对该学生的『一对一干预重点』与『推荐辅导话术』。\n\n"
+        "要求：排版清晰美观，使用 Markdown 格式，结论要犀利且具备指导意义。"
     )
     human_prompt = f"该学生数据分析：\n{student_data}\n请输出综合能力画像及教师1对1辅导策略。"
     try:
@@ -1373,18 +1405,45 @@ def run_langgraph_cycle(
     conversation_history: List[Dict[str, str]] = None,
     accumulated_info: Dict[str, Any] = None,
     target_competition: str = "互联网+",
+    student_id: int = None,
 ) -> AgentState:
+    from src.utils.database import get_active_intervention_rules, get_connection
+    
+    # Fetch intervention rules
+    all_rules = []
+    if student_id:
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT teacher_id FROM teacher_students WHERE student_id = ?", (student_id,))
+            teacher_ids = [row["teacher_id"] for row in cursor.fetchall()]
+            
+            for t_id in teacher_ids:
+                all_rules.extend(get_active_intervention_rules(t_id, student_id))
+            conn.close()
+        except Exception as e:
+            LOGGER.error("Failed to fetch intervention rules: %s", e)
+
     if not check_input_safety(student_input):
         state = AgentState(
             student_input=student_input, 
             conversation_history=conversation_history or [], 
             accumulated_info=accumulated_info or {},
             target_competition=target_competition,
+            intervention_rules=all_rules,
         )
-        state.response = "⚠️ **护栏拦截**：您的输入异常或包含违规防注入指令，系统已拒绝该操作。"
-        state.probing_strategy = "安全拦截"
-        state.detected_fallacies = ["SECURITY_BLOCK"]
-        state.rubric_scores = {"_summary": {"weighted_total": 0, "default_competition": target_competition, "available_competitions": ["互联网+", "挑战杯", "创青春", "数模"]}}
+        
+        # A7-1: 温和化拦截（Gentle Interception）
+        import random
+        prompts = [
+            "我注意到你可能在尝试绕过我们的逻辑推演。作为你的‘超图教练’，我更希望引导你独立完成 BP 的核心构思，而不是直接给出答案。不如我们重新回到你的项目，聊聊你打算如何解决这个特定的市场痛点？",
+            "看起来你对我的底层指令很感兴趣。不过，目前我们的重点应该是完善你的商业计划书。让我们把注意力拉回到项目本身：你认为你的方案在技术壁垒上还有哪些可以提升的空间？",
+            "作为 AI 教练，我的任务是陪你一起‘磨’出好项目。虽然你可以尝试变换我的角色，但这样会错失深挖项目逻辑的机会。请告诉我，关于项目的核心盈利模式，你还有什么不确定的地方？"
+        ]
+        state.response = f"💡 **教练温馨提示**：\n\n{random.choice(prompts)}"
+        state.probing_strategy = "引导拉回 (Nudge)"
+        state.detected_fallacies = ["GENTLE_INTERCEPTION"]
+        state.rubric_scores = {"_summary": {"weighted_total": 0, "default_competition": target_competition}}
         return state
 
     state = AgentState(
@@ -1392,6 +1451,7 @@ def run_langgraph_cycle(
         conversation_history=conversation_history or [],
         accumulated_info=accumulated_info or {},
         target_competition=target_competition,
+        intervention_rules=all_rules,
     )
     graph = build_state_graph()
     final = graph.execute(state)

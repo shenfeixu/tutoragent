@@ -294,10 +294,19 @@ def render_chat_message(role: str, content: str, state: dict = None):
                 rubric = state.get("rubric_scores", {})
                 if rubric:
                     with st.expander("🏆 赛事 Rubric 评分", expanded=True):
+                        # Use the sidebar's choice as the default to ensure reactivity
+                        default_comp = st.session_state.get("target_competition", "互联网+")
+                        comp_options = list(COMPETITION_WEIGHTS.keys())
+                        try:
+                            default_idx = comp_options.index(default_comp)
+                        except ValueError:
+                            default_idx = 0
+
                         comp_name = st.selectbox(
                             "选择赛事权重",
-                            list(COMPETITION_WEIGHTS.keys()),
-                            key=f"comp_{id(state)}",
+                            comp_options,
+                            index=default_idx,
+                            key=f"comp_{id(state)}_{st.session_state.target_competition}",
                         )
                         weights = COMPETITION_WEIGHTS.get(comp_name, COMPETITION_WEIGHTS["互联网+"])
                         
@@ -408,6 +417,7 @@ def main():
                 conversation_history=conversation_history,
                 accumulated_info=st.session_state.accumulated_info,
                 target_competition=st.session_state.target_competition,
+                student_id=st.session_state.user["id"],
             )
         
         st.session_state.accumulated_info = state.accumulated_info

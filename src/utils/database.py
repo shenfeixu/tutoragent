@@ -63,6 +63,19 @@ def init_database():
     )
     """)
     
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS intervention_rules (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        teacher_id INTEGER NOT NULL,
+        student_id INTEGER, -- NULL means class-wide
+        content TEXT NOT NULL,
+        is_active INTEGER DEFAULT 1,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY (teacher_id) REFERENCES users (id),
+        FOREIGN KEY (student_id) REFERENCES users (id)
+    )
+    """)
+    
     conn.commit()
     conn.close()
 
@@ -484,9 +497,54 @@ def get_class_fallacy_stats() -> Dict[str, Any]:
         "top_5": sorted_fallacies[:5],
     }
 
+def get_global_fallacy_stats() -> Dict[str, Any]:
+    """Alias for class stats, but logically for the entire system."""
+    return get_class_fallacy_stats()
 
-def get_student_scores() -> List[Dict[str, Any]]:
+
+def get_global_health_metrics() -> Dict[str, Any]:
+    """Calculate average rubric scores across all students."""
+    # Default to 互联网+ weights for global benchmark
+    default_weights = {
+        "pain_point": 0.2,
+        "planning": 0.2,
+        "modeling": 0.2,
+        "leverage": 0.2,
+        "presentation": 0.2,
+    }
+    
+    student_scores = get_student_scores(default_weights)
+    if not student_scores:
+        return {
+            "avg_total": 0.0,
+            "avg_dims": {k: 0.0 for k in default_weights.keys()}
+        }
+        
+    count = len(student_scores)
+    avg_total = sum(s["total_score"] for s in student_scores) / count
+    avg_dims = {}
+    for dim in default_weights.keys():
+        key = f"{dim}_score"
+        avg_dims[dim] = sum(s[key] for s in student_scores) / count
+        
+    return {
+        "avg_total": avg_total,
+        "avg_dims": avg_dims
+    }
+
+
+def get_student_scores(competition_weights: Dict[str, float] = None) -> List[Dict[str, Any]]:
     sessions = get_all_sessions_with_evidence()
+    
+    # Default equal weights if not provided
+    if not competition_weights:
+        competition_weights = {
+            "pain_point": 0.2,
+            "planning": 0.2,
+            "modeling": 0.2,
+            "leverage": 0.2,
+            "presentation": 0.2,
+        }
     
     student_data = {}
     for session in sessions:
@@ -519,7 +577,13 @@ def get_student_scores() -> List[Dict[str, Any]]:
         leverage_score = max(0, 100 - len([f for f in fallacy_set if f in ["H1", "H6", "H12"]]) * 12)
         presentation_score = max(0, 100 - len([f for f in fallacy_set if f in ["H13", "H14", "H15"]]) * 12)
         
-        total_score = (pain_point_score + planning_score + modeling_score + leverage_score + presentation_score) / 5
+        total_score = (
+            pain_point_score * competition_weights.get("pain_point", 0.2) +
+            planning_score * competition_weights.get("planning", 0.2) +
+            modeling_score * competition_weights.get("modeling", 0.2) +
+            leverage_score * competition_weights.get("leverage", 0.2) +
+            presentation_score * competition_weights.get("presentation", 0.2)
+        )
         
         results.append({
             "user_id": user_id,
@@ -824,3 +888,61 @@ class Neo4jManager:
 
 
 init_database()
+
+
+
+def add_intervention_rule(teacher_id: int, content: str, student_id: int = None) -> int:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        INSERT INTO intervention_rules (teacher_id, student_id, content, created_at)
+        VALUES (?, ?, ?, ?)
+        """,
+        (teacher_id, student_id, content, datetime.now().isoformat()),
+    )
+    rule_id = cursor.lastrowid
+    conn.commit()
+    conn.close()
+    return rule_id
+
+
+def get_all_intervention_rules(teacher_id: int) -> List[Dict[str, Any]]:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        SELECT r.*, u.display_name as student_name
+        FROM intervention_rules r
+        LEFT JOIN users u ON r.student_id = u.id
+        WHERE r.teacher_id = ?
+        ORDER BY r.created_at DESC
+        """,
+        (teacher_id,),
+    )
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
+
+
+def delete_intervention_rule(rule_id: int):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM intervention_rules WHERE id = ?", (rule_id,))
+    conn.commit()
+    conn.close()
+
+
+def get_active_intervention_rules(teacher_id: int, student_id: int = None) -> List[str]:
+    conn = get_connection()
+    cursor = conn.cursor()
+    # Fetch class-wide rules (student_id IS NULL) OR specific student rules
+    query = """
+    SELECT content FROM intervention_rules 
+    WHERE teacher_id = ? AND is_active = 1 
+    AND (student_id IS NULL OR student_id = ?)
+    """
+    cursor.execute(query, (teacher_id, student_id))
+    rows = cursor.fetchall()
+    conn.close()
+    return [row["content"] for row in rows]
