@@ -150,7 +150,7 @@ def render_login_page():
                 new_password = st.text_input("密码", type="password", key="reg_password")
                 confirm_password = st.text_input("确认密码", type="password", key="reg_confirm")
                 display_name = st.text_input("显示名称", key="reg_displayname")
-                role = st.selectbox("身份", ["student", "teacher"], format_func=lambda x: "学生" if x == "student" else "教师")
+                role = st.selectbox("身份", ["student", "teacher", "admin"], format_func=lambda x: {"student": "学生", "teacher": "教师", "admin": "管理员"}.get(x, x))
                 register = st.form_submit_button("注册", use_container_width=True)
                 
                 if register:
@@ -188,11 +188,16 @@ def render_sidebar():
                 st.session_state.messages = []
                 st.rerun()
         
-        st.caption(f"身份: {'教师' if user['role'] == 'teacher' else '学生'}")
+        st.caption(f"身份: {'教师' if user['role'] == 'teacher' else ('管理员' if user['role'] == 'admin' else '学生')}")
         
         if user["role"] == "teacher":
             if st.button("📊 教师端", use_container_width=True):
                 st.session_state.view = "teacher"
+                st.rerun()
+                
+        if user["role"] == "admin":
+            if st.button("👑 管理端", use_container_width=True):
+                st.session_state.view = "admin"
                 st.rerun()
         
         st.divider()
@@ -321,9 +326,20 @@ def main():
         render_login_page()
         return
     
-    if st.session_state.view == "teacher" and st.session_state.user["role"] == "teacher":
+    if st.session_state.view == "teacher":
+        if st.session_state.user.get("role") != "teacher":
+            st.error("🛑 403 Forbidden: 此页面仅限教师访问。")
+            st.stop()
         from Instructor_View import main as teacher_main
         teacher_main()
+        return
+        
+    if st.session_state.view == "admin":
+        if st.session_state.user.get("role") != "admin":
+            st.error("🛑 403 Forbidden: 您没有管理员权限访问此页面。")
+            st.stop()
+        from Admin_View import main as admin_main
+        admin_main()
         return
     
     render_sidebar()

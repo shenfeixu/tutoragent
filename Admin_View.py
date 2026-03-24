@@ -1,0 +1,55 @@
+import streamlit as st
+import pandas as pd
+from src.utils.database import get_system_stats, get_all_users
+
+def render_sidebar():
+    with st.sidebar:
+        st.write(f"管理员端")
+        st.divider()
+        if st.button("🚪 退出登录", use_container_width=True):
+            st.session_state.user = None
+            st.session_state.view = None
+            st.session_state.current_session_id = None
+            st.session_state.messages = []
+            st.session_state.accumulated_info = {}
+            st.rerun()
+
+def main():
+    if "user" not in st.session_state or not st.session_state.user:
+        st.error("请先登录。")
+        st.stop()
+        
+    user = st.session_state.user
+    if user.get("role") != "admin":
+        st.error("🛑 403 Forbidden: 您没有管理员权限访问此页面。")
+        st.stop()
+        
+    st.title(f"👑 管理员控制台，欢迎 {user['display_name']}")
+    render_sidebar()
+    
+    stats = get_system_stats()
+    
+    st.subheader("📊 全局数据概览")
+    cols = st.columns(4)
+    cols[0].metric("👨‍🎓 学生总数", stats["student_count"])
+    cols[1].metric("👩‍🏫 导师总数", stats["teacher_count"])
+    cols[2].metric("💬 总会话数", stats["session_count"])
+    cols[3].metric("📈 预估消息数", stats["estimated_messages"])
+    
+    st.divider()
+    st.subheader("👥 用户列表")
+    
+    users = get_all_users()
+    if users:
+        df_users = pd.DataFrame(users)
+        df_users["角色"] = df_users["role"].map({"admin": "👑 管理员", "teacher": "👩‍🏫 教师", "student": "👨‍🎓 学生"})
+        df_users = df_users.rename(columns={
+            "id": "ID", "username": "用户名", "display_name": "显示名称", 
+            "email": "邮箱", "created_at": "注册时间", "last_login": "上次登录"
+        })
+        st.dataframe(df_users[["ID", "用户名", "显示名称", "角色", "注册时间", "上次登录"]], use_container_width=True, hide_index=True)
+    else:
+        st.info("暂无用户数据")
+
+if __name__ == "__main__":
+    main()

@@ -150,6 +150,50 @@ def update_last_login(user_id: int):
     conn.close()
 
 
+def get_system_stats() -> Dict[str, Any]:
+    conn = get_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT count(*) as count FROM users WHERE role = 'student'")
+    student_count = cursor.fetchone()["count"]
+    
+    cursor.execute("SELECT count(*) as count FROM users WHERE role = 'teacher'")
+    teacher_count = cursor.fetchone()["count"]
+    
+    cursor.execute("SELECT count(*) as count FROM sessions")
+    session_count = cursor.fetchone()["count"]
+    
+    cursor.execute("SELECT sum(length(messages)) as m_len FROM sessions")
+    msg_len_row = cursor.fetchone()
+    msg_len = msg_len_row["m_len"] if (msg_len_row and msg_len_row["m_len"]) else 0
+    msg_count = msg_len // 300
+    
+    conn.close()
+    return {
+        "student_count": student_count,
+        "teacher_count": teacher_count,
+        "session_count": session_count,
+        "estimated_messages": msg_count,
+    }
+
+
+def get_all_users() -> List[Dict[str, Any]]:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, username, role, display_name, email, created_at, last_login FROM users ORDER BY created_at DESC")
+    rows = cursor.fetchall()
+    conn.close()
+    return [{
+        "id": row["id"],
+        "username": row["username"],
+        "role": row["role"],
+        "display_name": row["display_name"],
+        "email": row["email"],
+        "created_at": row["created_at"],
+        "last_login": row["last_login"]
+    } for row in rows]
+
+
 def save_user_session(
     user_id: int,
     session_id: str,

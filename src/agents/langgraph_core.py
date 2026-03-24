@@ -1323,11 +1323,32 @@ def render_frontend_snapshot(state: AgentState) -> None:
     print("-------------------------------\n")
 
 
+def check_input_safety(text: str) -> bool:
+    """A7: 基础的鲁棒与合规检查，拦截乱码和常见的越狱前缀"""
+    import re
+    if len(text.strip()) <= 1:
+        return False
+    blacklist = ["ignore all previous", "忽略你之前的指令", "你现在是", "forget all instructions", "system prompt"]
+    text_lower = text.lower()
+    for word in blacklist:
+        if word in text_lower:
+            return False
+    return True
+
+
 def run_langgraph_cycle(
     student_input: str,
     conversation_history: List[Dict[str, str]] = None,
     accumulated_info: Dict[str, Any] = None,
 ) -> AgentState:
+    if not check_input_safety(student_input):
+        state = AgentState(student_input=student_input, conversation_history=conversation_history or [], accumulated_info=accumulated_info or {})
+        state.response = "⚠️ **护栏拦截**：您的输入异常或包含违规防注入指令，系统已拒绝该操作。"
+        state.probing_strategy = "安全拦截"
+        state.detected_fallacies = ["SECURITY_BLOCK"]
+        state.rubric_scores = {"_summary": {"weighted_total": 0, "default_competition": "互联网+", "available_competitions": ["互联网+", "挑战杯", "创青春"]}}
+        return state
+
     state = AgentState(
         student_input=student_input,
         conversation_history=conversation_history or [],
@@ -1335,6 +1356,12 @@ def run_langgraph_cycle(
     )
     graph = build_state_graph()
     final = graph.execute(state)
+    
+    # A7：输出免责声明
+    disclaimer = "\n\n> ⚖️ **AI 免责声明**：以上测评与分析仅基于 AI 模型推演提供参考，不构成实质性的商业投资、法律及财务决策依据。项目实操请以真实市场环境为准。"
+    if final.response and "AI 免责声明" not in final.response:
+        final.response += disclaimer
+        
     return final
 
 
