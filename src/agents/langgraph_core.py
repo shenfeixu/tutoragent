@@ -79,6 +79,7 @@ class AgentState(BaseModel):
     rubric_scores: Dict[str, Any] = Field(default_factory=dict, description="Rubric 0-5 逐项评分及建议")
     target_competition: str = Field(default="互联网+", description="当前选定的评估赛事")
     intervention_rules: List[str] = Field(default_factory=list, description="教师下发的实时干预指令")
+    is_error: bool = Field(False, description="标记当前流程是否发生致命错误（如网络中断）")
 
 
 class EntityExtractionSchema(BaseModel):
@@ -123,36 +124,59 @@ MOCK_ENTITY_EXTRACTION: Dict[str, Any] = {
 
 
 FALLACY_STRATEGY_LIBRARY: Dict[str, str] = {
-    "H1": "广义竞争逻辑：你提到的技术-市场组合在图谱中没有先例。请说明你的技术壁垒能否抵御现有竞争者的快速跟进？",
+    "H1": "痛点验证逻辑：痛点描述仅停留在主观想象。请提供『调研访谈数据』或『实地考察证据』来证明该痛点在目标群体中的广泛性。",
     "H2": "技术成熟度逻辑：技术处于早期阶段，请说明从原型到商业化的关键里程碑和验证节点。",
     "H3": "用户画像逻辑：目标客户描述模糊。请用「谁、在什么场景、遇到什么问题」三要素重新定义。",
-    "H4": "市场口径逻辑：TAM/SAM/SOM 比例异常。请说明这三个数字的计算依据和数据来源。",
+    "H4": "市场口径逻辑：市场规模比例异常。请说明 TAM/SAM/SOM 的计算依据和数据来源。",
     "H5": "价值主张逻辑：价值主张不够清晰。请用「我们帮助X用户解决Y问题，实现Z价值」的句式重新表述。",
     "H6": "渠道触达逻辑：获客渠道描述不足。请说明你的目标客户在哪里聚集，你如何触达他们。",
-    "H7": "收入验证逻辑：收入预测缺失。请说明你的定价策略和付费意愿验证情况。",
+    "H7": "收入验证逻辑：收入预测缺失或逻辑不通。请说明你的定价策略和付费意愿验证情况。",
     "H8": "单位经济逻辑：LTV/CAC 比例不健康。请说明你的客户留存率和复购周期。",
-    "H9": "团队能力逻辑：团队规模偏小。请说明核心团队的技能互补性和执行力验证。",
+    "H9": "团队能力逻辑：团队能力板块偏弱。请说明核心团队的技能互补性和执行力验证。",
     "H10": "融资匹配逻辑：融资阶段与技术成熟度不匹配。请说明资金用途和里程碑规划。",
     "H11": "时间规划逻辑：上市时间过于乐观。请说明关键路径和潜在瓶颈。",
     "H12": "风险识别逻辑：风险识别不充分。请列出技术、市场、团队三方面的主要风险。",
-    "H13": "技术壁垒逻辑：技术描述过短。请说明你的核心技术壁垒和专利布局。",
+    "H13": "路演逻辑闭环：表达缺乏逻辑闭环。请确保你的 BP 描述遵循「痛点-方案-验证-闭环」的严密结构。",
     "H14": "市场验证逻辑：市场规模数据可能缺乏验证。请说明市场调研的方法和样本量。",
-    "H15": "商业闭环逻辑：商业模式闭环不完整。请说明从获客到变现的完整路径。",
-    "H16": "单位经济幻觉逻辑：你的单位经济模型存在矛盾。请说明边际成本是否随规模下降，还是固定成本占主导？",
-    "H17": "渠道错位逻辑：你的渠道与目标用户群体可能不匹配。请说明渠道的用户画像与你的目标客户重合度。",
-    "H18": "现金流生存逻辑：请说明你的现金跑道和盈亏平衡点。在没有新融资的情况下能支撑多久？",
+    "H15": "商业假设逻辑：核心商业假设不成立（如：白拿白给）。请说明从获客到变现的完整合理路径。",
+    "H16": "单位经济幻觉逻辑：你的单位经济模型存在矛盾。请说明边际成本是否随规模下降？",
+    "H17": "渠道错位逻辑：你的渠道与目标用户群体不匹配。请核实该赛道的典型获客场景。",
+    "H18": "现金流生存逻辑：请说明你的盈亏平衡点。在没有新融资的情况下能支撑多久？",
     "H19": "护城河逻辑：你的竞争优势是否可持续？请说明网络效应、规模效应或品牌效应如何形成。",
     "H20": "增长飞轮逻辑：你的增长模式是否自增强？请说明新用户如何帮助获取更多用户。",
 }
+
+# ── A5-1: 谬误严重程度定义 (Penalty Weights - v3.7 Final) ────────
+FALLACY_SEVERITY: Dict[str, float] = {
+    # 致命伤 (Fatal): -2.5分 — 数据明确但逻辑崩溃
+    "H7": 2.5, "H15": 2.5, "H16": 2.5, "H17": 2.5,
+    # 重大问题 (Major): -1.5分 — 重要维度缺失或核心验证缺位
+    "H1": 1.5, "H4": 1.5, "H8": 1.5, "H11": 1.5, "H12": 1.5, "H14": 1.5,
+    # 显著影响 (Significant): -1.2分 — 逻辑连贯性瑕疵
+    "H10": 1.2, "H13": 1.2, "H18": 1.2,
+    # 轻微瑕疵 (Minor): -0.8分 — 文案或非核心参数问题
+    "H2": 0.8, "H3": 0.8, "H5": 0.8, "H6": 0.8, "H9": 0.8, "H19": 0.8, "H20": 0.8,
+    # 数据缺口 (Data Gap): -0.5分 — 结构性缺失但不代表逻辑错误
+    "H4_GAP": 0.5, "H7_GAP": 0.5, "H8_GAP": 0.5, "H15_GAP": 0.8,
+}
+
+# ── A5-0: 深度审计关键词 (v3.8) ──────────────────────────────────
+AUDIT_KEYWORDS: Dict[str, List[str]] = {
+    "H1": ["调研", "调查", "访谈", "发现", "数据显示", "分析", "观察", "问卷", "反馈", "总结"], # 扩充：问卷/观察/反馈
+    "H13": ["闭环", "验证", "结构", "逻辑", "路演", "演示", "PPT", "视频", "讲解", "展示"], # 扩充：路演媒介
+    "H19": ["专利", "壁垒", "门槛", "不可复制", "优势", "独特"],
+    "H20": ["飞轮", "漏斗", "回购", "流量池", "留存", "裂变"],
+}
+
 DEFAULT_FALLACY_STRATEGY = "继续逐条验证关键前提，别让幻觉的数字偷偷爬过审计线。"
 
 # ── A5: 赛事 Rubric 评分维度与权重 ──────────────────────────────────
 RUBRIC_FALLACY_MAP: Dict[str, List[str]] = {
-    "pain_point":    ["H3", "H5"],
-    "planning":      ["H6", "H11"],
-    "modeling":       ["H4", "H7", "H8", "H16"],
-    "leverage":       ["H9", "H10", "H18"],
-    "presentation":   ["H13", "H19", "H20"],
+    "pain_point":    ["H1", "H3", "H5"],                   # 痛点核心
+    "planning":      ["H6", "H11", "H12", "H14", "H17"],   # 方案与赛道
+    "modeling":       ["H4", "H4_GAP", "H7", "H7_GAP", "H8", "H8_GAP", "H15", "H15_GAP", "H16"], # 盈利
+    "leverage":       ["H2", "H9", "H10"],                 # 团队与杠杆
+    "presentation":   ["H13", "H18", "H19", "H20"],        # 路演逻辑、存活、壁垒 (加入 H18)
 }
 
 RUBRIC_DIM_NAMES: Dict[str, str] = {
@@ -777,12 +801,17 @@ def extract_entities(state: AgentState) -> AgentState:
         )
     except Exception as exc:
         LOGGER.error("Entity extraction failed: %s", exc)
-        raise RuntimeError(f"实体提取失败：{exc}") from exc
+        state.is_error = True
+        state.response = f"❌ **网络连接失败**：教练暂时无法连接到‘创业大脑’ (LLM Connection Error: {exc})。这通常是因为网络环境不稳定，请检查您的网络连接并刷新页面重试。"
+        return state
     return state
 
 
 def hypergraph_critic(state: AgentState) -> AgentState:
     """Runs H1-H20 checks against the hypergraph inputs."""
+    if state.is_error:
+        return state
+        
     failures: List[str] = []
     nodes = state.extracted_nodes
     # Force quote prefix for Source Tracing
@@ -795,17 +824,22 @@ def hypergraph_critic(state: AgentState) -> AgentState:
     market = nodes.get("target_market", "")
     h1_passed, h1_detail, h1_match_details = check_tech_market_match(tech, market)
     
+    # H1 强化：即使图谱匹配，如果学生原文中没有“调研/数据/验证”等深度关键词，按“缺乏验证”扣分
+    has_validation = any(k in state.student_input for k in AUDIT_KEYWORDS["H1"])
+    
     keyword_match_info = f"技术关键词: {h1_match_details.get('tech_keywords', [])}, 市场关键词: {h1_match_details.get('market_keywords', [])}"
     query_attempts = h1_match_details.get('query_attempts', [])
     query_info = " | ".join([f"({q['tech_keyword']}+{q['market_keyword']}→{q.get('found', 0)}条)" for q in query_attempts[:3]])
     
-    state.evidence.append(EvidenceItem(
-        step="H1", 
-        detail=f"{h1_detail} | {keyword_match_info} | 查询: {query_info}", 
-        source_excerpt=excerpt
-    ))
     if not h1_passed:
         failures.append("H1")
+        state.evidence.append(EvidenceItem(step="H1", detail=f"{h1_detail} | {keyword_match_info} | 查询: {query_info}", source_excerpt=excerpt))
+    elif not has_validation:
+        # 即使匹配也判定为缺陷：痛点描述仅停留在主观想象，缺乏实地调研证据
+        failures.append("H1") 
+        state.evidence.append(EvidenceItem(step="H1", detail=f"虽然领域匹配，但痛点缺乏实地调研或数据支撑（缺少‘调研’、‘访谈’等动作）。", source_excerpt=excerpt))
+    else:
+        state.evidence.append(EvidenceItem(step="H1", detail=f"已验证痛点：{h1_detail}", source_excerpt=excerpt))
 
     tech_maturity = nodes.get("tech_maturity", "")
     if tech_maturity in ["概念验证", "原型"]:
@@ -841,7 +875,16 @@ def hypergraph_critic(state: AgentState) -> AgentState:
     sam = _safe_float(nodes.get("SAM"))
     som = _safe_float(nodes.get("SOM"))
     market_detail = f"TAM={tam:,.0f}, SAM={sam:,.0f}, SOM={som:,.0f}"
-    if not (tam >= sam >= som and tam > 0 and sam > 0 and som > 0):
+    if tam == 0 and sam == 0 and som == 0:
+        # 数据缺失（LLM未提取到）→ 轻微数据缺口，不等于逻辑错误
+        failures.append("H4_GAP")
+        state.evidence.append(EvidenceItem(
+            step="H4",
+            detail=f"市场规模数据缺失（未提供TAM/SAM/SOM），建议补充。",
+            source_excerpt=excerpt,
+        ))
+    elif not (tam >= sam >= som and tam > 0 and sam > 0 and som > 0):
+        # 数据明确提供但口径不一致 → 真正的逻辑错误
         failures.append("H4")
         state.evidence.append(EvidenceItem(
             step="H4",
@@ -878,16 +921,40 @@ def hypergraph_critic(state: AgentState) -> AgentState:
         state.evidence.append(EvidenceItem(step="H6", detail=f"获客渠道描述清晰。", source_excerpt=excerpt))
 
     revenue = _safe_float(nodes.get("revenue"))
-    if revenue <= 0:
+    # 检查学生原文是否提到了收入/定价相关关键词
+    has_revenue_mention = any(kw in state.student_input for kw in ["收入", "营收", "定价", "收费", "服务费", "价格", "月收", "年收", "盈利"])
+    # 检查是否存在“价格过低/无脑低价”的情况 (DroneFarm 特征)
+    is_nonsense_pricing = any(p in state.student_input for p in ["1元", "一元", "1块", "几分钱", "0.1元"])
+    
+    if is_nonsense_pricing and "科技" in state.student_input:
+        # 如果是高科技或重资产服务（如无人机），定价1元属于重大逻辑谬误
         failures.append("H7")
-        state.evidence.append(EvidenceItem(step="H7", detail="收入预测为零或缺失。", source_excerpt=excerpt))
+        state.evidence.append(EvidenceItem(step="H7", detail="定价逻辑异常：重资产/科技服务定价过低，商业可持续性存疑。", source_excerpt=excerpt))
+    elif revenue <= 0:
+        if has_revenue_mention:
+            # 学生提了定价但LLM没提取出数字 → 轻微数据缺口
+            failures.append("H7_GAP")
+            state.evidence.append(EvidenceItem(step="H7", detail="学生提及了定价/收入信息但未量化，建议补充具体数字。", source_excerpt=excerpt))
+        else:
+            # 完全没提收入 → 真正的重大缺陷
+            failures.append("H7")
+            state.evidence.append(EvidenceItem(step="H7", detail="收入预测为零或缺失，商业模式无法验证。", source_excerpt=excerpt))
     else:
         state.evidence.append(EvidenceItem(step="H7", detail=f"预测收入：{revenue:,.0f}元", source_excerpt=excerpt))
 
     ltv = _safe_float(nodes.get("LTV"))
     cac = _safe_float(nodes.get("CAC"))
     ltv_detail = f"LTV={ltv:,.0f}, CAC={cac:,.0f}"
-    if ltv < 3 * cac:
+    if ltv == 0 and cac == 0:
+        # 两个都是默认值 → 数据缺失，不是逻辑错误
+        failures.append("H8_GAP")
+        state.evidence.append(EvidenceItem(
+            step="H8",
+            detail=f"LTV/CAC 数据缺失，建议补充单位经济模型。",
+            source_excerpt=excerpt,
+        ))
+    elif ltv < 3 * cac:
+        # 明确提供了但比例不健康 → 真正的重大问题
         failures.append("H8")
         state.evidence.append(EvidenceItem(
             step="H8",
@@ -950,11 +1017,11 @@ def hypergraph_critic(state: AgentState) -> AgentState:
     else:
         state.evidence.append(EvidenceItem(step="H12", detail=f"风险识别检查完成。{h12_keyword_info}", source_excerpt=excerpt))
 
-    if tech and len(tech) < 20:
+    if tech and (len(tech) < 20 or not any(k in tech for k in ["核心", "原理", "专利", "自研", "创新"])):
         failures.append("H13")
         state.evidence.append(EvidenceItem(
             step="H13",
-            detail=f"技术描述过短，技术壁垒不明确。",
+            detail=f"技术描述质量不足：长度过短或缺乏核心壁垒/原理描述。",
             source_excerpt=excerpt,
         ))
     else:
@@ -972,6 +1039,8 @@ def hypergraph_critic(state: AgentState) -> AgentState:
         else:
             state.evidence.append(EvidenceItem(step="H14", detail=f"市场规模比例合理。", source_excerpt=excerpt))
 
+    # H15: 区分"数据完全缺失"(GAP) vs "有渠道和客户但利润链不通"(Fatal)
+    has_biz_keywords = any(kw in state.student_input for kw in ["盈利", "变现", "商业模式", "收费", "付费", "价格", "定价", "营收", "月收", "年收"])
     if channel and customer and revenue > 0:
         if ltv > 0 and cac > 0:
             state.evidence.append(EvidenceItem(
@@ -980,17 +1049,27 @@ def hypergraph_critic(state: AgentState) -> AgentState:
                 source_excerpt=excerpt,
             ))
         else:
-            failures.append("H15")
+            # 有渠道/客户/收入但缺LTV/CAC → 数据缺口，不是致命伤
+            failures.append("H15_GAP")
             state.evidence.append(EvidenceItem(
                 step="H15",
-                detail="商业模式闭环不完整，缺少LTV/CAC数据。",
+                detail="商业模式有基本闭环，但缺少LTV/CAC量化验证。",
                 source_excerpt=excerpt,
             ))
+    elif channel and customer and has_biz_keywords:
+        # 有渠道、客户、且提到了商业模式 → 轻度缺口
+        failures.append("H15_GAP")
+        state.evidence.append(EvidenceItem(
+            step="H15",
+            detail="商业模式框架存在但缺少收入量化数据。",
+            source_excerpt=excerpt,
+        ))
     else:
+        # 完全缺失渠道/客户/收入 → 真正的致命伤
         failures.append("H15")
         state.evidence.append(EvidenceItem(
             step="H15",
-            detail="商业模式闭环不完整，缺少关键要素。",
+            detail="商业模式闭环不完整，缺少关键要素（渠道/客户/收入）。",
             source_excerpt=excerpt,
         ))
 
@@ -1009,11 +1088,23 @@ def hypergraph_critic(state: AgentState) -> AgentState:
         state.evidence.append(EvidenceItem(step="H16", detail="单位经济模型待验证。", source_excerpt=excerpt))
 
     if channel and customer:
-        channel_keywords = ["线上", "线下", "B端", "C端", "直销", "代理", "平台"]
-        customer_keywords = ["企业", "个人", "政府", "学生", "老人", "儿童"]
+        # B/C 端匹配检查
         channel_type = "B端" if any(k in channel for k in ["企业", "B端", "行业"]) else "C端" if any(k in channel for k in ["个人", "C端", "消费者"]) else ""
         customer_type = "B端" if any(k in customer for k in ["企业", "公司", "机构"]) else "C端" if any(k in customer for k in ["个人", "用户", "消费者"]) else ""
-        if channel_type and customer_type and channel_type != customer_type:
+        
+        # 语义层面的错位检查 (语义幻觉 - DroneFarm 特征)
+        is_rural_customer = any(k in customer for k in ["农民", "农村", "偏远地区", "农场"])
+        is_posh_channel = any(k in channel for k in ["小红书", "网红", "Instagram", "带货"])
+        
+        if is_rural_customer and is_posh_channel:
+            # 农民通过小红书网红买无人机服务 -> 经典 Fatal 谬误
+            failures.append("H17")
+            state.evidence.append(EvidenceItem(
+                step="H17",
+                detail=f"渠道与客户严重错位：目标客群({customer})与推广渠道({channel})在习惯上完全隔离。",
+                source_excerpt=excerpt,
+            ))
+        elif channel_type and customer_type and channel_type != customer_type:
             failures.append("H17")
             state.evidence.append(EvidenceItem(
                 step="H17",
@@ -1041,11 +1132,11 @@ def hypergraph_critic(state: AgentState) -> AgentState:
         state.evidence.append(EvidenceItem(step="H18", detail="现金流情况待补充。", source_excerpt=excerpt))
 
     moat = nodes.get("moat", "") or nodes.get("competitive_advantage", "")
-    if tech and not moat:
+    if not moat or len(moat) < 15:
         failures.append("H19")
         state.evidence.append(EvidenceItem(
             step="H19",
-            detail=f"护城河未明确：有技术但未说明竞争壁垒如何形成。",
+            detail=f"护城河定义模糊：缺少具体的竞争壁垒（如网络效应、技术壁垒）。",
             source_excerpt=excerpt,
         ))
     else:
@@ -1073,6 +1164,9 @@ def hypergraph_critic(state: AgentState) -> AgentState:
     return state
 def strategy_selector(state: AgentState) -> AgentState:
     """Chooses the Socratic probing strategy based on the triggered rule set."""
+    if state.is_error:
+        return state
+        
     if not state.detected_fallacies:
         state.probing_strategy = "Confirm assumptions then push for execution detail."
         return state
@@ -1101,6 +1195,9 @@ def strategy_selector(state: AgentState) -> AgentState:
 
 def generate_rebuttal(state: AgentState) -> AgentState:
     """Invokes the LLM to craft a Socratic rebuttal based on triggered fallacies."""
+    if state.is_error:
+        return state
+        
     strategy_text = state.probing_strategy or DEFAULT_FALLACY_STRATEGY
 
     rules = state.detected_fallacies or ["H1-H15 均未触发"]
@@ -1126,11 +1223,12 @@ def generate_rebuttal(state: AgentState) -> AgentState:
             "一句话指出当前逻辑中存在的漏洞。你必须包含一句引用：“『学生原文：...』”。\n\n"
             "### 📖 概念解析 (Definition)\n\n"
             "### 💡 案例参考 (Example)\n\n"
-            "### 🔍 具体分析 (Analysis)\n\n"
+            "### 🔍 具体分析 (Analysis)\n"
+            "【全面诊断】：基于前面抽取的业务模型，具体剖析为何这个想法站不住脚。如果触发了多个规则（{rules}），请在此处进行综合诊断，不要只盯着一个点。你要指出各个漏洞之间的逻辑关联。\n\n"
             "### 🤔 反思追问 (Socratic Question)\n"
             "【对照组施压】：你必须直接引用提供的“参考案例”作为对比。你需要表达为：‘相比于 [案例名称]，你的项目在 [维度] 上...’。绝对严禁在主语上将学生项目与参照案例项目混淆！\n\n"
             "### ✅ 实践任务 (Practice Task)\n"
-            "提供且仅提供 1 个可执行的微步动作。注意：如果存在【教师特别干预指令】，你的诊断、分析和任务必须高度围绕该指令展开！"
+            "提供且仅提供 1 个可执行的微步动作。注意：即便存在多个漏洞，任务也必须聚焦于最核心、最基础的那个（即‘第一块多米诺骨牌’）。如果存在【教师特别干预指令】，任务必须高度围绕该指令展开！"
         ).format(
             student_input=state.student_input,
             nodes=json.dumps(state.extracted_nodes or {}, ensure_ascii=False, indent=2),
@@ -1186,7 +1284,7 @@ You never hand out answers, only diagnostics that force the student to self-corr
         "### 💡 案例参考 (Example)\n"
         "给出一个相关的正向或反向商业案例以加强理解。\n\n"
         "### 🔍 具体分析 (Analysis)\n"
-        "基于前面抽取的业务模型，具体剖析这个想法为何站不住脚。\n\n"
+        "【全面诊断】：基于前面抽取的业务模型，具体剖析这个想法为何站不住脚。如果系统检测到了多个逻辑谬误（{rules}），你必须在这一节对它们进行全面评估，揭示它们之间的内在逻辑崩溃（如资源脱节导致成本模型失效）。不要只盯着一个点！\n\n"
         "### 🤔 反思追问 (Socratic Question)\n"
         "【对照组施压】：你必须直接引用“当前策略与参考案例”中提供的超边参照案例作为对标。你需要清晰地表达‘对比 [参照案例名称]，你的项目在 [具体逻辑] 上是否存在...’。绝对严禁在主语上将学生项目与参照案例项目混淆！请抛出一个犀利、直击痛点的开放性问题。\n\n"
         "### ✅ 实践任务 (Practice Task)\n"
@@ -1239,25 +1337,42 @@ You never hand out answers, only diagnostics that force the student to self-corr
 
 def rubric_scorer(state: AgentState) -> AgentState:
     """A5: 根据 Rubric 维度对项目进行 0-5 逐项评分，并为薄弱项生成 Missing Evidence + Minimal Fix。"""
+    if state.is_error:
+        return state
+        
     fallacies = set(state.detected_fallacies)
     scores: Dict[str, Any] = {}
 
     for dim, related_rules in RUBRIC_FALLACY_MAP.items():
         triggered = [r for r in related_rules if r in fallacies]
-        total_rules = len(related_rules)
-        fail_ratio = len(triggered) / total_rules if total_rules > 0 else 0
-
-        # 0-5 分：全部通过=5, 全部未通过=0
-        raw_score = round(5 * (1 - fail_ratio))
-        raw_score = max(0, min(5, raw_score))  # clamp
+        
+        # A5-1: 采用“梯度扣分制” (Penalty-based)
+        # 将真正逻辑错误 (Real) 与 数据缺失 (Gap) 分开计算
+        real_triggered = [r for r in triggered if not r.endswith("_GAP")]
+        gap_triggered = [r for r in triggered if r.endswith("_GAP")]
+        
+        real_penalty = sum(FALLACY_SEVERITY.get(r, 1.5) for r in real_triggered)
+        # GAP 扣分每维度封顶 1.0 分，防止数据缺失直接导致项目挂掉
+        gap_penalty = min(sum(FALLACY_SEVERITY.get(r, 0.5) for r in gap_triggered), 1.0)
+        
+        raw_score = 5.0 - (real_penalty + gap_penalty)
+        raw_score = max(0.0, min(5.0, raw_score))
+        
+        # 致命伤限制：只要有真正的 Fatal 谬误 (>=2.5)，评分不得高于 2
+        has_fatal = any(FALLACY_SEVERITY.get(r, 0) >= 2.5 for r in real_triggered)
+        if has_fatal:
+            raw_score = min(2.0, raw_score)
+            
+        display_score = round(raw_score, 1)
 
         dim_result: Dict[str, Any] = {
-            "score": raw_score,
+            "score": display_score,
             "name": RUBRIC_DIM_NAMES[dim],
             "triggered_rules": triggered,
         }
 
-        if raw_score <= 2:
+        # 只要评分低于 4.0 就给出建议 (Stricter gate)
+        if display_score < 4.0:
             dim_result["missing_evidence"] = RUBRIC_MISSING_FIX[dim]["missing"]
             dim_result["minimal_fix"] = RUBRIC_MISSING_FIX[dim]["fix"]
 
@@ -1273,15 +1388,56 @@ def rubric_scorer(state: AgentState) -> AgentState:
         scores[dim]["score"] * current_weights.get(dim, 0.2) 
         for dim in RUBRIC_FALLACY_MAP.keys() if dim in scores
     )
+    
+    # A5-2: 最终加权与审计干预 (Systemic Penalty & Tiered Gating)
+    # 统计真实谬误数量（排除 GAP）
+    real_f_list = [f for f in fallacies if not f.endswith("_GAP")]
+    num_real = len(real_f_list)
+    
+    # 全局谬误惩罚 (超3个谬误后，每个扣0.5)
+    if num_real > 3:
+        weighted_total -= (num_real - 3) * 0.5
+    
+    # 【全局核心准入机制 (Empathetic Fairness v3.8)】
+    # 定义核心维度：痛点发现、方案策划、商业建模。
+    core_dims = ["pain_point", "planning", "modeling"]
+    worst_core = min(scores.get(d, {}).get("score", 5.0) for d in core_dims)
+    
+    # 熔断策略与“UI 同步”处理：
+    # 为了保证公平，放宽准入门槛：
+    # 1. 核心维度 < 1.0 (完全无此模块)：上限 1.8
+    # 2. 核心维度 < 2.0 (严重缺失/逻辑不通)：上限 3.2 (提高到 B- 档)
+    # 3. 核心维度 >= 2.0 (虽平庸但具备雏形)：不触发强制熔断，仅享受权重自然加权
+    if worst_core < 2.0:
+        target_cap = 1.8 if worst_core < 1.0 else 3.2
+        if weighted_total > target_cap:
+            scale_ratio = target_cap / weighted_total if weighted_total > 0 else 1.0
+            # 执行等比例离散化缩放，确保前端 UI 计算出的加权和也遵循封顶规则
+            for d in scores:
+                if d != "_summary":
+                    scores[d]["score"] = round(scores[d]["score"] * scale_ratio, 2)
+            
+            weighted_total = target_cap
+            LOGGER.info("UI Sync Triggered v3.8 (worst_core=%.1f): Scaling all dims by %.2f", worst_core, scale_ratio)
 
+    # 【动态木桶效应】：总分上限受制于表现最差的“实锤”维度 (1.5倍杠杆)
+    barrel_candidates = [scores[d]["score"] for d in scores if d != "_summary" and any(not r.endswith("_GAP") for r in scores[d].get("triggered_rules", []))]
+    if barrel_candidates:
+        worst_real_score = min(barrel_candidates)
+        barrel_cap = worst_real_score * 1.5
+        if weighted_total > barrel_cap:
+            weighted_total = barrel_cap
+
+    weighted_total = max(0.0, weighted_total)
+    
     scores["_summary"] = {
         "weighted_total": round(weighted_total, 2),
+        "total_real_fallacies": num_real,
+        "worst_core_score": round(worst_core, 2),
         "default_competition": target_comp,
-        "available_competitions": list(COMPETITION_WEIGHTS.keys()),
     }
-
+    
     state.rubric_scores = scores
-    LOGGER.info("【A5 Rubric 评分】%s", {d: scores[d]["score"] for d in RUBRIC_FALLACY_MAP})
     return state
 try:
     from langgraph import Node, StateGraph
