@@ -75,6 +75,8 @@ def init_session_state():
         st.session_state.accumulated_info = {}
     if "view" not in st.session_state:
         st.session_state.view = "student"
+    if "target_competition" not in st.session_state:
+        st.session_state.target_competition = "互联网+"
 
 
 def generate_session_id() -> str:
@@ -202,6 +204,15 @@ def render_sidebar():
         
         st.divider()
         
+        st.markdown("**🏆 赛事目标设置**")
+        st.session_state.target_competition = st.selectbox(
+            "选择打分基准：",
+            ["互联网+", "挑战杯", "创青春", "数模"],
+            index=["互联网+", "挑战杯", "创青春", "数模"].index(st.session_state.target_competition)
+        )
+        
+        st.divider()
+
         if st.button("➕ 新建对话", use_container_width=True):
             save_current_session()
             create_new_session()
@@ -396,6 +407,7 @@ def main():
                 prompt,
                 conversation_history=conversation_history,
                 accumulated_info=st.session_state.accumulated_info,
+                target_competition=st.session_state.target_competition,
             )
         
         st.session_state.accumulated_info = state.accumulated_info
