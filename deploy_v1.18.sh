@@ -17,18 +17,22 @@ git checkout v1.18
 
 # 3. 激活虚拟环境 (假设名为 venv)
 echo "📦 正在激活虚拟环境..."
-if [ -d "venv" ]; then
+if [ -d "venv/bin" ]; then
     source venv/bin/activate
 else
-    echo "⚠️ 未找到虚拟环境 venv，正在创建..."
-    python3 -m venv venv
-    source venv/bin/activate
+    echo "⚠️ 未找到虚拟环境 venv，正在尝试创建..."
+    if python3 -m venv venv 2>/dev/null; then
+        source venv/bin/activate
+    else
+        echo "❌ 虚拟环境创建失败（可能是缺少 python3-venv 模块）。"
+        echo "💡 将跳过虚拟环境，改用 --user 模式直接安装依赖..."
+    fi
 fi
 
 # 4. 更新依赖
 echo "📥 正在检查并更新依赖 (这可能需要几分钟)..."
-pip install --upgrade pip
-pip install -r requirements.txt
+pip install --upgrade pip --user --quiet
+pip install -r requirements.txt --user --quiet
 
 # 5. 配置环境变量 (如果已有 .env 则跳过)
 if [ ! -f .env ]; then
