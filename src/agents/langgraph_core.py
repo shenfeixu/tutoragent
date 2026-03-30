@@ -1722,6 +1722,27 @@ def run_langgraph_cycle(
         
         return state
 
+    # A2: 反代写硬拦截 (Anti-Ghostwriting Hard Block)
+    ghostwriting_keywords = ["帮我写", "代写", "生成一份", "写一段", "帮我做", "完整方案", "直接给我一份", "给我写"]
+    if any(k in student_input for k in ghostwriting_keywords):
+        state = AgentState(
+            student_input=student_input, 
+            conversation_history=conversation_history or [], 
+            accumulated_info=accumulated_info or {},
+            target_competition=target_competition,
+            intervention_rules=all_rules,
+        )
+        
+        state.response = "👁️ **护栏拦截**：系统检测到『直接代写』请求。作为您的超图教练，我不能越俎代庖直接为您生成完整的商业计划书。请聚焦具体的项目核心痛点或方案，我们一步步推演！"
+        state.probing_strategy = "反代写阻断 (Anti-Ghostwriting Blocked)"
+        state.detected_fallacies = ["GHOSTWRITING_INTERCEPTION"]
+        state.rubric_scores = {"_summary": {"weighted_total": 0, "default_competition": target_competition}}
+        
+        disclaimer = "\n\n> ⚖️ **AI 免责声明**：以上测评与分析仅基于 AI 模型推演提供参考，不构成实质性的商业投资、法律及财务决策依据。项目实操请以真实市场环境为准。"
+        state.response += disclaimer
+        
+        return state
+
     state = AgentState(
         student_input=student_input,
         conversation_history=conversation_history or [],
