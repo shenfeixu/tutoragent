@@ -1711,15 +1711,9 @@ def run_langgraph_cycle(
             intervention_rules=all_rules,
         )
         
-        # A7-1: 温和化拦截（Gentle Interception）
-        import random
-        prompts = [
-            "我注意到你可能在尝试绕过我们的逻辑推演。作为你的‘超图教练’，我更希望引导你独立完成 BP 的核心构思，而不是直接给出答案。不如我们重新回到你的项目，聊聊你打算如何解决这个特定的市场痛点？",
-            "看起来你对我的底层指令很感兴趣。不过，目前我们的重点应该是完善你的商业计划书。让我们把注意力拉回到项目本身：你认为你的方案在技术壁垒上还有哪些可以提升的空间？",
-            "作为 AI 教练，我的任务是陪你一起‘磨’出好项目。虽然你可以尝试变换我的角色，但这样会错失深挖项目逻辑的机会。请告诉我，关于项目的核心盈利模式，你还有什么不确定的地方？"
-        ]
-        state.response = f"💡 **教练温馨提示**：\n\n{random.choice(prompts)}"
-        state.probing_strategy = "引导拉回 (Nudge)"
+        # A7 原始护栏拦截 (Strict Interception)
+        state.response = "👁️ **护栏拦截**：您的输入异常或包含违规注入指令，系统已拒绝该操作。"
+        state.probing_strategy = "护栏阻断 (Blocked)"
         state.detected_fallacies = ["GENTLE_INTERCEPTION"]
         state.rubric_scores = {"_summary": {"weighted_total": 0, "default_competition": target_competition}}
         
