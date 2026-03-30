@@ -1722,6 +1722,10 @@ def run_langgraph_cycle(
         state.probing_strategy = "引导拉回 (Nudge)"
         state.detected_fallacies = ["GENTLE_INTERCEPTION"]
         state.rubric_scores = {"_summary": {"weighted_total": 0, "default_competition": target_competition}}
+        
+        disclaimer = "\n\n> ⚖️ **AI 免责声明**：以上测评与分析仅基于 AI 模型推演提供参考，不构成实质性的商业投资、法律及财务决策依据。项目实操请以真实市场环境为准。"
+        state.response += disclaimer
+        
         return state
 
     state = AgentState(
