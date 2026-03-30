@@ -298,6 +298,11 @@ def render_chat_message(role: str, content: str, state: dict = None):
             st.markdown(content)
             
             if state:
+                # Hide detailed analysis and rubric if it's a strict interception
+                fallacies = state.get("detected_fallacies", [])
+                if "GENTLE_INTERCEPTION" in fallacies or "GHOSTWRITING_INTERCEPTION" in fallacies:
+                    return
+                
                 with st.expander("📊 详细分析", expanded=False):
                     col1, col2 = st.columns(2)
                     with col1:
@@ -305,7 +310,6 @@ def render_chat_message(role: str, content: str, state: dict = None):
                         st.json(state.get("extracted_nodes", {}))
                     with col2:
                         st.markdown("**触发的超图逻辑**")
-                        fallacies = state.get("detected_fallacies", [])
                         if fallacies:
                             st.warning("已触发: " + ", ".join(fallacies))
                         else:
