@@ -12,6 +12,7 @@ from src.utils.database import (
     load_user_session,
     list_user_sessions,
     delete_user_session,
+    get_user_memory,
 )
 
 st.set_page_config(
@@ -87,7 +88,14 @@ def create_new_session():
     st.session_state.current_session_id = generate_session_id()
     st.session_state.messages = []
     st.session_state.session_title = "新对话"
+    
+    memory = None
+    if getattr(st.session_state, "user", None):
+        memory = get_user_memory(st.session_state.user["id"])
+        
     st.session_state.accumulated_info = {}
+    if memory:
+        st.session_state.accumulated_info["student_memory"] = memory
 
 
 def load_session_to_state(session_id: str):
@@ -132,6 +140,7 @@ def render_login_page():
             with st.form("login_form"):
                 username = st.text_input("用户名", key="login_username")
                 password = st.text_input("密码", type="password", key="login_password")
+                login_role = st.selectbox("身份", ["student", "teacher", "admin"], format_func=lambda x: {"student": "学生", "teacher": "教师", "admin": "管理员"}.get(x, x), key="login_role_select")
                 submit = st.form_submit_button("登录", use_container_width=True)
                 
                 if submit:
@@ -140,9 +149,13 @@ def render_login_page():
                     else:
                         user = authenticate_user(username, password)
                         if user:
-                            st.session_state.user = user
-                            update_last_login(user["id"])
-                            st.rerun()
+                            if user["role"] == login_role:
+                                st.session_state.user = user
+                                update_last_login(user["id"])
+                                st.rerun()
+                            else:
+                                role_names = {"student": "学生", "teacher": "教师", "admin": "管理员"}
+                                st.error(f"身份验证失败：该账号实际注册身份为【{role_names.get(user['role'], '未知')}】，请选择正确的身份登录！")
                         else:
                             st.error("用户名或密码错误")
         
@@ -250,6 +263,18 @@ def render_sidebar():
             st.info("暂无历史对话，开始新对话吧！")
         
         st.divider()
+        
+        memory = None
+        if "accumulated_info" in st.session_state and st.session_state.accumulated_info:
+            memory = st.session_state.accumulated_info.get("student_memory")
+        if not memory and getattr(st.session_state, "user", None):
+            memory = get_user_memory(st.session_state.user["id"])
+            
+        if memory:
+            st.markdown("🧠 **教练长期记忆档案**")
+            st.info(memory)
+            st.caption("跨会话跟踪中...")
+            st.divider()
         
         with st.expander("⚙️ 调试面板"):
             if st.session_state.messages:
@@ -380,6 +405,8 @@ def main():
             with cols[2]:
                 st.metric("融资阶段", info.get("funding_stage", "未设定"))
                 st.metric("预计收入", f"{info.get('revenue', 0):,.0f}元" if info.get("revenue") else "未设定")
+                
+            # student_memory moved to sidebar
     
     st.divider()
     

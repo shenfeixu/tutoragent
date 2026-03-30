@@ -163,6 +163,26 @@ def update_last_login(user_id: int):
     conn.close()
 
 
+def get_user_memory(user_id: int) -> Optional[str]:
+    """Retrieve the latest valid student_memory from the user's past sessions."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    # Search all sessions of user, ordered by latest update
+    cursor.execute(
+        "SELECT accumulated_info FROM sessions WHERE user_id = ? ORDER BY updated_at DESC LIMIT 10",
+        (user_id,)
+    )
+    rows = cursor.fetchall()
+    conn.close()
+    
+    for row in rows:
+        if row["accumulated_info"]:
+            info = json.loads(row["accumulated_info"])
+            if "student_memory" in info and info["student_memory"]:
+                return info["student_memory"]
+    return None
+
+
 def get_system_stats() -> Dict[str, Any]:
     conn = get_connection()
     cursor = conn.cursor()

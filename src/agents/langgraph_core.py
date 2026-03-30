@@ -1203,11 +1203,16 @@ def generate_rebuttal(state: AgentState) -> AgentState:
     rules = state.detected_fallacies or ["H1-H15 均未触发"]
     evidence_summary = _format_evidence(state.evidence)
 
-    # 教师干预指令注入
+    # 教师干预指令与长期记忆注入
     intervention_text = ""
     if state.intervention_rules:
         rules_str = "\n".join([f"- {r}" for r in state.intervention_rules])
-        intervention_text = f"\n### ⚠️ 教师特别干预指令 (优先级最高):\n{rules_str}\n"
+        intervention_text += f"\n### ⚠️ 教师特别干预指令 (优先级最高):\n{rules_str}\n"
+
+    student_memory = state.accumulated_info.get('student_memory')
+    if student_memory and student_memory not in ["该学生暂无长期记忆。", "新学生，暂无历史交互记忆"]:
+        intervention_text += f"\n### 🧠 【系统过往交互记忆档案】\n> {student_memory}\n（你的反馈语气必须带连贯性记忆，如果本次该错误依然没改，可以类似这样开场：'上次我提醒过你...，但你这次依然...'）\n"
+
 
     if not LANGCHAIN_AVAILABLE:
         human_prompt = (
@@ -1332,6 +1337,119 @@ You never hand out answers, only diagnostics that force the student to self-corr
             f"**初步诊断**：在当前轮次我发现以下规则被触发：{issues}。\n\n"
             f"**策略提示**：{strategy_text}"
         )
+    return state
+
+
+def audit_reflection(state: AgentState) -> AgentState:
+    """A8: Harness Engineering - 系统管控节点。对生成的反馈进行确定性质量审计，不合格则打回重写。"""
+    if state.is_error or not state.response:
+        return state
+        
+    import re
+    issues = []
+    response_text = state.response
+    
+    # 规则 1：证据锁（必须引用原话）
+    if "学生原文：" not in response_text and "学生原文:" not in response_text:
+        # Check if D003 short inputs were used, maybe there is no sentence, but rules demand it
+        issues.append("未包含『学生原文：』的引用格式以展示诊断证据。")
+        
+    # 规则 2：微步约束锁（不能有多项任务）
+    task_blocks = re.findall(r'###\s*✅\s*实践任务.*?([\s\S]*)', response_text, flags=re.IGNORECASE)
+    if task_blocks:
+        task_text = task_blocks[0].strip()
+        # 查找明显的列表项符号（1. 2. 或是 - ）
+        bullets = re.findall(r'\n(?:\d+\.|-|\*)\s+', "\n" + task_text)
+        if len(bullets) > 1:
+            issues.append(f"布置了过多实践任务（检测到 {len(bullets)} 项）。必须严格浓缩为 1 个最基础的微步动作。")
+    else:
+        issues.append("未找到必须的『✅ 实践任务 (Practice Task)』标准 Markdown 标题。")
+        
+    # 规则 3：反代写底线 (如果学生说了代写关键词，回复里必须有明确拒绝)
+    ghostwriting_keywords = ["帮我写", "代写", "生成一份", "写一段", "帮我做", "完整方案"]
+    if any(k in state.student_input for k in ghostwriting_keywords):
+        refusal_keywords = ["拒绝", "不能代写", "绝不代写", "不提供代写", "独立", "越俎代庖", "无法直接给出"]
+        if not any(k in response_text for k in refusal_keywords):
+            issues.append("由于学生触发了代写请求，教练必须优先在回复中严词拒绝，但当前回复显得过于妥协。")
+            
+    if issues:
+        LOGGER.warning("[Audit Reflection] 拦截！回复未通过质量管控：%s", issues)
+        state.evidence.append(EvidenceItem(
+            step="audit_reflection",
+            detail=f"系统管控：初稿因【{'; '.join(issues)}】被拦截，正在触发 LLM 自我纠偏回滚机制。",
+            source_excerpt="[System Audit]"
+        ))
+        
+        if not LANGCHAIN_AVAILABLE:
+            state.response += f"\n\n> ⚙️ **Harness Control 提示**：系统检测到上述输出存在格式违规（{issues[0]}），但由于处于离线模式，自动回滚重写被跳过。"
+            return state
+            
+        # 采用小 Prompt 进行快速修复，直接修改格式错误，不改变原意
+        system_prompt = (
+            "你是创业辅导系统的『最终质量审查员』(Harness Controller)。"
+            "以下教练反馈草稿未能通过系统的代码级规则审计。请你在**不改变其核心评价和专业意见**的前提下，立刻修正这些违规项。\n\n"
+            "【严格修正指令】：\n"
+            "1. 若提示缺少原文引用，请根据上下文强制补全一句『学生原文：...』。\n"
+            "2. 若提示任务过多，请毫不留情地砍掉多余任务，只保留最核心的、第一步该做的 1 个任务。\n"
+            "3. 输出依然必须包含原有的 6 个 Markdown 标题结构（Issue, Definition, Example, Analysis, Socratic Question, Practice Task）。"
+        )
+        human_prompt = f"【教练初稿】\n{response_text}\n\n【审计出的违规项】\n{chr(10).join(issues)}\n\n请输出修正后的完整最终回复："
+        
+        try:
+            client = _get_chat_client()
+            from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
+            prompt = ChatPromptTemplate.from_messages([
+                SystemMessagePromptTemplate.from_template(system_prompt),
+                HumanMessagePromptTemplate.from_template(human_prompt)
+            ])
+            LOGGER.info("[Audit Reflection] 正在调用 LLM 执行自动纠偏回滚...")
+            response = client.invoke(prompt.format_messages())
+            corrected_content = getattr(response, "content", None) or (response.choices[0].message.content if response.choices else "")
+            
+            if corrected_content:
+                state.response = corrected_content
+                LOGGER.info("[Audit Reflection] 回滚纠偏成功。")
+            else:
+                LOGGER.warning("[Audit Reflection] 纠偏返回为空，放弃回滚。")
+        except Exception as e:
+            LOGGER.error("[Audit Reflection] 回滚修复失败: %s", e)
+            
+    return state
+
+
+def update_memory_engine(state: AgentState) -> AgentState:
+    """A8-6: Context Engineering - 动态凝练学生的长期记忆画像"""
+    if state.is_error:
+        return state
+        
+    current_memory = state.accumulated_info.get("student_memory", "该学生暂无长期记忆。")
+    current_issues = "、".join(state.detected_fallacies) if state.detected_fallacies else "本轮无明显漏洞（表现优异）"
+    
+    if not LANGCHAIN_AVAILABLE:
+        return state
+        
+    system_prompt = (
+        "你是负责维护『学生认知档案』的记忆引擎。你的任务是根据学生过往的记忆和本轮触发的逻辑漏洞，"
+        "用50字以内的一段话，精炼总结该学生的『核心商业逻辑短板』及『近期思维表现』。\n"
+        "要求：极度客观、犀利。指出目前最卡脖子的问题。如果学生本次解决了以往的问题，请移除相关负面评价。"
+    )
+    human_prompt = f"【历史记忆】：{current_memory}\n【本轮触发漏洞】：{current_issues}\n请输出更新后的学生认知档案（50字内）："
+    
+    try:
+        from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
+        prompt = ChatPromptTemplate.from_messages([
+            SystemMessagePromptTemplate.from_template(system_prompt),
+            HumanMessagePromptTemplate.from_template(human_prompt)
+        ])
+        client = _get_chat_client()
+        response = client.invoke(prompt.format_messages())
+        new_memory = getattr(response, "content", None) or (response.choices[0].message.content if response.choices else "")
+        if new_memory:
+            state.accumulated_info["student_memory"] = new_memory.strip()
+            LOGGER.info("[Context Engine] 记忆档案已更新: %s", state.accumulated_info["student_memory"])
+    except Exception as e:
+        LOGGER.error("[Context Engine] 记忆更新失败: %s", e)
+        
     return state
 
 
@@ -1517,14 +1635,18 @@ def build_state_graph() -> StateGraph:
         Node(name="hypergraph_critic", function=hypergraph_critic),
         Node(name="strategy_selector", function=strategy_selector),
         Node(name="generate_rebuttal", function=generate_rebuttal),
+        Node(name="audit_reflection", function=audit_reflection),
         Node(name="rubric_scorer", function=rubric_scorer),
+        Node(name="update_memory_engine", function=update_memory_engine),
     ]
     for node in nodes:
         graph.add_node(node)
     graph.connect("extract_entities", "hypergraph_critic")
     graph.connect("hypergraph_critic", "strategy_selector")
     graph.connect("strategy_selector", "generate_rebuttal")
-    graph.connect("generate_rebuttal", "rubric_scorer")
+    graph.connect("generate_rebuttal", "audit_reflection")
+    graph.connect("audit_reflection", "rubric_scorer")
+    graph.connect("rubric_scorer", "update_memory_engine")
     graph.compile()
     return graph
 
