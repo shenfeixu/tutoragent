@@ -1,0 +1,3774 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "description": "创新创业教学智能体知识图谱种子数据",
+    "total_projects": 50,
+    "created_at": "2024-01-01"
+  },
+  "projects": [
+    {
+      "id": "dronefarm_001",
+      "name": "DroneFarm 智慧农业",
+      "description": "基于无人机遥感的精准农业解决方案",
+      "tech": {
+        "name": "多光谱无人机遥感与AI作物诊断系统",
+        "maturity": "小规模验证",
+        "barrier": "高"
+      },
+      "market": {
+        "name": "智慧农业与精准种植",
+        "tam": 50000000000,
+        "sam": 10000000000,
+        "som": 2000000000
+      },
+      "risk": {
+        "name": "农业政策变动与技术落地周期长风险",
+        "severity": "中"
+      },
+      "value_loop_edge": {
+        "id": "vl_dronefarm",
+        "name": "数据驱动农业闭环",
+        "description": "遥感数据采集 -> AI分析 -> 精准施肥 -> 产量提升",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 50000,
+          "cac": 8000,
+          "revenue_model": "SaaS订阅+服务费"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_dronefarm",
+        "name": "技术落地风险链",
+        "description": "技术复杂度高 -> 农户接受度低 -> 推广周期长",
+        "nodes": ["tech", "risk"],
+        "mitigation": "建立示范基地，降低技术门槛"
+      }
+    },
+    {
+      "id": "orientbox_002",
+      "name": "OrientBox 智能包装",
+      "description": "可降解智能包装材料与追踪系统",
+      "tech": {
+        "name": "生物基可降解材料与NFC溯源芯片",
+        "maturity": "商业化",
+        "barrier": "中"
+      },
+      "market": {
+        "name": "绿色包装与供应链溯源",
+        "tam": 80000000000,
+        "sam": 15000000000,
+        "som": 3000000000
+      },
+      "risk": {
+        "name": "材料成本高与市场竞争激烈风险",
+        "severity": "高"
+      },
+      "value_loop_edge": {
+        "id": "vl_orientbox",
+        "name": "绿色价值闭环",
+        "description": "环保材料 -> 品牌溢价 -> 消费者认可 -> 复购增长",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 30000,
+          "cac": 5000,
+          "revenue_model": "产品销售+数据服务"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_orientbox",
+        "name": "成本压力风险链",
+        "description": "原材料涨价 -> 成本上升 -> 利润压缩 -> 价格竞争",
+        "nodes": ["tech", "risk"],
+        "mitigation": "规模化生产降本，开发替代材料"
+      }
+    },
+    {
+      "id": "jingweizk_003",
+      "name": "精微智控",
+      "description": "飞秒激光电子动态调控与高时空分辨成像系统",
+      "tech": {
+        "name": "飞秒激光电子动态调控与高时空分辨成像系统",
+        "maturity": "原型",
+        "barrier": "高"
+      },
+      "market": {
+        "name": "智能精密制造与量子器件制备",
+        "tam": 30000000000,
+        "sam": 8000000000,
+        "som": 1500000000
+      },
+      "risk": {
+        "name": "电子调控机理不明确及工艺优化周期长风险",
+        "severity": "高"
+      },
+      "value_loop_edge": {
+        "id": "vl_jingweizk",
+        "name": "精密制造价值闭环",
+        "description": "高精度加工 -> 良品率提升 -> 客户粘性 -> 持续订单",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 200000,
+          "cac": 30000,
+          "revenue_model": "设备销售+技术服务"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_jingweizk",
+        "name": "技术转化风险链",
+        "description": "原理验证 -> 工程化难题 -> 量产困难 -> 市场延迟",
+        "nodes": ["tech", "risk"],
+        "mitigation": "产学研合作，分阶段验证"
+      }
+    },
+  {
+      "id": "huixinxiying_004",
+      "name": "慧心晰影",
+      "description": "智能数字放射科医生辅助诊断系统",
+      "tech": {
+        "name": "医学影像AI分析与多模态辅助诊断算法",
+        "maturity": "原型/小规模验证",
+        "barrier": "高"
+      },
+      "market": {
+        "name": "医疗人工智能影像辅助诊断市场",
+        "tam": 50000000000,
+        "sam": 15000000000,
+        "som": 2000000000
+      },
+      "risk": {
+        "name": "NMPA三类医疗器械审批周期长及数据合规风险",
+        "severity": "高"
+      },
+      "value_loop_edge": {
+        "id": "vl_huixinxiying",
+        "name": "医疗提效价值闭环",
+        "description": "AI辅助阅片 -> 漏诊率降低/医生效率提升 -> 医院诊疗量增加 -> 持续采购系统与服务",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 150000,
+          "cac": 35000,
+          "revenue_model": "软件授权+按例收费"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_huixinxiying",
+        "name": "长周期死亡谷风险链",
+        "description": "临床试验耗时长 -> 审批未通过/延迟 -> 资金链断裂 -> 商业化失败",
+        "nodes": ["tech", "risk"],
+        "mitigation": "联合三甲医院开展科研打榜，积极申报创新医疗器械绿色通道加速审批"
+      }
+    },
+    {
+      "id": "xingshao_005",
+      "name": "星哨科技",
+      "description": "新一代卫星互联网全域全时快响预警应用系统",
+      "tech": {
+        "name": "卫星互联网星座组网与遥感微波快响预警技术",
+        "maturity": "商业化/验证",
+        "barrier": "极高"
+      },
+      "market": {
+        "name": "商业航天遥感与应急预警服务市场",
+        "tam": 100000000000,
+        "sam": 30000000000,
+        "som": 5000000000
+      },
+      "risk": {
+        "name": "商业航天政策收紧及卫星发射/在轨故障风险",
+        "severity": "高"
+      },
+      "value_loop_edge": {
+        "id": "vl_xingshao",
+        "name": "天地一体化应急闭环",
+        "description": "卫星实时监测 -> 算法极速研判预警 -> 客户减灾止损 -> 长期高客单价订阅",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 2000000,
+          "cac": 300000,
+          "revenue_model": "G端/大B端数据订阅与定制方案"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_xingshao",
+        "name": "重资产资金链断裂风险",
+        "description": "卫星造价发射成本极高 -> 客户采购决策流程长 -> 无法覆盖前端重资产投入",
+        "nodes": ["tech", "risk"],
+        "mitigation": "先期租赁外部商业卫星数据跑通闭环，获取G端稳定订单后再布局自有星座"
+      }
+    },
+    {
+      "id": "jinggong_006",
+      "name": "京工智演",
+      "description": "数字表演产业化的领航者，大型活动智能编排系统",
+      "tech": {
+        "name": "大型活动人群三维智能仿真与数字编排生成技术",
+        "maturity": "商业化应用",
+        "barrier": "高"
+      },
+      "market": {
+        "name": "数字演艺、大型活动策划与视觉仿真市场",
+        "tam": 40000000000,
+        "sam": 12000000000,
+        "som": 1500000000
+      },
+      "risk": {
+        "name": "大型活动受不可抗力取消及项目制收入不稳定风险",
+        "severity": "中"
+      },
+      "value_loop_edge": {
+        "id": "vl_jinggong",
+        "name": "导演效能释放闭环",
+        "description": "数字仿真编排 -> 取代传统人海排练 -> 大幅节约时间与人工成本 -> 行业口碑转介绍获取新订单",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 500000,
+          "cac": 80000,
+          "revenue_model": "技术服务费+SaaS工具年费"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_jinggong",
+        "name": "定制化陷阱风险链",
+        "description": "高度依赖大客户定制 -> 边际成本降不下来 -> 难以实现可复制的规模化增长",
+        "nodes": ["tech", "risk"],
+        "mitigation": "沉淀核心编排算法，推出面向中小演艺公司的标准化、低代码SaaS工具箱"
+      }
+    },
+    {
+      "id": "xunhai_007",
+      "name": "讯海智航",
+      "description": "全流程新闻写作AI辅助平台",
+      "tech": {
+        "name": "领域垂直新闻大模型与全流程自动化编撰技术",
+        "maturity": "小规模验证",
+        "barrier": "中"
+      },
+      "market": {
+        "name": "智能媒体工具与AIGC辅助内容生产市场",
+        "tam": 30000000000,
+        "sam": 8000000000,
+        "som": 1000000000
+      },
+      "risk": {
+        "name": "AI幻觉导致新闻失实及潜在版权纠纷风险",
+        "severity": "高"
+      },
+      "value_loop_edge": {
+        "id": "vl_xunhai",
+        "name": "内容生产飞轮",
+        "description": "AI秒级生成初稿 -> 记者审核发布提效 -> 媒体机构扩大订阅 -> 获取新语料持续反哺大模型",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 60000,
+          "cac": 10000,
+          "revenue_model": "SaaS订阅（按账号/调用次数）+ 私有化部署"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_xunhai",
+        "name": "合规与信任崩塌风险",
+        "description": "大模型生成虚假信息（幻觉） -> 媒体发布导致严重公关危机 -> 客户解约并引发诉讼",
+        "nodes": ["tech", "risk"],
+        "mitigation": "建立强制的人机协同工作流，嵌入外部权威新闻源RAG双重事实核查机制"
+      }
+    },
+    {
+      "id": "suyuan_008",
+      "name": "溯源生物",
+      "description": "国内首创呼吸道病原拉曼检测仪",
+      "tech": {
+        "name": "表面增强拉曼光谱(SERS)与病原微生物即时快检(POCT)技术",
+        "maturity": "实验室/原型",
+        "barrier": "高"
+      },
+      "market": {
+        "name": "呼吸道病原体快检与医院POCT市场",
+        "tam": 60000000000,
+        "sam": 20000000000,
+        "som": 3000000000
+      },
+      "risk": {
+        "name": "硬件量产良品率低与医院入院门槛高风险",
+        "severity": "高"
+      },
+      "value_loop_edge": {
+        "id": "vl_suyuan",
+        "name": "刀片与剃须刀商业模式闭环",
+        "description": "高精度快检 -> 门诊周转加快及精准用药 -> 医院认可 -> 持续高频采购配套检测试剂盒",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 300000,
+          "cac": 60000,
+          "revenue_model": "仪器销售/投放 + 耗材/试剂盒持续收费"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_suyuan",
+        "name": "渠道闭塞存活风险链",
+        "description": "大型设备进院招标流程长 -> 铺货缓慢 -> 消耗品无处售卖 -> 现金流枯竭",
+        "nodes": ["tech", "risk"],
+        "mitigation": "采用‘仪器免费投放+试剂盒锁定收费’的商业模式，降低科室初始决策门槛"
+      }
+    },
+    {
+      "id": "quantumsafe_011",
+      "name": "QuantumSafe 量子密盾",
+      "description": "基于量子密钥分发(QKD)的政企数据安全网关",
+      "tech": {
+        "name": "诱骗态量子密钥分发与后量子密码算法(PQC)",
+        "maturity": "小规模验证",
+        "barrier": "极高"
+      },
+      "market": {
+        "name": "政务云与金融数据通信安全市场",
+        "tam": 45000000000,
+        "sam": 12000000000,
+        "som": 800000000
+      },
+      "risk": {
+        "name": "硬件成本极高与标准尚未统一风险",
+        "severity": "极高"
+      },
+      "value_loop_edge": {
+        "id": "vl_quantumsafe",
+        "name": "绝对安全信任闭环",
+        "description": "无条件安全通信 -> 满足政企最高合规要求 -> 获取高净值大客户 -> 持续收取节点维护费",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 1500000,
+          "cac": 200000,
+          "revenue_model": "硬件网关销售+按年安全服务费"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_quantumsafe",
+        "name": "先烈阵亡风险链",
+        "description": "技术过于前沿 -> 客户认知不足/预算审批受阻 -> 销售周期超过18个月 -> 早期研发投入无法收回",
+        "nodes": ["tech", "risk"],
+        "mitigation": "先切入对数据安全极度敏感的定点军工/头部银行试点，以标杆案例自上而下推动"
+      }
+    },
+    {
+      "id": "bioplast_012",
+      "name": "BioPlast 绿塑科技",
+      "description": "利用工程菌株发酵合成全生物降解塑料(PHA)",
+      "tech": {
+        "name": "高产率合成生物学底盘细胞构建与发酵提纯技术",
+        "maturity": "原型",
+        "barrier": "高"
+      },
+      "market": {
+        "name": "可降解环保材料与高端医疗耗材市场",
+        "tam": 80000000000,
+        "sam": 15000000000,
+        "som": 1000000000
+      },
+      "risk": {
+        "name": "规模化量产成本难降与传统塑料价格战风险",
+        "severity": "高"
+      },
+      "value_loop_edge": {
+        "id": "vl_bioplast",
+        "name": "双碳合规价值闭环",
+        "description": "全降解无微塑料 -> 帮助消费品牌实现ESG目标 -> 品牌支付环保溢价 -> 扩大产能降低边际成本",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 800000,
+          "cac": 50000,
+          "revenue_model": "原材料吨级销售+定制改性配方"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_bioplast",
+        "name": "实验室到工厂死亡谷",
+        "description": "实验室发酵成功 -> 百吨级放大产生染菌/产率骤降 -> 成本远高于传统PE塑料 -> 客户拒绝采购",
+        "nodes": ["tech", "risk"],
+        "mitigation": "避开低端包装袋红海，先做高附加值的医疗级PHA（如骨钉、手术缝合线）实现现金流"
+      }
+    },
+    {
+      "id": "silvercare_013",
+      "name": "SilverCare 银伴",
+      "description": "面向独居老人的多模态情感陪伴与健康预警机器人",
+      "tech": {
+        "name": "适老化方言语音识别与毫米波雷达跌倒监测融合技术",
+        "maturity": "商业化",
+        "barrier": "中"
+      },
+      "market": {
+        "name": "银发经济智能居家养老市场",
+        "tam": 100000000000,
+        "sam": 25000000000,
+        "som": 2000000000
+      },
+      "risk": {
+        "name": "使用者与购买者分离导致的定价错位风险",
+        "severity": "高"
+      },
+      "value_loop_edge": {
+        "id": "vl_silvercare",
+        "name": "孝心代偿闭环",
+        "description": "实时健康预警+情感抚慰 -> 缓解子女焦虑 -> 子女持续续费 -> 积累老年健康大数据挖掘衍生价值",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 12000,
+          "cac": 1500,
+          "revenue_model": "硬件一次性购买+基础陪伴免费+医疗绿通订阅"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_silvercare",
+        "name": "使用率吃灰陷阱",
+        "description": "子女冲动购买送礼 -> 老人嫌费电/操作复杂不用 -> 硬件闲置断网 -> 无法产生后续订阅收入",
+        "nodes": ["tech", "risk"],
+        "mitigation": "弱化屏幕交互，采用极简实体按键与自动被动感知（如毫米波无感监测）降低使用门槛"
+      }
+    },
+    {
+      "id": "carbontrack_014",
+      "name": "CarbonTrack 碳迹星",
+      "description": "基于物联网与区块链的企业级碳足迹核算与交易SaaS",
+      "tech": {
+        "name": "跨系统能耗数据API聚合与区块链防篡改存证技术",
+        "maturity": "商业化扩展",
+        "barrier": "中"
+      },
+      "market": {
+        "name": "企业碳盘查与ESG数字化转型市场",
+        "tam": 30000000000,
+        "sam": 8000000000,
+        "som": 1200000000
+      },
+      "risk": {
+        "name": "极度依赖政策强制力及同质化竞争风险",
+        "severity": "中"
+      },
+      "value_loop_edge": {
+        "id": "vl_carbontrack",
+        "name": "碳资产变现飞轮",
+        "description": "精准核算碳排放 -> 满足欧盟CBAM审计/接入碳交易市场 -> 企业获得直接财务收益 -> 平台抽取交易佣金",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 150000,
+          "cac": 18000,
+          "revenue_model": "SaaS订阅年费+碳配额交易撮合佣金"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_carbontrack",
+        "name": "伪需求伪痛点风险链",
+        "description": "政策执行力度不及预期 -> 企业缺乏主动减碳动力 -> 沦为面子工程 -> 拒绝采购高客单价SaaS",
+        "nodes": ["tech", "risk"],
+        "mitigation": "绑定头部出口制造企业（受制于海外碳关税），提供出海贸易合规认证刚需服务"
+      }
+    },
+    {
+      "id": "metaheritage_015",
+      "name": "MetaHeritage 非遗视界",
+      "description": "利用空间计算技术打造的沉浸式地方非遗文化体验舱",
+      "tech": {
+        "name": "高精度文化资产3D重建与全息投影交互技术",
+        "maturity": "小规模验证",
+        "barrier": "低"
+      },
+      "market": {
+        "name": "数字文旅与商业综合体沉浸式娱乐市场",
+        "tam": 20000000000,
+        "sam": 5000000000,
+        "som": 500000000
+      },
+      "risk": {
+        "name": "内容更新成本高与复购率低下风险",
+        "severity": "高"
+      },
+      "value_loop_edge": {
+        "id": "vl_metaheritage",
+        "name": "文旅引流闭环",
+        "description": "震撼的全息视觉体验 -> 游客自发社交媒体传播 -> 景区/商场客流激增 -> 渠道方大量铺设线下体验舱",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 80000,
+          "cac": 15000,
+          "revenue_model": "硬件设备销售+内容IP授权分成"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_metaheritage",
+        "name": "一阵风网红陷阱",
+        "description": "体验新鲜感流失 -> 缺乏深度互动内容 -> 门店复购率趋近于零 -> 加盟商倒闭抛售设备",
+        "nodes": ["tech", "risk"],
+        "mitigation": "开放AIGC创作者平台，引入剧本杀模式，让体验从纯观赏升级为多分支剧情互动"
+      }
+    },
+    {
+      "id": "agribot_016",
+      "name": "AgriBot 智果机器汉",
+      "description": "全天候柔性末端苹果/柑橘采摘机器人",
+      "tech": {
+        "name": "非结构化环境视觉定位与气动柔性执行器技术",
+        "maturity": "原型",
+        "barrier": "高"
+      },
+      "market": {
+        "name": "智慧农业设备与劳动力替代市场",
+        "tam": 35000000000,
+        "sam": 8000000000,
+        "som": 800000000
+      },
+      "risk": {
+        "name": "机器成本过高及非标准果园环境适应性差风险",
+        "severity": "高"
+      },
+      "value_loop_edge": {
+        "id": "vl_agribot",
+        "name": "降本增效闭环",
+        "description": "柔性采摘不伤果 -> 24小时连续作业 -> 解决采收季用工荒/降低人工成本 -> 农场主大规模采购",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 150000,
+          "cac": 20000,
+          "revenue_model": "整机销售+年度维保服务"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_agribot",
+        "name": "复杂环境宕机风险",
+        "description": "实验室识别率99% -> 真实果园光照剧变/枝叶遮挡 -> 漏采误摘率极高 -> 效率低于熟练工被退货",
+        "nodes": ["tech", "risk"],
+        "mitigation": "联合大型标准化现代农业产业园进行定向开发，而非推向散户非标准化山地果园"
+      }
+    },
+    {
+      "id": "neurorehab_017",
+      "name": "NeuroRehab 脑控行",
+      "description": "面向卒中患者的非侵入式脑机接口康复外骨骼",
+      "tech": {
+        "name": "干电极EEG脑电信号解码与意图驱动电机控制算法",
+        "maturity": "概念验证",
+        "barrier": "极高"
+      },
+      "market": {
+        "name": "神经康复医疗器械与残疾人辅具市场",
+        "tam": 50000000000,
+        "sam": 15000000000,
+        "som": 1500000000
+      },
+      "risk": {
+        "name": "医疗器械资质审批壁垒与脑电信号个体差异性风险",
+        "severity": "极高"
+      },
+      "value_loop_edge": {
+        "id": "vl_neurorehab",
+        "name": "主动康复神经重塑闭环",
+        "description": "意图直驱外骨骼 -> 建立脑-肌神经反馈回路 -> 康复周期缩短30% -> 康复医院作为重点器械引进",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 450000,
+          "cac": 80000,
+          "revenue_model": "医疗器械进院销售+耗材（电极贴片）订阅"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_neurorehab",
+        "name": "科研玩具商业化死亡",
+        "description": "个体脑电差异大 -> 每次使用需重新长时间标定 -> 康复技师认为影响效率 -> 设备吃灰不采购",
+        "nodes": ["tech", "risk"],
+        "mitigation": "引入大模型预训练基座，实现零标定或极少标定的即插即用体验，提升临床工作流效率"
+      }
+    },
+    {
+      "id": "smartgrid_018",
+      "name": "SmartGrid 智联微电",
+      "description": "工商业储能与光伏协同的虚拟电厂(VPP)调度平台",
+      "tech": {
+        "name": "边缘计算AI负荷预测与毫秒级并网调度算法",
+        "maturity": "商业化",
+        "barrier": "高"
+      },
+      "market": {
+        "name": "分布式能源管理与电力市场交易辅助服务",
+        "tam": 60000000000,
+        "sam": 18000000000,
+        "som": 3000000000
+      },
+      "risk": {
+        "name": "电网调度协议壁垒及电力现货市场政策不确定性",
+        "severity": "中"
+      },
+      "value_loop_edge": {
+        "id": "vl_smartgrid",
+        "name": "峰谷套利能源飞轮",
+        "description": "智能峰谷充放电 -> 削峰填谷节约电费 -> 参与电网需求侧响应获利 -> 吸引更多工厂接入规模化套利",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 600000,
+          "cac": 45000,
+          "revenue_model": "SaaS接入费+电力交易收益分成(EMC模式)"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_smartgrid",
+        "name": "重资产垫资拖垮链",
+        "description": "采用合同能源管理(EMC)模式 -> 早期大量垫资购买储能设备 -> 成本回收期长达5年 -> 资金链断裂",
+        "nodes": ["tech", "risk"],
+        "mitigation": "转型纯SaaS软件服务商，联合外部融资租赁公司或产业基金解决储能硬件的重资产投入"
+      }
+    },
+    {
+      "id": "pethealth_019",
+      "name": "PetHealth 宠知微",
+      "description": "家用宠物尿液智能分析猫砂盆与快检试纸",
+      "tech": {
+        "name": "微流控比色分析与机器视觉图像诊断技术",
+        "maturity": "小规模验证",
+        "barrier": "中"
+      },
+      "market": {
+        "name": "宠物健康监测与智能宠物家居市场",
+        "tam": 25000000000,
+        "sam": 8000000000,
+        "som": 1200000000
+      },
+      "risk": {
+        "name": "诊断准确率非医疗级导致的延误病情法律风险",
+        "severity": "中"
+      },
+      "value_loop_edge": {
+        "id": "vl_pethealth",
+        "name": "健康焦虑消解闭环",
+        "description": "居家无感检测 -> 提前预警泌尿系疾病 -> 缓解铲屎官焦虑 -> 持续购买专用智能检测试纸",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 3500,
+          "cac": 300,
+          "revenue_model": "硬件基站销售+试纸耗材复购"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_pethealth",
+        "name": "耗材非标壁垒极度脆弱",
+        "description": "机器铺开 -> 供应链被白牌厂商破解 -> 用户买便宜平替耗材 -> 丢掉高利润耗材收入模式",
+        "nodes": ["tech", "risk"],
+        "mitigation": "引入RFID加密芯片耗材识别，且与在线兽医问诊服务绑定，构建服务体验护城河"
+      }
+    },
+    {
+      "id": "edai_020",
+      "name": "EdAI 渊思学擎",
+      "description": "基于知识图谱的K12理科自适应学习诊断系统",
+      "tech": {
+        "name": "认知诊断模型(CDM)与基于知识图谱的习题推荐算法",
+        "maturity": "商业化应用",
+        "barrier": "高"
+      },
+      "market": {
+        "name": "教育信息化与公立校智慧课堂市场",
+        "tam": 40000000000,
+        "sam": 15000000000,
+        "som": 2000000000
+      },
+      "risk": {
+        "name": "教育减负政策(双减)环境下的合规与采购风险",
+        "severity": "高"
+      },
+      "value_loop_edge": {
+        "id": "vl_edai",
+        "name": "因材施教提效闭环",
+        "description": "精准定位薄弱知识点 -> 减少无效刷题时间 -> 学生成绩显著提升 -> 学校/家长口碑裂变",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 15000,
+          "cac": 2000,
+          "revenue_model": "公立校B端采购+家长端增值分析报告"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_edai",
+        "name": "渠道腐败与劣币驱逐风险",
+        "description": "产品效果好 -> 但To B教育进校极度依赖关系与渠道 -> 输给关系户竞品 -> 市场拓展停滞",
+        "nodes": ["tech", "risk"],
+        "mitigation": "联合头部教材出版集团共同打造数字化教辅，借船出海绕过单纯的软硬件进校招标暗礁"
+      }
+    },
+    {
+      "id": "solidpower_021",
+      "name": "SolidPower 磐岩动力",
+      "description": "高比能硫化物全固态电池核心电解质材料研发",
+      "tech": {
+        "name": "无机硫化物固态电解质批量化合成与界面改性技术",
+        "maturity": "原型",
+        "barrier": "极高"
+      },
+      "market": {
+        "name": "下一代新能源汽车动力电池及低空经济无人机市场",
+        "tam": 200000000000,
+        "sam": 30000000000,
+        "som": 2000000000
+      },
+      "risk": {
+        "name": "固固界面阻抗难题及巨头技术路线更迭碾压风险",
+        "severity": "极高"
+      },
+      "value_loop_edge": {
+        "id": "vl_solidpower",
+        "name": "能量密度革命闭环",
+        "description": "不起火+高能量密度 -> 彻底解决里程与安全焦虑 -> 车企获得差异化卖点 -> 达成大额订单",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 50000000,
+          "cac": 2000000,
+          "revenue_model": "电解质粉体材料销售+专利授权"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_solidpower",
+        "name": "漫长验证期的现金流断裂",
+        "description": "车规级验证需3-5年 -> 持续巨额研发烧钱 -> 一级市场融资遇冷 -> 资金链断裂在黎明前",
+        "nodes": ["tech", "risk"],
+        "mitigation": "降维打击，先实现3C消费电子和无人机电池的量产验证，获取早期自我造血能力"
+      }
+    },
+    {
+      "id": "oceanclean_022",
+      "name": "OceanClean 蓝海卫士",
+      "description": "水面垃圾智能识别与自动清理无人船",
+      "tech": {
+        "name": "水面目标检测视觉算法与自动航迹规划技术",
+        "maturity": "小规模验证",
+        "barrier": "中"
+      },
+      "market": {
+        "name": "城市内河湖泊环保保洁与水域治理市场",
+        "tam": 15000000000,
+        "sam": 4000000000,
+        "som": 500000000
+      },
+      "risk": {
+        "name": "水草缠绕导致宕机及市政采购预算压缩风险",
+        "severity": "中"
+      },
+      "value_loop_edge": {
+        "id": "vl_oceanclean",
+        "name": "无人化环保运维闭环",
+        "description": "无人船代替传统环卫工人 -> 降低高危水面作业风险与人力成本 -> 市政园林局形成规模采购",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 300000,
+          "cac": 30000,
+          "revenue_model": "无人船整机销售+水域保洁运营外包服务"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_oceanclean",
+        "name": "伪智能的高运维成本",
+        "description": "经常被水草渔网缠住螺旋桨 -> 需要人工下水救援机器 -> 实际成本反超纯人工保洁 -> 遭解约",
+        "nodes": ["tech", "risk"],
+        "mitigation": "设计明轮推进器取代传统螺旋桨推进，极大提高抗水草缠绕和恶劣水域的生存能力"
+      }
+    },
+    {
+      "id": "cloudkitchen_023",
+      "name": "CloudKitchen 云味智链",
+      "description": "面向连锁餐饮的中央厨房柔性生产与供应链调度SaaS",
+      "tech": {
+        "name": "需求预测算法与多波次柔性排产统筹技术",
+        "maturity": "商业化扩展",
+        "barrier": "中"
+      },
+      "market": {
+        "name": "连锁餐饮数字化与央厨供应链管理软件市场",
+        "tam": 25000000000,
+        "sam": 8000000000,
+        "som": 1500000000
+      },
+      "risk": {
+        "name": "连锁餐饮倒闭潮导致的客户流失及实施周期长风险",
+        "severity": "中"
+      },
+      "value_loop_edge": {
+        "id": "vl_cloudkitchen",
+        "name": "库存周转极速飞轮",
+        "description": "精准预测食材需求 -> 减少央厨备货损耗30% -> 餐饮企业利润率上升 -> 持续购买系统与扩大站点",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 250000,
+          "cac": 40000,
+          "revenue_model": "SaaS订阅年费+实施部署费"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_cloudkitchen",
+        "name": "重实施拖累毛利陷阱",
+        "description": "每家餐饮企业流程各异 -> SaaS沦为重度定制开发外包 -> 人效极低 -> 无法实现SaaS规模化盈利",
+        "nodes": ["tech", "risk"],
+        "mitigation": "坚决推行PaaS化架构，剥离非标需求给第三方实施服务商，守住软件标准化底线"
+      }
+    },
+    {
+      "id": "securechain_024",
+      "name": "SecureChain 信任链",
+      "description": "基于联盟链的制造业多级供应商确权与融资平台",
+      "tech": {
+        "name": "分布式账本智能合约与零知识证明数据隐私技术",
+        "maturity": "小规模验证",
+        "barrier": "高"
+      },
+      "market": {
+        "name": "供应链金融与产业数字化信用流转市场",
+        "tam": 80000000000,
+        "sam": 20000000000,
+        "som": 2000000000
+      },
+      "risk": {
+        "name": "核心企业参与意愿低及金融监管合规牌照风险",
+        "severity": "高"
+      },
+      "value_loop_edge": {
+        "id": "vl_securechain",
+        "name": "信用穿透放款闭环",
+        "description": "核心企业信用上链穿透 -> 中小供应商获低成本银行贷款 -> 供应链稳固降本 -> 平台抽取融资服务费",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 800000,
+          "cac": 100000,
+          "revenue_model": "按融资规模收取千分之二服务费+系统使用费"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_securechain",
+        "name": "数据孤岛冷启动困局",
+        "description": "核心巨头企业不愿共享交易数据 -> 银行不敢放款 -> 平台无单可撮合 -> 沦为空转的系统外壳",
+        "nodes": ["tech", "risk"],
+        "mitigation": "与国资背景的产业园区或地方城商行深度绑定，以行政或资金优势自上而下推动核心企业上链"
+      }
+    },
+    {
+      "id": "spacepropel_025",
+      "name": "SpacePropel 星焰微纳",
+      "description": "面向商业微纳卫星的碘工质霍尔电推进系统",
+      "tech": {
+        "name": "固体碘工质升华气化与高效霍尔等离子体加速技术",
+        "maturity": "原型验证(地面真空罐阶段)",
+        "barrier": "极高"
+      },
+      "market": {
+        "name": "商业航天微小卫星配套组件与星座组网市场",
+        "tam": 15000000000,
+        "sam": 4000000000,
+        "som": 500000000
+      },
+      "risk": {
+        "name": "缺乏在轨飞行遗产(Flight Heritage)导致的客户不信任风险",
+        "severity": "极高"
+      },
+      "value_loop_edge": {
+        "id": "vl_spacepropel",
+        "name": "轻量化组网效益闭环",
+        "description": "碘工质无需高压气瓶 -> 卫星减重及寿命延长 -> 星座部署成本断崖式下降 -> 获取商业星座大额订单",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 5000000,
+          "cac": 300000,
+          "revenue_model": "推进器硬件销售+在轨燃料加注技术授权"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_spacepropel",
+        "name": "首飞失败归零风险",
+        "description": "地面验证完美 -> 首次搭载发射遭遇太空极端辐射失效 -> 失去全部商业信誉 -> 永远失去订单",
+        "nodes": ["tech", "risk"],
+        "mitigation": "免费赠送设备给高校科研卫星做技术验证，获取关键的'在轨飞行记录(TRL 9)'背书后再去商业拓展"
+      }
+    },
+    {
+      "id": "medxr_026",
+      "name": "MedXR 幻境刀锋",
+      "description": "基于混合现实(MR)的骨科手术术中全息导航系统",
+      "tech": {
+        "name": "空间多模态影像配准与亚毫米级光学追踪算法",
+        "maturity": "小规模验证(动物实验与临床一期)",
+        "barrier": "高"
+      },
+      "market": {
+        "name": "数字化骨科手术机器人及术中导航系统市场",
+        "tam": 25000000000,
+        "sam": 6000000000,
+        "som": 800000000
+      },
+      "risk": {
+        "name": "医生操作习惯改变阻力与沉浸式设备眩晕风险",
+        "severity": "高"
+      },
+      "value_loop_edge": {
+        "id": "vl_medxr",
+        "name": "精准微创医疗闭环",
+        "description": "透视解剖结构 -> 手术精准度提升且减少X光辐射 -> 患者预后极好 -> 医院将系统列为核心优势宣传",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 800000,
+          "cac": 120000,
+          "revenue_model": "软硬件一体机销售+按次手术授权费"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_medxr",
+        "name": "伪痛点与效率杀手陷阱",
+        "description": "头显设备过重/配准耗时30分钟 -> 主刀医生感到疲劳且拖慢手术流转率 -> 设备被锁进仓库",
+        "nodes": ["tech", "risk"],
+        "mitigation": "从最需要三维空间视野的复杂脊柱穿刺手术切入，而非简单的关节置换手术，打透绝对痛点"
+      }
+    },
+    {
+      "id": "zerotrust_027",
+      "name": "ZeroTrust 零境云防",
+      "description": "面向跨国企业的无边界零信任网络安全访问控制平台",
+      "tech": {
+        "name": "持续自适应风险与信任评估(CARTA)与微隔离技术",
+        "maturity": "商业化扩展",
+        "barrier": "高"
+      },
+      "market": {
+        "name": "企业级网络安全与SASE（安全访问服务边缘）市场",
+        "tam": 50000000000,
+        "sam": 15000000000,
+        "som": 2500000000
+      },
+      "risk": {
+        "name": "网络基础设施替换风险及安全巨头捆绑倾销打压",
+        "severity": "中"
+      },
+      "value_loop_edge": {
+        "id": "vl_zerotrust",
+        "name": "动态防御信任闭环",
+        "description": "永不信任持续验证 -> 彻底阻断勒索病毒横向移动 -> 保障数据不泄露 -> 企业持续缴纳高额年费",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 350000,
+          "cac": 45000,
+          "revenue_model": "基于节点数/用户数的SaaS订阅年费"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_zerotrust",
+        "name": "巨头生态壁垒绞杀",
+        "description": "功能单一 -> 客户已有深信服/奇安信全家桶 -> 巨头免费赠送零信任模块 -> 创业公司无法成单",
+        "nodes": ["tech", "risk"],
+        "mitigation": "避开国内内卷市场，聚焦中国企业出海(东南亚/中东)跨国合规数据连通的安全细分场景"
+      }
+    },
+    {
+      "id": "foodtechx_028",
+      "name": "FoodTechX 细胞味觉",
+      "description": "低成本干细胞培养肉无血清培养基与规模化生物反应器",
+      "tech": {
+        "name": "植物源无血清培养基配方与细胞微载体3D放大扩增技术",
+        "maturity": "概念验证(实验室克级)",
+        "barrier": "极高"
+      },
+      "market": {
+        "name": "替代蛋白与未来可持续食品科技市场",
+        "tam": 100000000000,
+        "sam": 10000000000,
+        "som": 500000000
+      },
+      "risk": {
+        "name": "监管审批不明朗与公众伦理接受度极低风险",
+        "severity": "极高"
+      },
+      "value_loop_edge": {
+        "id": "vl_foodtechx",
+        "name": "终极碳减排蛋白闭环",
+        "description": "无动物屠宰且零抗生素 -> 迎合极致环保与健康诉求 -> 获取高溢价 -> 反哺昂贵的研发投入",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 200000,
+          "cac": 40000,
+          "revenue_model": "培养基试剂耗材销售+技术IP授权"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_foodtechx",
+        "name": "规模化天价成本死局",
+        "description": "无血清培养基太贵 -> 细胞肉汉堡单价高达百美元 -> 无法进入大众餐饮 -> 沦为资本炒作噱头",
+        "nodes": ["tech", "risk"],
+        "mitigation": "做铲子不淘金，定位于‘培养肉行业的台积电’，专注出售廉价培养基和反应器硬件而非卖肉"
+      }
+    },
+    {
+      "id": "printhouse_029",
+      "name": "PrintHouse 筑梦3D",
+      "description": "建筑废弃物再利用的巨型混凝土3D打印机器人系统",
+      "tech": {
+        "name": "大尺度空间精准定位打印与速凝环保材料配合比技术",
+        "maturity": "原型(样板房阶段)",
+        "barrier": "中"
+      },
+      "market": {
+        "name": "装配式建筑、异形建筑建造与灾区快速重建模市场",
+        "tam": 80000000000,
+        "sam": 12000000000,
+        "som": 1500000000
+      },
+      "risk": {
+        "name": "建筑国标验收缺失及抗震安全性无法长期验证风险",
+        "severity": "高"
+      },
+      "value_loop_edge": {
+        "id": "vl_printhouse",
+        "name": "环保速建奇观闭环",
+        "description": "消纳建筑垃圾+无模具打印 -> 造价降低50%且造型奇特 -> 成为网红建筑/示范区 -> 接到更多工程",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 1200000,
+          "cac": 80000,
+          "revenue_model": "大型机器人销售+专有打印耗材+工程承包分润"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_printhouse",
+        "name": "非标建材合规死亡",
+        "description": "打印出的房屋缺乏钢筋结构 -> 无法通过住建部强制抗震验收标准 -> 只能做临时工棚 -> 市场极小",
+        "nodes": ["tech", "risk"],
+        "mitigation": "主打市政景观小品（如公园座椅、隔音墙、异形公厕），避开严苛的民用住宅承重结构红线"
+      }
+    },
+    {
+      "id": "autodrive_030",
+      "name": "AutoDrive 矿安行",
+      "description": "面向露天矿山的L4级别无人驾驶矿卡整体解决方案",
+      "tech": {
+        "name": "无GPS环境下的激光雷达多传感器融合与车端线控底盘技术",
+        "maturity": "小规模验证(单矿区试运行)",
+        "barrier": "极高"
+      },
+      "market": {
+        "name": "特定封闭场景自动驾驶与智慧矿山调度市场",
+        "tam": 50000000000,
+        "sam": 15000000000,
+        "som": 2000000000
+      },
+      "risk": {
+        "name": "极端恶劣天气感知失效及一次性重资产投入极高风险",
+        "severity": "高"
+      },
+      "value_loop_edge": {
+        "id": "vl_autodrive",
+        "name": "极限降本剥离闭环",
+        "description": "机器替代高薪司机 -> 解决招工难/避免疲劳驾驶安全事故 -> 矿山产能提升 -> 拓展至更多矿区",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 5000000,
+          "cac": 300000,
+          "revenue_model": "按土石方剥离量计件收费(运输运营模式)"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_autodrive",
+        "name": "黑盒子事故连带毁灭",
+        "description": "算法出现长尾效应Corner Case -> 发生重大安全碾压事故 -> 矿区被强令停产整顿 -> 面临巨额索赔",
+        "nodes": ["tech", "risk"],
+        "mitigation": "采用‘5G远程安全员接管+无人驾驶’的冗余模式，而非激进的真无人，保证系统底线安全"
+      }
+    },
+    {
+      "id": "campusbook_031",
+      "name": "CampusBook 校园二手流转",
+      "description": "基于同校信任背书的大学生闲置教材与日用品交易平台",
+      "tech": {
+        "name": "ISBN扫码快速发布与同校LBS匹配算法",
+        "maturity": "商业化应用",
+        "barrier": "低"
+      },
+      "market": {
+        "name": "校园二手循环经济",
+        "tam": 10000000000,
+        "sam": 2000000000,
+        "som": 50000000
+      },
+      "risk": {
+        "name": "低频交易与学生毕业流失风险",
+        "severity": "中"
+      },
+      "value_loop_edge": {
+        "id": "vl_campusbook",
+        "name": "同城免邮闭环",
+        "description": "本校面交免快递费 -> 卖家卖得快买家买得便宜 -> 平台口碑积累 -> 抽取极低服务费",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 150,
+          "cac": 5,
+          "revenue_model": "交易抽佣+首页置顶广告"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_campusbook",
+        "name": "巨头降维打击风险链",
+        "description": "门槛极低 -> 闲鱼或转转推出校园专区 -> 学生被补贴吸走 -> 平台日活归零",
+        "nodes": ["tech", "risk"],
+        "mitigation": "深度绑定校学生会和跳蚤市场活动，做巨头看不上的重度线下地推和校园驿站寄存"
+      }
+    },
+    {
+      "id": "herbtea_032",
+      "name": "HerbTea 熬夜养生茶",
+      "description": "结合传统中医药理的新中式健康奶茶/草本茶饮",
+      "tech": {
+        "name": "中药材有效成分超声提取与口感去苦矫味技术",
+        "maturity": "商业化",
+        "barrier": "低"
+      },
+      "market": {
+        "name": "新茶饮与年轻职场人健康养生市场",
+        "tam": 80000000000,
+        "sam": 15000000000,
+        "som": 800000000
+      },
+      "risk": {
+        "name": "口味接受度低与供应链标准化困难风险",
+        "severity": "高"
+      },
+      "value_loop_edge": {
+        "id": "vl_herbtea",
+        "name": "朋克养生消费闭环",
+        "description": "打消喝奶茶的负罪感 -> 职场人高频复购 -> 单店坪效提升 -> 开放加盟扩大品牌",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 1200,
+          "cac": 35,
+          "revenue_model": "线下门店零售+外卖+茶包周边销售"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_herbtea",
+        "name": "良药苦口劝退陷阱",
+        "description": "过度强调药理 -> 忽视茶饮本质是好喝 -> 复购率极低 -> 门店开业三个月即倒闭",
+        "nodes": ["tech", "risk"],
+        "mitigation": "与百年老字号药房联名背书，并投入核心预算研发‘零药味’的果茶基底融合方案"
+      }
+    },
+    {
+      "id": "focusspace_033",
+      "name": "FocusSpace 沉浸自习室",
+      "description": "面向考研与考公群体的24小时无人值守共享自习室",
+      "tech": {
+        "name": "物联网智能门锁、座位灯控与微信小程序预约系统",
+        "maturity": "商业化应用",
+        "barrier": "极低"
+      },
+      "market": {
+        "name": "成人应试教育与共享空间租赁市场",
+        "tam": 15000000000,
+        "sam": 3000000000,
+        "som": 200000000
+      },
+      "risk": {
+        "name": "淡旺季周期明显与同质化价格战风险",
+        "severity": "中"
+      },
+      "value_loop_edge": {
+        "id": "vl_focusspace",
+        "name": "坪效最大化闭环",
+        "description": "无人化运营降本 -> 极佳的安静氛围 -> 考生办理包月/包年卡 -> 提前锁定现金流",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 2500,
+          "cac": 80,
+          "revenue_model": "按小时计费+包月储值卡+零食柜售卖"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_focusspace",
+        "name": "二房东薄利陷阱",
+        "description": "商业模式仅为赚差价 -> 周边雨后春笋般开出竞品 -> 陷入9.9元包天价格战 -> 无法覆盖房租",
+        "nodes": ["tech", "risk"],
+        "mitigation": "转型学习社区，引入考研名师讲座和资料共享机制，从卖空间升级为卖服务"
+      }
+    },
+    {
+      "id": "cityfarm_034",
+      "name": "CityFarm 阳台菜园",
+      "description": "面向城市家庭的无土栽培智能蔬菜种植箱及耗材订阅",
+      "tech": {
+        "name": "水培营养液自动循环与全光谱植物补光控制系统",
+        "maturity": "商业化",
+        "barrier": "低"
+      },
+      "market": {
+        "name": "城市园艺、自然教育与减压消费市场",
+        "tam": 20000000000,
+        "sam": 4000000000,
+        "som": 300000000
+      },
+      "risk": {
+        "name": "消费者三分钟热度导致设备吃灰风险",
+        "severity": "高"
+      },
+      "value_loop_edge": {
+        "id": "vl_cityfarm",
+        "name": "种植养成订阅闭环",
+        "description": "傻瓜式种植体验 -> 收获有机蔬菜/亲子互动 -> 用户持续购买种子和营养液 -> 形成稳定的ARR(经常性收入)",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 1500,
+          "cac": 120,
+          "revenue_model": "硬件主机一次性销售+耗材包按季订阅"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_cityfarm",
+        "name": "伪农业高客单价死局",
+        "description": "种植箱售价过高(超千元) -> 种出的菜成本远高于菜市场 -> 丧失性价比逻辑 -> 仅能卖给极少数极客",
+        "nodes": ["tech", "risk"],
+        "mitigation": "主打儿童自然科学教育(STEM)属性，将买单方从‘买菜的家庭主妇’转化为‘重视教育的家长’"
+      }
+    },
+    {
+      "id": "hanfutravel_035",
+      "name": "HanfuTravel 霓裳游",
+      "description": "景区联动的汉服租赁、妆造与旅拍一站式服务平台",
+      "tech": {
+        "name": "基于RFID的服装库存流转与摄影师派单调度系统",
+        "maturity": "商业化应用",
+        "barrier": "低"
+      },
+      "market": {
+        "name": "古镇文旅周边与国潮体验消费市场",
+        "tam": 35000000000,
+        "sam": 8000000000,
+        "som": 500000000
+      },
+      "risk": {
+        "name": "重资产(服装)折旧快与清洗维护成本高风险",
+        "severity": "中"
+      },
+      "value_loop_edge": {
+        "id": "vl_hanfutravel",
+        "name": "美图裂变获客闭环",
+        "description": "提供极佳的妆造和出片率 -> 顾客发小红书/朋友圈 -> 带来大量自然免费流量 -> 门店客流爆满",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 600,
+          "cac": 20,
+          "revenue_model": "服装租赁费+妆造费+旅拍套餐费"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_hanfutravel",
+        "name": "黄牛抢客与体验崩塌",
+        "description": "节假日爆满 -> 服务质量断崖下降/服装不干净 -> 差评如潮 -> 品牌口碑被反噬",
+        "nodes": ["tech", "risk"],
+        "mitigation": "建立全自动化的中央洗涤中心，并引入游客评价挂钩的摄影师/化妆师末位淘汰制"
+      }
+    },
+    {
+      "id": "freshneighbor_036",
+      "name": "FreshNeighbor 鲜邻公社",
+      "description": "基于小区宝妈团长的本地农产品社区团购平台",
+      "tech": {
+        "name": "微信小程序裂变分销与简易的城配履约路由算法",
+        "maturity": "商业化应用",
+        "barrier": "极低"
+      },
+      "market": {
+        "name": "生鲜零售与下沉市场社区团购",
+        "tam": 100000000000,
+        "sam": 25000000000,
+        "som": 1000000000
+      },
+      "risk": {
+        "name": "互联网巨头(美团/多多)疯狂补贴挤压生存空间",
+        "severity": "极高"
+      },
+      "value_loop_edge": {
+        "id": "vl_freshneighbor",
+        "name": "熟人信任销售闭环",
+        "description": "宝妈团长信用背书 -> 降低获客成本至几乎为零 -> 集中配送降低物流费 -> 把利润让给团长和消费者",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 2000,
+          "cac": 5,
+          "revenue_model": "商品销售差价(扣除团长佣金10%)"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_freshneighbor",
+        "name": "团长叛逃导致的盘子崩溃",
+        "description": "完全依赖头部团长 -> 巨头开出更高佣金挖角 -> 团长带走全部小区客户 -> 平台瞬间休克",
+        "nodes": ["tech", "risk"],
+        "mitigation": "放弃标品(纸巾/可乐)的价格战，专攻巨头供应链无法覆盖的本地‘孤品’和特色土特产"
+      }
+    },
+    {
+      "id": "neathome_037",
+      "name": "NeatHome 焕新家",
+      "description": "面向新中产的高级上门收纳整理与空间规划服务",
+      "tech": {
+        "name": "标准化SOP服务管理体系与收纳师在线派单系统",
+        "maturity": "商业化应用",
+        "barrier": "低"
+      },
+      "market": {
+        "name": "本地生活服务与高端家政市场",
+        "tam": 12000000000,
+        "sam": 3000000000,
+        "som": 200000000
+      },
+      "risk": {
+        "name": "收纳师跳单(私下交易)与服务难以标准化风险",
+        "severity": "高"
+      },
+      "value_loop_edge": {
+        "id": "vl_neathome",
+        "name": "空间释放溢价闭环",
+        "description": "释放几平米房屋空间 -> 帮客户找回生活掌控感 -> 极高的客单价与服务满意度 -> 拓展收纳柜/储物盒电商",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 8000,
+          "cac": 300,
+          "revenue_model": "按房屋面积/小时收取的服务费+自有品牌收纳用品销售"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_neathome",
+        "name": "低频陷阱与飞单危机",
+        "description": "客户整理完一次后能管半年 -> 平台复购极低 -> 收纳师吃不饱开始私下加微信接单 -> 平台空心化",
+        "nodes": ["tech", "risk"],
+        "mitigation": "平台主打重资产的空间改造设计，而不仅仅是叠衣服；同时提供打包好的季节性换季上门订阅卡"
+      }
+    },
+    {
+      "id": "jobmatch_038",
+      "name": "JobMatch 面试官直达",
+      "description": "连接在校大学生与大厂在职校友的1V1求职辅导平台",
+      "tech": {
+        "name": "基于行业图谱的简历解析与双向匹配算法",
+        "maturity": "商业化应用",
+        "barrier": "低"
+      },
+      "market": {
+        "name": "大学生就业服务与职业教育市场",
+        "tam": 20000000000,
+        "sam": 5000000000,
+        "som": 400000000
+      },
+      "risk": {
+        "name": "非标服务导致的投诉退款及一锤子买卖风险",
+        "severity": "中"
+      },
+      "value_loop_edge": {
+        "id": "vl_jobmatch",
+        "name": "信息差变现闭环",
+        "description": "大厂内部真题辅导 -> 大学生拿到Offer概率倍增 -> 愿意支付高额咨询费 -> 平台抽取佣金反哺导师",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 1500,
+          "cac": 80,
+          "revenue_model": "订单抽佣(20%)+平台VIP会员费"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_jobmatch",
+        "name": "导师供给侧枯竭风险",
+        "description": "大厂员工太忙 -> 赚这点咨询费不如加班 -> 优质导师流失 -> 学生买不到好服务导致退款",
+        "nodes": ["tech", "risk"],
+        "mitigation": "切入B端企业内推渠道，辅导完成后直接送入合作企业的面试流程，赚取高额的猎头推荐费(B端收费)"
+      }
+    },
+    {
+      "id": "historymystery_039",
+      "name": "HistoryMystery 史迹迷踪",
+      "description": "结合地方文旅历史故事的实景剧本杀(Jubensha)体验馆",
+      "tech": {
+        "name": "AR线索扫描互动与DM(主持人)场控辅助小程序",
+        "maturity": "商业化应用",
+        "barrier": "低"
+      },
+      "market": {
+        "name": "Z世代线下沉浸式娱乐与文旅融合市场",
+        "tam": 30000000000,
+        "sam": 8000000000,
+        "som": 300000000
+      },
+      "risk": {
+        "name": "剧本生命周期短与DM流动性高导致的品控风险",
+        "severity": "高"
+      },
+      "value_loop_edge": {
+        "id": "vl_historymystery",
+        "name": "沉浸社交变现闭环",
+        "description": "强社交属性与优质剧本 -> 年轻人组团消费 -> 门店满座率高 -> 快速回本并开设分店",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 1200,
+          "cac": 60,
+          "revenue_model": "单人门票(150-300元)+周边餐饮"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_historymystery",
+        "name": "内容枯竭与资产过重",
+        "description": "一个本子老玩家只能玩一次 -> 必须不断花重金购买新城限本与装修场景 -> 利润全部砸进装修",
+        "nodes": ["tech", "risk"],
+        "mitigation": "从开店转型为‘剧本发行方’，打包本地历史IP输出给全国的加盟店，实现轻资产卖版权"
+      }
+    },
+    {
+      "id": "petsit_040",
+      "name": "PetSit 宠安达",
+      "description": "节假日宠物上门喂养与代遛狗担保交易平台",
+      "tech": {
+        "name": "基于LBS的就近派单与防作弊GPS轨迹记录系统",
+        "maturity": "商业化应用",
+        "barrier": "低"
+      },
+      "market": {
+        "name": "宠物经济服务与灵活用工市场",
+        "tam": 18000000000,
+        "sam": 4000000000,
+        "som": 200000000
+      },
+      "risk": {
+        "name": "宠物咬人/生病/丢失导致的极高赔偿与纠纷风险",
+        "severity": "极高"
+      },
+      "value_loop_edge": {
+        "id": "vl_petsit",
+        "name": "节假日刚需闭环",
+        "description": "解决春节长假无法寄养痛点 -> 宠物留守家中免受应激 -> 主人安心支付溢价服务费",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 800,
+          "cac": 40,
+          "revenue_model": "按次收取服务费抽成(15-25%)"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_petsit",
+        "name": "信任崩塌与入户安全红线",
+        "description": "陌生人入户引发盗窃担忧 -> 或者接单员没关好门导致名贵猫走失 -> 平台面临倒闭式索赔",
+        "nodes": ["tech", "risk"],
+        "mitigation": "强制要求接单员上传芝麻信用、缴纳保证金，并全程佩戴执法记录仪，联合险企推出‘宠物意外险’"
+      }
+    },
+    {
+      "id": "streetbite_041",
+      "name": "StreetBite 烟火夜市",
+      "description": "为地摊经济与夜市档口提供标准化半成品及推车租赁的供应链",
+      "tech": {
+        "name": "中央厨房预制菜冷链统配与摊位扫码点单SaaS",
+        "maturity": "商业化应用",
+        "barrier": "中"
+      },
+      "market": {
+        "name": "地摊经济、夜间消费与微创业加盟市场",
+        "tam": 60000000000,
+        "sam": 15000000000,
+        "som": 500000000
+      },
+      "risk": {
+        "name": "城管占道经营政策管控与食品安全卫生风险",
+        "severity": "高"
+      },
+      "value_loop_edge": {
+        "id": "vl_streetbite",
+        "name": "微创业赋能闭环",
+        "description": "提供全套车+半成品食材 -> 小白摊主当晚即可出摊赚钱 -> 摊主持续从平台进货 -> 赚取长效供应链利润",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 35000,
+          "cac": 1500,
+          "revenue_model": "推车设备押金+每日半成品食材供货差价"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_streetbite",
+        "name": "非法占道灰产覆灭",
+        "description": "摊主随意摆摊被没收设备 -> 摊主向平台要求退押金 -> 资金链断裂且被监管部门查封",
+        "nodes": ["tech", "risk"],
+        "mitigation": "整体承包政府规划的正规夜市或文创街区场地，做统一的二房东与供应链整合方，确保合规"
+      }
+    },
+    {
+      "id": "artbridge_042",
+      "name": "ArtBridge 艺桥公益",
+      "description": "连接城市大学生与乡村小学的低带宽在线美育支教平台",
+      "tech": {
+        "name": "WebRTC低延迟弱网推流与云端互动白板技术",
+        "maturity": "验证测试",
+        "barrier": "低"
+      },
+      "market": {
+        "name": "乡村教育振兴与企业CSR(企业社会责任)服务市场",
+        "tam": 8000000000,
+        "sam": 2000000000,
+        "som": 50000000
+      },
+      "risk": {
+        "name": "受助方无力付费导致的纯公益无法自我造血风险",
+        "severity": "极高"
+      },
+      "value_loop_edge": {
+        "id": "vl_artbridge",
+        "name": "社会影响力变现闭环",
+        "description": "大规模提升乡村儿童素质教育 -> 形成良好的社会影响力报告 -> 吸引上市企业CSR基金赞助",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 100000,
+          "cac": 5000,
+          "revenue_model": "企业CSR赞助+政府购买服务(B2G)"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_artbridge",
+        "name": "情怀难以当饭吃",
+        "description": "纯靠捐款 -> 经济下行企业削减CSR预算 -> 团队连服务器费用都交不起 -> 项目停滞流产",
+        "nodes": ["tech", "risk"],
+        "mitigation": "引入‘消费即捐赠’模式，将乡村儿童的画作制作成文创周边，通过电商零售实现造血回环"
+      }
+    },
+    {
+      "id": "coffeecycle_043",
+      "name": "CoffeeCycle 渣造社",
+      "description": "收集连锁咖啡店咖啡渣再造为环保随行杯及手工皂的共创品牌",
+      "tech": {
+        "name": "咖啡渣除臭烘干、抗酶变抑菌与PLA复合注塑成型技术",
+        "maturity": "商业化",
+        "barrier": "中"
+      },
+      "market": {
+        "name": "可持续消费品、ESG礼品与环保生活方式市场",
+        "tam": 15000000000,
+        "sam": 3000000000,
+        "som": 150000000
+      },
+      "risk": {
+        "name": "回收逆向物流成本极高与产品定价过高风险",
+        "severity": "高"
+      },
+      "value_loop_edge": {
+        "id": "vl_coffeecycle",
+        "name": "变废为宝溢价闭环",
+        "description": "解决咖啡馆厨余垃圾 -> 制成高颜值环保杯 -> 击中Z世代环保理念 -> 产生品牌溢价与传播",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 300,
+          "cac": 35,
+          "revenue_model": "ToC环保商品销售+ToB企业伴手礼定制"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_coffeecycle",
+        "name": "伪环保的高昂代价",
+        "description": "派货车去各个咖啡店收渣 -> 油费远超材料本身价值 -> 越做越亏，毛利穿透",
+        "nodes": ["tech", "risk"],
+        "mitigation": "不自己收渣，直接与星巴克/瑞幸总部达成协议，在其大仓统一截留咖啡渣废料，并反向卖给他们做会员周边"
+      }
+    },
+    {
+      "id": "washgo_044",
+      "name": "WashGo 极速浣熊",
+      "description": "面向高校宿舍的物联网智能洗衣机投放与代洗代烘平台",
+      "tech": {
+        "name": "NB-IoT设备群控与在线排队预约计费系统",
+        "maturity": "商业化应用",
+        "barrier": "低"
+      },
+      "market": {
+        "name": "校园本地生活设施与自助设备市场",
+        "tam": 12000000000,
+        "sam": 4000000000,
+        "som": 300000000
+      },
+      "risk": {
+        "name": "重资产投放折旧与学校后勤部门垄断排他风险",
+        "severity": "高"
+      },
+      "value_loop_edge": {
+        "id": "vl_washgo",
+        "name": "高频刚需现金牛闭环",
+        "description": "扫码即洗免硬币 -> 极简的刚需体验 -> 学生高频使用 -> 极短的设备回本周期(约8个月)",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 800,
+          "cac": 10,
+          "revenue_model": "按次收费(洗3元/烘干4元)+包月卡"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_washgo",
+        "name": "渠道腐败与入场红线",
+        "description": "竞标失败 -> 机器无法进校接水接电 -> 商业模式根本无从谈起 -> 彻底出局",
+        "nodes": ["tech", "risk"],
+        "mitigation": "主动将营业额的20%-30%作为特许经营费与高校后勤集团分润，建立深度利益绑定"
+      }
+    },
+    {
+      "id": "curvestyle_045",
+      "name": "CurveStyle 悦己微胖",
+      "description": "专为大码女孩设计、基于体型大数据的DTC(直面消费者)女装品牌",
+      "tech": {
+        "name": "多维度体型算法库与基于AI版型生成的柔性供应链",
+        "maturity": "商业化扩展",
+        "barrier": "中"
+      },
+      "market": {
+        "name": "细分女装服饰与女性悦己消费市场",
+        "tam": 50000000000,
+        "sam": 12000000000,
+        "som": 800000000
+      },
+      "risk": {
+        "name": "电商女装退货率极高导致库存积压压死现金流",
+        "severity": "极高"
+      },
+      "value_loop_edge": {
+        "id": "vl_curvestyle",
+        "name": "小众认同高复购闭环",
+        "description": "解决买不到好看显瘦衣服的痛点 -> 获得极强的情绪价值与粉丝忠诚度 -> 复购率远超普通女装",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 2500,
+          "cac": 60,
+          "revenue_model": "电商渠道服装直销"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_curvestyle",
+        "name": "库存绞肉机陷阱",
+        "description": "尺码SKU过多(从L到5XL) -> 备货不准 -> 季末大量过季库存积压 -> 赚的钱全在仓库里",
+        "nodes": ["tech", "risk"],
+        "mitigation": "采用‘小单快反’模式，通过抖音直播间预售测款，拿到订单后再通知工厂72小时内生产发货"
+      }
+    },
+    {
+      "id": "silverspoon_046",
+      "name": "SilverSpoon 银龄食堂",
+      "description": "社区居家养老的适老化营养餐配给与上门送餐服务",
+      "tech": {
+        "name": "老人慢病营养计算配餐系统与社区网格化物流路由",
+        "maturity": "商业化验证",
+        "barrier": "低"
+      },
+      "market": {
+        "name": "社区居家养老与银发餐饮服务市场",
+        "tam": 80000000000,
+        "sam": 15000000000,
+        "som": 500000000
+      },
+      "risk": {
+        "name": "老年人付费意愿极低与末端配送成本过高风险",
+        "severity": "高"
+      },
+      "value_loop_edge": {
+        "id": "vl_silverspoon",
+        "name": "刚需温饱闭环",
+        "description": "软烂少盐符合老年口味 -> 解决高龄老人做饭难 -> 每日刚需高频 -> 稳定但极薄的现金流",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 3600,
+          "cac": 20,
+          "revenue_model": "按餐收费(10-15元/餐)+政府高龄补贴"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_silverspoon",
+        "name": "算不过账的跑腿费",
+        "description": "单餐只卖15元 -> 美团骑手送一次要6元 -> 扣除食材成本纯亏损 -> 无法商业化",
+        "nodes": ["tech", "risk"],
+        "mitigation": "将配餐点设在小区居委会，发动小区健康的低龄退休大妈大爷做‘互助送餐’，将履约成本降至1元"
+      }
+    },
+    {
+      "id": "caseart_047",
+      "name": "CaseArt 壳宇宙",
+      "description": "面向Z世代的3D网页DIY定制手机壳与POD(按需打印)平台",
+      "tech": {
+        "name": "WebGL云端3D渲染引擎与自动化喷涂排版技术",
+        "maturity": "商业化应用",
+        "barrier": "低"
+      },
+      "market": {
+        "name": "3C数码配件与个性化文创定制市场",
+        "tam": 25000000000,
+        "sam": 6000000000,
+        "som": 300000000
+      },
+      "risk": {
+        "name": "毫无护城河、极易被义乌白牌工厂价格战绞杀风险",
+        "severity": "高"
+      },
+      "value_loop_edge": {
+        "id": "vl_caseart",
+        "name": "情绪价值溢价闭环",
+        "description": "提供极高自由度的DIY设计 -> 满足炫耀与个性化心理 -> 单个塑料壳卖出69元高价 -> 极高的毛利率",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 200,
+          "cac": 25,
+          "revenue_model": "手机壳实物销售"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_caseart",
+        "name": "流量枯竭与同质化内卷",
+        "description": "在抖音投放广告 -> 获客成本越来越高 -> 利润被流量平台抽干 -> 最终沦为给平台打工",
+        "nodes": ["tech", "risk"],
+        "mitigation": "转型为创作者平台，吸引插画师入驻开店，平台负责生产发货，形成‘内容生态’而非单纯卖壳"
+      }
+    },
+    {
+      "id": "dormsnack_048",
+      "name": "DormSnack 零食盒子",
+      "description": "放置在大学寝室内部的扫码诚信支付迷你零食箱",
+      "tech": {
+        "name": "微信扫码收款码聚合与极简的补货提醒小程序",
+        "maturity": "商业化应用",
+        "barrier": "极低"
+      },
+      "market": {
+        "name": "校园微型零售与最后十米消费市场",
+        "tam": 8000000000,
+        "sam": 1500000000,
+        "som": 80000000
+      },
+      "risk": {
+        "name": "极高的货损率(白嫖)与学校查寝违规没收风险",
+        "severity": "极高"
+      },
+      "value_loop_edge": {
+        "id": "vl_dormsnack",
+        "name": "懒人经济冲动消费闭环",
+        "description": "凌晨饿了不出门就能吃 -> 满足极致便利需求 -> 高频冲动消费 -> 惊人的周转率",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 400,
+          "cac": 2,
+          "revenue_model": "零售差价(毛利通常高达40%)"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_dormsnack",
+        "name": "人性经不起考验",
+        "description": "纯靠诚信 -> 到了期末大家没钱了 -> 大量拿货不扫码 -> 坏账率飙升超过毛利 -> 破产",
+        "nodes": ["tech", "risk"],
+        "mitigation": "不直接面向全部学生，而是招募各个寝室的‘寝室长’作为合伙人，由其承担货损责任并分享50%利润"
+      }
+    },
+    {
+      "id": "skillpro_049",
+      "name": "SkillPro 蓝领智训",
+      "description": "面向焊工、电工等高级蓝领的短视频技能培训与考证考级SaaS",
+      "tech": {
+        "name": "XR虚拟仿真实操演练引擎与自适应题库推荐",
+        "maturity": "商业化验证",
+        "barrier": "中"
+      },
+      "market": {
+        "name": "职业技能培训与蓝领就业服务市场",
+        "tam": 40000000000,
+        "sam": 12000000000,
+        "som": 600000000
+      },
+      "risk": {
+        "name": "蓝领群体在线学习完课率极低及考证资质合规风险",
+        "severity": "中"
+      },
+      "value_loop_edge": {
+        "id": "vl_skillpro",
+        "name": "升职加薪诱导闭环",
+        "description": "考取特种作业操作证 -> 薪资提升30% -> 强烈的功利性学习动力 -> 愿意支付千元级培训费",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 1500,
+          "cac": 200,
+          "revenue_model": "线上课程售卖+线下实操基地引流抽成"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_skillpro",
+        "name": "纯线上纸上谈兵死局",
+        "description": "焊工根本无法靠看手机学会 -> 拿不到证 -> 口碑极差被投诉 -> 业务无法开展",
+        "nodes": ["tech", "risk"],
+        "mitigation": "重度依赖线下合作，线上只做理论刷题，线下与各地实体技校合作共享实操车间"
+      }
+    },
+    {
+      "id": "spinecare_050",
+      "name": "SpineCare 护腰精灵",
+      "description": "内置压力传感器的办公椅防久坐与不良坐姿提醒智能坐垫",
+      "tech": {
+        "name": "柔性薄膜压力传感器阵列与坐姿AI识别边缘计算",
+        "maturity": "原型/小批量生产",
+        "barrier": "中"
+      },
+      "market": {
+        "name": "职场大健康智能硬件与人体工学市场",
+        "tam": 25000000000,
+        "sam": 5000000000,
+        "som": 200000000
+      },
+      "risk": {
+        "name": "伪痛点(用户往往忽略提醒)与供应链量产跳票风险",
+        "severity": "高"
+      },
+      "value_loop_edge": {
+        "id": "vl_spinecare",
+        "name": "健康关怀变现闭环",
+        "description": "实时震动纠正坐姿 -> 缓解腰椎间盘突出 -> 用户获得直观体验改善 -> 推荐给同事或作为礼品购买",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 299,
+          "cac": 50,
+          "revenue_model": "智能坐垫硬件一次性销售"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_spinecare",
+        "name": "反人性导致吃灰",
+        "description": "上班本就疲惫 -> 坐垫疯狂震动提醒坐直 -> 烦躁的用户直接关机 -> 丧失后续数据服务可能",
+        "nodes": ["tech", "risk"],
+        "mitigation": "弱化震动惩罚，通过APP引入工位‘微运动打卡’赚取积分兑换咖啡的机制，变惩罚为正向激励"
+      }
+    },
+    {
+      "id": "campusride_051",
+      "name": "CampusRide 校园飞车",
+      "description": "限定在高校围墙内封闭运营的共享电动自行车项目",
+      "tech": {
+        "name": "北斗高精度电子围栏与电池防火温控BMS系统",
+        "maturity": "商业化应用",
+        "barrier": "低"
+      },
+      "market": {
+        "name": "高校最后三公里微出行市场",
+        "tam": 15000000000,
+        "sam": 5000000000,
+        "som": 400000000
+      },
+      "risk": {
+        "name": "重资产投放、电池失火安全事故及学校保安清退风险",
+        "severity": "极高"
+      },
+      "value_loop_edge": {
+        "id": "vl_campusride",
+        "name": "规模化扫码骑行闭环",
+        "description": "解决宿舍到教学楼太远痛点 -> 上下课高峰期一天翻台6次 -> 半年收回单车成本 -> 持续现金流",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 300,
+          "cac": 5,
+          "revenue_model": "按时长计费(单次2元左右)+充值免押金"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_campusride",
+        "name": "乱停乱放与充电灾难",
+        "description": "乱停放阻碍交通 -> 电池自燃引发火灾 -> 校长震怒下令全部拖走清场 -> 投资血本无归",
+        "nodes": ["tech", "risk"],
+        "mitigation": "在校园内建立集中式换电柜，严禁学生私拉电线充电，并强制推行定点P点还车技术"
+      }
+    },
+    {
+      "id": "villagestream_052",
+      "name": "VillageStream 乡野村播",
+      "description": "孵化村播达人、整合源头农产品供应链的助农MCN机构",
+      "tech": {
+        "name": "基于流量数据的选品模型与简易冷链云仓调度",
+        "maturity": "商业化应用",
+        "barrier": "极低"
+      },
+      "market": {
+        "name": "直播电商与农产品上行市场",
+        "tam": 150000000000,
+        "sam": 30000000000,
+        "som": 1500000000
+      },
+      "risk": {
+        "name": "农产品非标易烂导致客诉爆炸及主播走红后单飞风险",
+        "severity": "高"
+      },
+      "value_loop_edge": {
+        "id": "vl_villagestream",
+        "name": "流量助农变现闭环",
+        "description": "原生态直播内容展示 -> 击中城市白领对绿色食品渴望 -> 爆单销售 -> 带动全村致富获得政府背书",
+        "nodes": ["tech", "market"],
+        "metrics": {
+          "ltv": 1500,
+          "cac": 30,
+          "revenue_model": "直播带货GMV抽拥(15-20%)"
+        }
+      },
+      "risk_pattern_edge": {
+        "id": "rp_villagestream",
+        "name": "品控灾难引发封号",
+        "description": "遇到暴雨水果变质 -> 发货后大量腐烂 -> 遭遇疯狂退款与平台处罚 -> 封禁店铺与直播间",
+        "nodes": ["tech", "risk"],
+        "mitigation": "不直接碰生鲜水果，转型卖耐储运的深加工农产品(如地瓜干、辣椒酱)，并在产地建立预冷库"
+      }
+    },
+     {
+    "id": "proj_ucl_sjtu_002",
+    "name": "Vastech Energy 水系锌离子电池",
+    "description": "具有本质安全性的高功率、低成本水系新型储能系统，解决锂电热失控痛点。",
+    "tech": {
+      "name": "先进水系电解质配方与无机纳米粘结剂",
+      "maturity": "商业化小批量部署",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "工商业长时储能与电网侧调峰调频市场",
+      "tam": 120000000000,
+      "sam": 25000000000,
+      "som": 500000000
+    },
+    "risk": {
+      "name": "体积能量密度受限与规模化涂布良率",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_vastech",
+      "name": "本质安全免维保闭环",
+      "description": "水系电解质无热失控风险 -> 取消昂贵液冷与消防设施 -> 系统度电成本骤降 -> 储能电站大面积替代",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 15000000,
+        "cac": 800000,
+        "revenue_model": "储能柜整体交付+EMC能源合同管理"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_vastech",
+      "name": "产能爬坡质量失控链",
+      "description": "新型电极材料卷对卷工艺不稳定 -> 电池内部微短路频发 -> 循环寿命缩水 -> 客户巨额索赔",
+      "nodes": ["tech", "risk"],
+      "mitigation": "与成熟锂电池代工厂进行产线适应性改造，建立严格的电化学分选标准"
+    }
+  },
+  {
+    "id": "proj_unsw_sjtu_003",
+    "name": "MagOss 定制化生物可降解镁合金骨植入物",
+    "description": "力学性能接近真骨且可在体内安全降解吸收的镁合金骨钉骨板系统，免除二次手术。",
+    "tech": {
+      "name": "控降解镁合金微合金化与表面改性技术",
+      "maturity": "临床注册试验阶段",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "全球骨科及创伤内固定植入耗材市场",
+      "tam": 1040600000,
+      "sam": 489000000,
+      "som": 20000000
+    },
+    "risk": {
+      "name": "降解伴随产气引发炎症与三类器械审批周期",
+      "severity": "极高"
+    },
+    "value_loop_edge": {
+      "id": "vl_magoss",
+      "name": "无痛自愈高价值闭环",
+      "description": "避免应力遮挡且体内降解 -> 免除二次取钉手术痛苦与费用 -> 患者与医保双赢 -> 占据高端骨科市场份额",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 200000,
+        "cac": 50000,
+        "revenue_model": "高值医用耗材代理分销"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_magoss",
+      "name": "临床安全性否决链",
+      "description": "早期降解过快释放氢气 -> 局部组织气肿坏死 -> 临床试验被紧急叫停 -> 丧失融资与上市资格",
+      "nodes": ["tech", "risk"],
+      "mitigation": "开发微弧氧化复合聚合物涂层，精准调控植入初期的降解速率曲线"
+    }
+  },
+  {
+    "id": "proj_njupt_004",
+    "name": "高精度工业智能质检和控制系统",
+    "description": "针对芯片制造前道与后道生产线，融合光学成像与边缘AI算法的微米级缺陷检测装备。",
+    "tech": {
+      "name": "超分辨光学干涉成像与机器视觉深度学习",
+      "maturity": "成熟商业化，产线实装",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "半导体量测设备与工业机器视觉市场",
+      "tam": 8500000000,
+      "sam": 2000000000,
+      "som": 150000000
+    },
+    "risk": {
+      "name": "晶圆厂高昂的试错验证壁垒与外资寡头排挤",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_njupt",
+      "name": "良率拉升增益闭环",
+      "description": "毫秒级精准捕捉划痕与颗粒 -> 实时拦截问题批次 -> 挽回晶圆厂巨额报废损失 -> 形成产线标准配置",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 8000000,
+        "cac": 600000,
+        "revenue_model": "检测机台整机销售+算法升级年费"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_njupt",
+      "name": "漏报导致信用破产链",
+      "description": "算法模型对罕见缺陷泛化能力差 -> 发生批量漏检 -> 导致终端芯片失效 -> 彻底被半导体大厂拉黑",
+      "nodes": ["tech", "risk"],
+      "mitigation": "在低制程封装产线积累海量图库，实行“双机轨并跑”灰度验证策略"
+    }
+  },
+  {
+    "id": "proj_thu_005",
+    "name": "高性能锂硫电池正极活性电解液添加剂",
+    "description": "通过引入新型催化剂与电解液添加剂，有效抑制多硫化物穿梭效应，极大提升锂硫电池寿命。",
+    "tech": {
+      "name": "多硫化物均相催化转化与固液界面调控",
+      "maturity": "实验室中试/软包验证",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "下一代超高比能动力与特种电池材料市场",
+      "tam": 15000000000,
+      "sam": 3000000000,
+      "som": 100000000
+    },
+    "risk": {
+      "name": "锂金属负极枝晶刺穿隔膜引发的安全隐患",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_thu_lis",
+      "name": "能量密度越级闭环",
+      "description": "彻底抑制穿梭效应 -> 循环寿命达到商业阈值 -> 电池包能量密度突破500Wh/kg -> 垄断无人机与航空电动化市场",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 10000000,
+        "cac": 800000,
+        "revenue_model": "核心添加剂销售+电池配方专利授权"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_thu_lis",
+      "name": "放大效应失控链",
+      "description": "纽扣电池转移至大容量软包 -> 传热与电流分布不均加剧 -> 锂枝晶刺穿引发爆燃 -> 技术路线遭到资本抛弃",
+      "nodes": ["tech", "risk"],
+      "mitigation": "结合高强固态或凝胶聚合物电解质技术，初期避开乘用车，专供军工等高溢价市场"
+    }
+  },
+  {
+    "id": "proj_zju_006",
+    "name": "牙颌建筑师——三维血管化组织工程骨",
+    "description": "融合3D生物打印技术与微血管网诱导技术，为严重颌骨缺损提供活体仿生重建方案。",
+    "tech": {
+      "name": "干细胞3D共培养与微血管内皮生成诱导",
+      "maturity": "临床前动物大样本验证",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "高端齿科种植与颌面外科修复材料市场",
+      "tam": 22000000000,
+      "sam": 5000000000,
+      "som": 80000000
+    },
+    "risk": {
+      "name": "活体细胞产品的保存运输与免疫伦理风险",
+      "severity": "极高"
+    },
+    "value_loop_edge": {
+      "id": "vl_zju_dental",
+      "name": "真骨重建溢价闭环",
+      "description": "微血管快速贯通血供 -> 植骨存活率逼近自体骨 -> 解决传统人工骨坏死吸收痛点 -> 占据高端医美齿科绝对制高点",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 150000,
+        "cac": 30000,
+        "revenue_model": "个性化定制组织工程骨及配套手术器械销售"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_zju_dental",
+      "name": "规模化细胞培养污染链",
+      "description": "商业化制造过程中遭遇支原体污染 -> 导致大批植入物质检不合格 -> 供应链断裂并引发监管介入",
+      "nodes": ["tech", "risk"],
+      "mitigation": "建立全封闭自动化GMP细胞工厂，实行逐批核酸级无菌检定"
+    }
+  },
+  {
+    "id": "proj_bit_007",
+    "name": "“猎鹰”基于鹰捕猎机理的无人机反制系统",
+    "description": "采用仿生高机动气动布局与高速视觉锁定的拦截无人机，提供物理硬杀伤反制手段。",
+    "tech": {
+      "name": "仿生鹰击轨迹规划与无GPS拒止环境视觉导航",
+      "maturity": "商业化，军警采购验证",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "低空要地防御与大型赛事净空安保装备市场",
+      "tam": 18000000000,
+      "sam": 4500000000,
+      "som": 300000000
+    },
+    "risk": {
+      "name": "复杂城市背景光照干扰与附带坠落伤害风险",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_bit_falcon",
+      "name": "无污染净空闭环",
+      "description": "避免电磁压制瘫痪民用通信 -> 实现精准网捕或撞击 -> 彻底杜绝黑飞威胁 -> 成为核心区域标配安防设施",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 3000000,
+        "cac": 200000,
+        "revenue_model": "防御系统整机销售+定期巡检维保服务"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_bit_falcon",
+      "name": "高价值目标漏网链",
+      "description": "面对高机动穿越机躲避 -> 视觉算法算力过载脱锁 -> 拦截失败导致要地受损 -> 品牌声誉彻底毁灭",
+      "nodes": ["tech", "risk"],
+      "mitigation": "接入前置光电雷达预警网络，采用多架“猎鹰”编队协同蜂群拦截策略"
+    }
+  },
+  {
+    "id": "proj_nwpu_008",
+    "name": "苍穹之心——微型涡喷发动机智能控制器",
+    "description": "针对微小型航空发动机开发的超紧凑、耐高温全权限数字电子控制系统（FADEC）。",
+    "tech": {
+      "name": "超高温电子封装与防喘振自适应控制律算法",
+      "maturity": "小批量试产装机",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "高端无人靶机与防区外巡飞弹推进系统市场",
+      "tam": 12000000000,
+      "sam": 3500000000,
+      "som": 400000000
+    },
+    "risk": {
+      "name": "军工级元器件国产化受限与极限过载失效",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_nwpu_jet",
+      "name": "动力包线拓展闭环",
+      "description": "高精度油门随动解析 -> 拓宽压气机稳定工作裕度 -> 大幅提升无人机飞行包线 -> 被主机厂纳入唯一供应商名录",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 5000000,
+        "cac": 100000,
+        "revenue_model": "硬件主板销售+定制化飞控适配费"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_nwpu_jet",
+      "name": "芯片断供休克链",
+      "description": "核心车规或军规级MCU遭遇出口管制 -> 供应链瞬间停摆 -> 无法按期交付军品订单 -> 触发高额违约金并出局",
+      "nodes": ["tech", "risk"],
+      "mitigation": "开展基于国产RISC-V架构芯片的底层代码重构，建立双供应商硬件方案"
+    }
+  },
+  {
+    "id": "proj_ujs_009",
+    "name": "低碾压智能化再生稻收获技术与装备",
+    "description": "采用北斗高精度导航与特种履带底盘设计的轻量化联合收割机，极大降低再生稻头季碾压率。",
+    "tech": {
+      "name": "北斗RTK自动驾驶与低接地比仿生行走机构",
+      "maturity": "商业化发售",
+      "barrier": "中"
+    },
+    "market": {
+      "name": "特种经济作物高端农业机械装备市场",
+      "tam": 35000000000,
+      "sam": 5000000000,
+      "som": 200000000
+    },
+    "risk": {
+      "name": "国家农机补贴政策调整与季节性使用闲置",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_ujs_rice",
+      "name": "增产变现推广闭环",
+      "description": "直行碾压率降至最低 -> 保护休眠芽确保第二季高产 -> 农户每亩收益净增数百元 -> 农机大户群体自发抢购",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 350000,
+        "cac": 20000,
+        "revenue_model": "整机硬件销售+农机金融按揭服务"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_ujs_rice",
+      "name": "维保延误导致的市场崩盘链",
+      "description": "农忙抢收期发生机械故障 -> 售后下沉不足配件缺货 -> 导致农户稻谷烂在地里 -> 品牌口碑彻底败坏",
+      "nodes": ["tech", "risk"],
+      "mitigation": "建立易损件通用化设计，在主产区推行“以换代修”的旺季驻点服务"
+    }
+  },
+  {
+    "id": "proj_buaa_010",
+    "name": "融合大数据的疫情预测分析模型与平台",
+    "description": "集成多维时空大数据与多智能体动力学传染模型的公共卫生应急指挥与资源调度系统。",
+    "tech": {
+      "name": "图神经网络时空预测与高维流调数据挖掘",
+      "maturity": "商业化，G端交付",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "智慧城市数字政务与公共卫生预警软件市场",
+      "tam": 25000000000,
+      "sam": 6000000000,
+      "som": 400000000
+    },
+    "risk": {
+      "name": "数据安全合规监管与偶发传染病需求不连续",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_buaa_epi",
+      "name": "精准防疫闭环",
+      "description": "准确预测疫情拐点与医疗挤兑节点 -> 政府提前精准调配重症床位 -> 降低社会停摆成本 -> 疾控中心持续续约采购",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 2000000,
+        "cac": 150000,
+        "revenue_model": "政府云平台私有化部署+年度运维保费"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_buaa_epi",
+      "name": "数据孤岛失真链",
+      "description": "跨部门（交通、通信、医院）数据壁垒无法打通 -> 模型输入严重缺失 -> 预测出现灾难性误导 -> 导致决策失误被问责",
+      "nodes": ["tech", "risk"],
+      "mitigation": "引入联邦学习（Federated Learning）技术实现数据可用不可见，打消部门数据共享顾虑"
+    }
+  },
+  {
+    "id": "proj_ncu_011",
+    "name": "废塑料微波快速催化热解制备石脑油装备",
+    "description": "利用微波能量场耦合特种沸石分子筛催化剂，实现混合废塑料高值化转化为化工原料。",
+    "tech": {
+      "name": "微波场致高效热解与分子筛择形催化",
+      "maturity": "工业级中试示范线阶段",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "大宗固废资源化利用与环保高端装备制造市场",
+      "tam": 40000000000,
+      "sam": 8000000000,
+      "som": 300000000
+    },
+    "risk": {
+      "name": "高电耗成本倒挂与二噁英二次污染泄漏风险",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_ncu_plastic",
+      "name": "变废为宝利润闭环",
+      "description": "极速升温无结焦 -> 高产率优质石脑油销售变现 -> 远超垃圾焚烧发电收益 -> 吸引大型环保集团成套采购",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 12000000,
+        "cac": 500000,
+        "revenue_model": "成套成线装备销售+催化剂长协耗材供应"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_ncu_plastic",
+      "name": "经济性失衡停机链",
+      "description": "工业电价大幅上涨且石脑油市场价格暴跌 -> 微波运行成本高于产出价值 -> 设备沦为不良资产遭大面积停工",
+      "nodes": ["tech", "risk"],
+      "mitigation": "成套设备配套光伏及储能微网消纳谷电，优化微波谐振腔体设计降低散逸损耗"
+    }
+  },
+  {
+    "id": "proj_nudt_012",
+    "name": "纳米多孔二氧化硅气凝胶高效隔热复合材料",
+    "description": "兼具超轻、柔性及极低热导率的纳米级气凝胶复合材料，用于阻断热失控与极端防隔热。",
+    "tech": {
+      "name": "超临界流体无损干燥与常压纤维增强复合技术",
+      "maturity": "商业化量产",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "新能源汽车动力电池热管理与航空航天防热市场",
+      "tam": 28000000000,
+      "sam": 7000000000,
+      "som": 500000000
+    },
+    "risk": {
+      "name": "材料生产良率低、易粉化脱落以及高昂的折旧成本",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_nudt_aerogel",
+      "name": "极致安全溢价闭环",
+      "description": "隔绝极端高温热流 -> 确保电池包单体热失控不蔓延 -> 乘用车通过严苛安全国标 -> 顺利打入Tier1供应链大批量供货",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 50000000,
+        "cac": 1000000,
+        "revenue_model": "材料按面积/重量标准化直销"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_nudt_aerogel",
+      "name": "成本战出局链",
+      "description": "超临界设备资产过重导致折旧高昂 -> 产品单价无法下探 -> 被廉价云母板或硅酸铝纤维方案替代 -> 失去大众市场",
+      "nodes": ["tech", "risk"],
+      "mitigation": "全面攻克表面改性常压干燥工艺，大幅降低高压釜设备投入与能耗"
+    }
+  },
+  {
+    "id": "proj_scut_013",
+    "name": "新一代无线通信空地立体赋形绿色基站天线",
+    "description": "支持高低频段融合与三维精准波束赋形的新型相控阵基站天线，提升覆盖并降低能耗。",
+    "tech": {
+      "name": "多频段紧凑去耦设计与自适应波束赋形算法",
+      "maturity": "成熟商业化，联合京信通信应用",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "5G-A及6G蜂窝网络射频硬件与基站改造市场",
+      "tam": 65000000000,
+      "sam": 18000000000,
+      "som": 1200000000
+    },
+    "risk": {
+      "name": "通信运营商集采价格战极其残酷且技术迭代迅速",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_scut_antenna",
+      "name": "绿色降本替换闭环",
+      "description": "能量精准指向用户 -> 减少无效空闲波束辐射 -> 基站电费大幅下降 -> 运营商海量招标替换老旧天线",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 200000000,
+        "cac": 2000000,
+        "revenue_model": "基础核心专利授权+设备B2B供货分成"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_scut_antenna",
+      "name": "标准脱轨边缘化链",
+      "description": "未能及时跟进3GPP最新协议栈 -> 设备互联互通测试失败 -> 无法通过运营商入网核准 -> 彻底丧失入围资格",
+      "nodes": ["tech", "risk"],
+      "mitigation": "深度捆绑华为、中兴、京信等头部主设备商，提前介入下一代标准制定"
+    }
+  },
+  {
+    "id": "proj_uestc_014",
+    "name": "基于光电融合技术的高性能信号源解决方案",
+    "description": "利用光电振荡环路技术突破传统电子学瓶颈，提供超低相位噪声、超宽频带的微波信号源。",
+    "tech": {
+      "name": "高Q值光纤延迟线与硅基光电子异质集成技术",
+      "maturity": "中试线及小批量装备化阶段",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "高端通用电子测试测量仪器与军工雷达激励源市场",
+      "tam": 18000000000,
+      "sam": 4000000000,
+      "som": 200000000
+    },
+    "risk": {
+      "name": "光电器件高精度封装对准良率低且对环境温漂极度敏感",
+      "severity": "极高"
+    },
+    "value_loop_edge": {
+      "id": "vl_uestc_photon",
+      "name": "核心仪器自主化闭环",
+      "description": "相位噪声指标降低两个量级 -> 雷达探测距离与抗干扰精度飙升 -> 突破国外对华仪器禁运 -> 军工与科研院所全量采购",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 8000000,
+        "cac": 400000,
+        "revenue_model": "高端仪器整机直销+定制化系统集成"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_uestc_photon",
+      "name": "良率拖垮交付链",
+      "description": "光纤阵列与光芯片耦合漂移 -> 模块良率长期徘徊在30%以下 -> 制造成本失控且交付无限延期 -> 失去军工资质",
+      "nodes": ["tech", "risk"],
+      "mitigation": "引入全自动纳米级六轴耦合封装机台，创新片上TEC热沉温控结构"
+    }
+  },
+  {
+    "id": "proj_sztu_015",
+    "name": "子康智云——柔性智能穿戴设备",
+    "description": "集成长效精准体温监测与分级响应物理降温模块的食品级硅胶柔性儿童穿戴设备。",
+    "tech": {
+      "name": "柔性热敏传感器阵列与微型半导体TEC制冷技术",
+      "maturity": "商业化发售初期",
+      "barrier": "低"
+    },
+    "market": {
+      "name": "母婴消费级智能硬件与数字健康护理市场",
+      "tam": 32000000000,
+      "sam": 5000000000,
+      "som": 150000000
+    },
+    "risk": {
+      "name": "消费电子红海竞争极其激烈且存在冷端微弱冻伤风险",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_sztu_zikang",
+      "name": "母婴焦虑缓解转化闭环",
+      "description": "夜间持续精准测温预警 -> 自动物理降温退热 -> 直击宝妈熬夜看护痛点 -> 形成私域流量口碑裂变与复购",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 1500,
+        "cac": 200,
+        "revenue_model": "C端硬件单品销售+APP增值订阅服务"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_sztu_zikang",
+      "name": "品控缺陷引发的公关灾难",
+      "description": "柔性电池漏液或TEC冷端温控失效 -> 造成婴幼儿局部皮肤轻微损伤 -> 社交媒体发酵引发恐慌 -> 产品遭全线召回",
+      "nodes": ["tech", "risk"],
+      "mitigation": "采用极度保守的降温阈值物理断电保护，电池进行最为严苛的针刺及万次弯折测试"
+    }
+  },
+  {
+    "id": "proj_tzvc_016",
+    "name": "大国匠“心”—新能源汽车发卡电机智造设备",
+    "description": "专注Hair-pin扁线驱动电机的高精度三维成型、插线及焊接智能自动化生产线，打破外资垄断。",
+    "tech": {
+      "name": "三维折弯柔性补偿算法与多视觉协同机器人插线技术",
+      "maturity": "成熟商业化，产线级整包交付",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "新能源汽车核心零部件扁线电机制造装备市场",
+      "tam": 25000000000,
+      "sam": 8000000000,
+      "som": 600000000
+    },
+    "risk": {
+      "name": "电机漆包线绝缘层机械损伤导致的致命良率问题",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_tzvc_motor",
+      "name": "电机槽满率提升变现闭环",
+      "description": "无损且高速的自动化插线工艺 -> 电机槽满率及功率密度显著提升 -> 电动汽车续航实质性增加 -> 整车厂指定采购该设备产出的电机",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 15000000,
+        "cac": 800000,
+        "revenue_model": "非标自动化产线工程总承包与设备销售"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_tzvc_motor",
+      "name": "非标陷阱导致的项目巨亏链",
+      "description": "下游车企频繁更改电机定子设计尺寸 -> 设备非标改动工作量成倍剧增 -> 交付遥遥无期耗尽利润 -> 尾款成为死账",
+      "nodes": ["tech", "risk"],
+      "mitigation": "开发高度模块化、参数可调的成型模具机构，实现对多种槽型设计的柔性兼容"
+    }
+  },
+  {
+    "id": "proj_zjmee_017",
+    "name": "翊宙智能——高效能三自由度力控末端执行器",
+    "description": "为工业机器人安装“高敏触觉”的恒力控制末端工具，解决复杂曲面抛光打磨的自动化难题。",
+    "tech": {
+      "name": "压电压阻复合高频力感知与超前阻抗控制补偿算法",
+      "maturity": "商业化大规模出货",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "工业机器人力控配件与3C/汽车特种加工工具市场",
+      "tam": 14000000000,
+      "sam": 3500000000,
+      "som": 250000000
+    },
+    "risk": {
+      "name": "恶劣粉尘环境导致的传感器温漂与机械寿命急剧衰减",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_zjmee_effector",
+      "name": "柔性替代刚需闭环",
+      "description": "实现微秒级自适应力矩反馈 -> 完美完成复杂曲面镜面抛光 -> 替代高薪且难招的打磨熟练工 -> 3C及汽车压铸厂海量部署",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 450000,
+        "cac": 30000,
+        "revenue_model": "核心零部件B2B直销与集成商分销"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_zjmee_effector",
+      "name": "恶劣工况侵蚀链",
+      "description": "打磨金属粉末侵入执行器精密缝隙 -> 机械结构卡涩死区增大导致力控失效 -> 划伤名贵工件 -> 面临大客户索赔并退货",
+      "nodes": ["tech", "risk"],
+      "mitigation": "采用IP67级别工业气密迷宫密封设计，加入内部正压吹气防尘模块"
+    }
+  },
+  {
+    "id": "proj_zjmee_018",
+    "name": "威瞬科技-高效率微米级VC相变散热器",
+    "description": "采用微纳毛细吸液芯结构的超薄均温板（Vapor Chamber），彻底解决高算力设备局部热点。",
+    "tech": {
+      "name": "仿生微树枝状铜粉烧结与高真空相变传热控制",
+      "maturity": "商业化规模量产阶段",
+      "barrier": "中"
+    },
+    "market": {
+      "name": "高性能AI计算终端、智能手机与5G基站热管理市场",
+      "tam": 38000000000,
+      "sam": 9000000000,
+      "som": 800000000
+    },
+    "risk": {
+      "name": "极薄金属冲压蚀刻工艺下的良率极限制约",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_zjmee_vc",
+      "name": "性能满血释放闭环",
+      "description": "传热系数提升3倍以上 -> 确保手机SoC芯片满载不降频 -> 提升终端电子产品溢价能力 -> 消费电子大厂集中采购",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 12000000,
+        "cac": 500000,
+        "revenue_model": "散热器件定制化批量直销"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_zjmee_vc",
+      "name": "慢漏气失效链",
+      "description": "超薄冲压工艺导致焊接边缘存在不可见微裂纹 -> 内部高真空随时间逐渐丧失 -> 均温板完全失效致芯片烧毁 -> 面临巨额质量索赔",
+      "nodes": ["tech", "risk"],
+      "mitigation": "引入全自动超声波无损探伤仪实现100%全检，优化扩散焊工艺温度与压力参数"
+    }
+  },
+  {
+    "id": "proj_xidian_019",
+    "name": "无界BOUNDLESS—可穿戴个人组网通信设备",
+    "description": "支持低时延语音编码与自适应环境降噪的多人无中心Mesh自组网可穿戴设备，适用于无网场景。",
+    "tech": {
+      "name": "高动态Mesh路由自组网与超低码率语音编码压缩",
+      "maturity": "商业化发售阶段",
+      "barrier": "中"
+    },
+    "market": {
+      "name": "硬核户外运动（滑雪、攀岩）与应急抢险专网通信市场",
+      "tam": 15000000000,
+      "sam": 3000000000,
+      "som": 200000000
+    },
+    "risk": {
+      "name": "受限于低功耗的通信距离缩短与国家无线电频段合规监管",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_xidian_boundless",
+      "name": "脱网互联社群裂变闭环",
+      "description": "无需基站即可实现数公里级清晰通话 -> 成为硬核户外俱乐部组队必选项 -> 硬件成为社群身份绑定 -> 通过私域持续拉新复购",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 2800,
+        "cac": 300,
+        "revenue_model": "C端潮流硬件销售+周边生态与社群运营"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_xidian_boundless",
+      "name": "信道拥堵断联风险链",
+      "description": "在节假日滑雪场等密集场景大规模节点同时汇聚 -> 免费频段相互严重干扰丢包 -> 关键避险指令未送达 -> 发生户外安全事故导致封杀",
+      "nodes": ["tech", "risk"],
+      "mitigation": "应用智能跳频避让机制与认知无线电频谱感知技术，实时侦测并切换至空闲频段"
+    }
+  },
+  {
+    "id": "proj_cugb_020",
+    "name": "曦曙科技——零碳太阳能跨季储热开创者",
+    "description": "利用特种水合盐复合热化学材料吸收夏季太阳能潜热，在冬季按需稳定释放供暖。",
+    "tech": {
+      "name": "水合盐晶格掺杂改性与热化学水蒸气吸脱附控制",
+      "maturity": "工程示范与中试化阶段",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "建筑节能改造与分布式零碳清洁供暖市场",
+      "tam": 55000000000,
+      "sam": 12000000000,
+      "som": 400000000
+    },
+    "risk": {
+      "name": "材料经过多次水合循环后的剧烈体积膨胀与衰减粉化",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_cugb_solar",
+      "name": "时空热量无本套利闭环",
+      "description": "夏季收集免费太阳热能蓄积 -> 冬季水合放热替代天然气供暖 -> 大幅压低建筑能耗账单与碳排放 -> 成为绿色建筑与低碳地产商标配",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 3000000,
+        "cac": 150000,
+        "revenue_model": "EMC合同能源管理分成+大型系统工程整体交付"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_cugb_solar",
+      "name": "储热密度断崖衰减链",
+      "description": "经历数十次吸脱水循环后 -> 水合盐颗粒严重团聚粉化 -> 储热容量暴跌80%以上 -> 供暖系统在严寒中瘫痪",
+      "nodes": ["tech", "risk"],
+      "mitigation": "将相变相盐微胶囊化或封装入多孔陶瓷/碳纳米管刚性骨架中，强力抑制其宏观形变"
+    }
+  },
+  {
+    "id": "proj_buaa_021",
+    "name": "“余热生辉”——热电余热回收系统助力车辆节能减排",
+    "description": "利用半导体热电发生器（TEG）捕获重型商用车排气管尾气废热直接发电，降低燃油消耗。",
+    "tech": {
+      "name": "高性能方钴矿热电材料烧结与耐高温柔性界面封装技术",
+      "maturity": "装车路试与主机厂定点阶段",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "重型商用车节能减排配件与内燃机热管理市场",
+      "tam": 22000000000,
+      "sam": 5000000000,
+      "som": 150000000
+    },
+    "risk": {
+      "name": "排气背压增加影响发动机动力性以及剧烈震动导致热电臂断裂",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_buaa_teg",
+      "name": "燃油经济性直接套利闭环",
+      "description": "几百摄氏度废热直接转为数千瓦电能 -> 卸载内燃机所带的发电机负荷 -> 百公里油耗实打实下降2升 -> 吸引重卡物流车队算账后规模化加装",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 150000,
+        "cac": 10000,
+        "revenue_model": "车载后装配件直销与前装定点+CCER碳积分获取"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_buaa_teg",
+      "name": "路况震动损坏失效链",
+      "description": "商用车长期经历恶劣路况颠簸 -> 陶瓷热电材料产生微裂纹 -> 模块内阻急剧上升导致发电功率归零 -> 投资回收期被无限拉长引发退货",
+      "nodes": ["tech", "risk"],
+      "mitigation": "创新引入金属网状柔性应力缓冲过渡层，利用CFD流体力学优化排气换热器流场减小气流脉冲冲击"
+    }
+  },
+  {
+    "id": "proj_cauc_022",
+    "name": "保障低空飞行安全的高性能阻燃防火涂层",
+    "description": "针对eVTOL与航空器碳纤维复合材料表面研发的膨胀型本征阻燃涂料，兼顾极轻与极限防火。",
+    "tech": {
+      "name": "含磷氮硅协同高温膨胀阻燃树脂与纳米陶瓷成瓷化技术",
+      "maturity": "适航认证审批测试中",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "低空经济eVTOL、无人机及大飞机特种功能涂料市场",
+      "tam": 16000000000,
+      "sam": 3500000000,
+      "som": 200000000
+    },
+    "risk": {
+      "name": "民航局苛刻的适航取证壁垒与高空低温下的附着力脆性失效",
+      "severity": "极高"
+    },
+    "value_loop_edge": {
+      "id": "vl_cauc_coating",
+      "name": "轻量化绝对安全闭环",
+      "description": "涂层厚度减半依然通过FAA/CAAC防火极限界定 -> 航空器整机死重有效减轻 -> 电动航空器航程实质性延长 -> 成为eVTOL主机厂全机型唯一指定涂料",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 2000000,
+        "cac": 150000,
+        "revenue_model": "特种航空化学涂料按公斤高溢价直销"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_cauc_coating",
+      "name": "极端环境剥落丧失防护链",
+      "description": "航空器长期经历万米高空极寒与地面跑道酷热交替 -> 涂层与碳纤维基底热膨胀系数不匹配导致龟裂剥离 -> 发生起火时防火功能丧失导致机毁人亡",
+      "nodes": ["tech", "risk"],
+      "mitigation": "在聚合物骨架中化学接枝柔性聚氨酯段以大幅增强基体韧性，实施上万次高低温冷热冲击剥离测试"
+    }
+  },
+  {
+    "id": "proj_ustb_023",
+    "name": "新型高温合金冶炼用高性能坩埚耐火材料研究",
+    "description": "旨在提升航空发动机涡轮叶片单晶高温合金冶炼纯净度的新型低杂质、高抗热震耐火坩埚。",
+    "tech": {
+      "name": "高纯氧化钇热力学稳定性控制与极度致密化真空烧结技术",
+      "maturity": "商业化应用（成功供应航天科工等院所）",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "航空航天、燃气轮机与特种军工冶金用高端耐火耗材市场",
+      "tam": 12000000000,
+      "sam": 2800000000,
+      "som": 300000000
+    },
+    "risk": {
+      "name": "高纯稀土原材料现货成本剧烈波动与制备过程微量杂质元素二次带入",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_ustb_crucible",
+      "name": "极端冶金纯净度溢价闭环",
+      "description": "耐火材料在1600度以上不掉粉不反氧 -> 熔炼出的高温合金中O/N/S杂质极低 -> 发动机叶片高温持久寿命及良率骤升 -> 锻造厂持续消耗并高频复购该坩埚",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 8000000,
+        "cac": 100000,
+        "revenue_model": "特种冶金耐火耗材持续销售"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_ustb_crucible",
+      "name": "微量污染导致的产品批量报废链",
+      "description": "坩埚在使用数个炉次后微观晶界结构崩溃 -> 突然向合金熔体中释放巨量氧杂质 -> 导致整炉极其昂贵的单晶叶片完全报废 -> 承担巨额连带赔偿导致破产",
+      "nodes": ["tech", "risk"],
+      "mitigation": "开发多层梯度孔隙结构坩埚，内层采用极高纯度惰性致密层，外层采用高强高韧承压骨架"
+    }
+  },
+  {
+    "id": "proj_cumtb_024",
+    "name": "钛虎-智能机器人产品与核心零部件",
+    "description": "具备超高扭矩密度与一体化特征的柔性关节模组，大幅度拉低仿人及工业机械臂硬件门槛。",
+    "tech": {
+      "name": "高磁通密度无框电机设计与超紧凑双级行星减速器一体化集成",
+      "maturity": "商业化大规模出货阶段",
+      "barrier": "中"
+    },
+    "market": {
+      "name": "具身智能人形机器人执行器与高性价比协作机器人零部件市场",
+      "tam": 55000000000,
+      "sam": 15000000000,
+      "som": 1000000000
+    },
+    "risk": {
+      "name": "电机长时间过载发热导致退磁与减速器长期高频磨损致使精度下降",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_cumtb_tiger",
+      "name": "核心部件平权暴量闭环",
+      "description": "动力模组整体成本硬降至传统方案的三分之一 -> 强力推动十万元级人形机器人整机落地 -> 极速催熟下游应用生态 -> 核心零部件实现暴发式垄断出货",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 2000000,
+        "cac": 50000,
+        "revenue_model": "标准化动力关节模组大批量批发销售"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_cumtb_tiger",
+      "name": "高负载热失控跌倒链",
+      "description": "人形机器人长期进行高负载行走动作 -> 紧凑关节散热不良温度急剧飙升 -> 钕铁硼永磁体发生不可逆退磁扭矩丧失 -> 机器人突然摔倒损毁关键传感设备",
+      "nodes": ["tech", "risk"],
+      "mitigation": "在电机内部预埋高频温度传感器进行动态限流主动控制，同时利用拓扑优化设计电机外壳鳍片强化对流散热"
+    }
+  },
+  {
+    "id": "proj_buaa_025",
+    "name": "基于倾转动力系统的可自由起降验证机",
+    "description": "兼顾直升机零场地垂直起降能力与固定翼飞机高速长巡航能力的倾转旋翼无人机平台。",
+    "tech": {
+      "name": "极复杂非线性气动干扰建模与倾转走廊宽包线飞控过渡算法",
+      "maturity": "大尺寸原型机试飞与包线测试阶段",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "海事巡逻、高层消防救援与长航时特种物资投送无人机市场",
+      "tam": 35000000000,
+      "sam": 8000000000,
+      "som": 200000000
+    },
+    "risk": {
+      "name": "旋翼倾转过渡阶段极易发生的失速坠毁风险与旋翼挥舞机械疲劳",
+      "severity": "极高"
+    },
+    "value_loop_edge": {
+      "id": "vl_buaa_tilt",
+      "name": "长航时灵便调度特种闭环",
+      "description": "无需铺设任何跑道且航程较多旋翼翻倍 -> 完美解决海上油井等远距离孤岛物流补给痛点 -> 赢得政府与特种企业的高溢价大额采购单 -> 建立起绝对的行业进入壁垒",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 15000000,
+        "cac": 500000,
+        "revenue_model": "高规格整机制造发售+特种航线长期包机运营服务"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_buaa_tilt",
+      "name": "过渡段致命坠毁风险链",
+      "description": "旋翼在倾转至60度角时产生剧烈的下洗气流与机翼涡流干涉 -> 飞控姿态解算算法发生超调崩溃 -> 验证机瞬间进入不可挽回的尾旋坠毁 -> 资本撤出项目强制终结",
+      "nodes": ["tech", "risk"],
+      "mitigation": "投入巨资积累海量真实风洞测试数据以完善气动数据库，全面采用非线性自抗扰控制（ADRC）鲁棒飞控技术"
+    }
+  },
+  {
+    "id": "proj_thu_026",
+    "name": "计算机代数系统maTHµ",
+    "description": "底层代码全自主研发的符号计算与复杂数学推导软件内核，旨在打破国外Mathematica等巨头垄断。",
+    "tech": {
+      "name": "底层超大整数极速运算库与多变元多项式因式分解高效算法",
+      "maturity": "商业化发售，支持信创平台",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "基础科学计算、工程工业仿真与高等教育底层数学引擎市场",
+      "tam": 18000000000,
+      "sam": 2500000000,
+      "som": 150000000
+    },
+    "risk": {
+      "name": "基础软件生态极端闭塞与长期无收益基础研发对资本耐性的极度考验",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_thu_math",
+      "name": "底层信创绝对替代闭环",
+      "description": "核心算法执行效率达到或超越国际竞品 -> 军工研究所与顶级高校消除被制裁停用风险 -> 实施国家级信创目录采购替代 -> 逐步形成具备粘性的国产科学计算开发者生态",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 500000,
+        "cac": 50000,
+        "revenue_model": "云端SaaS按年订阅+政企内网私有化部署买断授权"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_thu_math",
+      "name": "生态孤岛导致的市场萎缩链",
+      "description": "长期缺乏第三方工业工具包支持及API对接案例 -> 工程师学习与代码迁移成本过高 -> 工业界拒绝将其纳入工作流 -> 软件退化为学术圈的玩具并最终消亡",
+      "nodes": ["tech", "risk"],
+      "mitigation": "战略性全面兼容通用Python语法与各类C++底层接口，果断开源非核心基础库以极力笼络开发者社区"
+    }
+  },
+  {
+    "id": "proj_zjgsu_027",
+    "name": "面向纺织行业的协同商务智能与物流优化平台",
+    "description": "深度应用运筹学TS算法与大数据时间序列预测的纺织供应链动态排单与布匹裁切物流优化SaaS平台。",
+    "tech": {
+      "name": "改进型禁忌搜索算法（TS）与跨工厂供应链联合寻优策略",
+      "maturity": "成熟商业化，海量SaaS接入",
+      "barrier": "低"
+    },
+    "market": {
+      "name": "传统纺织服装类轻工制造业数字化转型及工业互联网平台市场",
+      "tam": 25000000000,
+      "sam": 5000000000,
+      "som": 400000000
+    },
+    "risk": {
+      "name": "传统中小工厂对软件付费意愿极低且底层生产设备数据采集难度巨大",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_zjgsu_textile",
+      "name": "边角料极限压榨降本闭环",
+      "description": "云端智能计算最优排料裁切方案 -> 布料综合利用率平均提升3% -> 每年为中型工厂凭空省下数百万原材料成本 -> 确立了极高的SaaS平台续费率",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 120000,
+        "cac": 15000,
+        "revenue_model": "云平台模块按年订阅收费+驻厂咨询服务费"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_zjgsu_textile",
+      "name": "线下实施地狱泥潭链",
+      "description": "老旧织布机完全不具备任何数字数据接口 -> 必须增加极度高昂的IoT硬件改造工程费 -> 客户因总成本失控而放弃数字化项目 -> 项目实施无限期停滞烂尾",
+      "nodes": ["tech", "risk"],
+      "mitigation": "提供极其低智简易的手机扫码上报系统与低成本工业视觉边缘计算盒子，作为硬接线数据采集的廉价平替方案"
+    }
+  },
+  {
+    "id": "proj_gzu_028",
+    "name": "酱酒酒糟饲料化开发及高效利用",
+    "description": "利用复合微生物固态发酵工程技术，将茅台等酱香型白酒产生的大量废弃酒糟转化为高蛋白优质生物饲料。",
+    "tech": {
+      "name": "极端耐高温降解菌群高通量筛选与固态发酵流场精准工程控制",
+      "maturity": "规模量产与大宗交易阶段",
+      "barrier": "中"
+    },
+    "market": {
+      "name": "大宗酿酒固废资源化处理与非常规高蛋白饲料原料替代市场",
+      "tam": 45000000000,
+      "sam": 12000000000,
+      "som": 800000000
+    },
+    "risk": {
+      "name": "酒糟仓储霉变极易产生强毒素与成药期活菌存活率剧烈波动风险",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_gzu_feed",
+      "name": "循环农业极致增收闭环",
+      "description": "酒厂实现几乎零成本的环保固废消纳 -> 成功转化为能够替代高价豆粕的廉价优质蛋白 -> 养殖户大幅度降低基础饲料成本 -> 形成产销两旺的规模化扩张态势",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 5000000,
+        "cac": 80000,
+        "revenue_model": "工业化标准饲料大宗吨位销售+碳减排指标变现"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_gzu_feed",
+      "name": "霉菌毒素致命污染毁业链",
+      "description": "发酵过程温湿度控制出现严重失误 -> 产生致命浓度的黄曲霉毒素 -> 导致大批生猪食用后严重中毒甚至死亡 -> 遭遇极其巨额的养殖户索赔并被吊销饲料生产资质",
+      "nodes": ["tech", "risk"],
+      "mitigation": "耗巨资接入全自动化密闭式发酵罐系统，对产成品实行批批严格的毒素酶联免疫高精度抽检"
+    }
+  },
+  {
+    "id": "proj_uestc_029",
+    "name": "鲲鹏BoostKit 加速库应用创新与实践",
+    "description": "基于华为自研鲲鹏ARM架构处理器底层指令集进行深度极端优化的通用数学与图计算加速基础软件中间件库。",
+    "tech": {
+      "name": "ARM NEON矢量计算指令级深度优化与内存级汇编代码重构",
+      "maturity": "成熟商业化，海量国产服务器实装部署",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "国产信创服务器底层中间件生态与高性能算力加速引擎市场",
+      "tam": 25000000000,
+      "sam": 6000000000,
+      "som": 800000000
+    },
+    "risk": {
+      "name": "绝对深度绑定单一寡头厂商生态所面临的不可控业务剧烈波动风险",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_uestc_boost",
+      "name": "算力极限榨取替代闭环",
+      "description": "指令级代码优化彻底榨干硬件理论性能极限 -> 使得鲲鹏服务器在特定跑分上反超Intel x86架构 -> 政企信创算力中心有了充足理由大批量采购 -> 华为软硬件生态进一步枝繁叶茂",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 10000000,
+        "cac": 200000,
+        "revenue_model": "软件商业级打包授权+华为应用生态分成红利"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_uestc_boost",
+      "name": "底层硬件迭代导致的软件废弃风险",
+      "description": "华为鲲鹏下一代处理器微架构发生重大变动 -> 现有的所有汇编级人力密集型优化完全失效 -> 需要从头重写百万行级底层代码 -> 运维研发成本彻底失控致使项目停摆",
+      "nodes": ["tech", "risk"],
+      "mitigation": "在软件架构中抽象化中间编译表示层（IR），将极底层的硬件强相关指令与上层通用数学计算逻辑进行解耦"
+    }
+  },
+  {
+    "id": "proj_fudan_030",
+    "name": "植入式人工角膜基质及其制备方法",
+    "description": "基于天然胶原蛋白与高分子交联网络合成的高透光率、高组织相容性的人工角膜基质替代物，解决角膜盲痛点。",
+    "tech": {
+      "name": "抗撕裂双网络复合水凝胶合成与极性角膜上皮细胞相容性诱导",
+      "maturity": "临床试验前阶段",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "眼科角膜盲复明临床手术与高端眼科器械修复耗材市场",
+      "tam": 18000000000,
+      "sam": 4000000000,
+      "som": 50000000
+    },
+    "risk": {
+      "name": "植入后产生免疫排斥新生血管长入与基质缓慢溶解浑浊的高危风险",
+      "severity": "极高"
+    },
+    "value_loop_edge": {
+      "id": "vl_fudan_cornea",
+      "name": "复明刚需极高价值闭环",
+      "description": "彻底摆脱对人体供体死亡捐献的被动依赖 -> 实现工厂规模化批量制造即取即用 -> 大幅度缓解全球角膜盲患者遥遥无期的排队现象 -> 确立在顶级眼科医院的标杆学术与商业地位",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 50000,
+        "cac": 10000,
+        "revenue_model": "三类特种医疗器械按单件极高利润直销"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_fudan_cornea",
+      "name": "长期排异衰退致盲链",
+      "description": "人工角膜植入三年后高分子网络逐渐发生体内降解失水 -> 光学透过率不可逆下降至法定失明标准以下 -> 患者需要再次承受巨大痛苦重新进行手术摘除 -> 该技术路线被学术界与药监局彻底否决",
+      "nodes": ["tech", "risk"],
+      "mitigation": "创造性引入不可降解型PEG交联剂稳固三维网络构象，术后强制配合特异性低浓度免疫抑制滴眼液进行长程干预"
+    }
+  },
+  {
+    "id": "proj_bit_031",
+    "name": "基于昇腾算力及CANN的创新应用",
+    "description": "依托华为昇腾AI硬件及异构计算架构（CANN）开发的边缘端智能视频分析与目标识别系统。",
+    "tech": {
+      "name": "异构硬件算力图优化与轻量化边缘网络压缩",
+      "maturity": "商业化部署",
+      "barrier": "中"
+    },
+    "market": {
+      "name": "智慧安防监控与边缘AI盒子算力市场",
+      "tam": 30000000000,
+      "sam": 5000000000,
+      "som": 300000000
+    },
+    "risk": {
+      "name": "边缘硬件散热限制与通用安防算法同质化竞争",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_bit_cann",
+      "name": "国产全栈AI闭环",
+      "description": "基于纯国产软硬件栈实现流畅推理 -> 满足公安、交通等高涉密部门国产替代刚需 -> 批量化替代传统IPC摄像头方案 -> 形成稳定的G端订单",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 800000,
+        "cac": 100000,
+        "revenue_model": "软硬件一体化边缘计算盒子销售"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_bit_cann",
+      "name": "算法迭代滞后链",
+      "description": "未能及时跟进视觉大模型（如Swin Transformer）适配 -> 推理精度被竞争对手甩开 -> 在政府招投标比对测试中落败 -> 市场份额被快速蚕食",
+      "nodes": ["tech", "risk"],
+      "mitigation": "建立针对CANN底层的专职算子开发团队，维持月度的算法库OTA升级频率"
+    }
+  },
+  {
+    "id": "proj_nankai_032",
+    "name": "柔性手部智能康复外骨骼",
+    "description": "采用气动人工肌肉（PMA）与柔性织物的轻量化手部功能障碍康复外骨骼系统。",
+    "tech": {
+      "name": "柔性气动人工肌肉编织与镜像疗法脑机控制",
+      "maturity": "商业化产品定型阶段",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "脑卒中康复医疗器械与家庭个人辅助穿戴市场",
+      "tam": 22000000000,
+      "sam": 4000000000,
+      "som": 150000000
+    },
+    "risk": {
+      "name": "长时间穿戴导致气路漏气与肌张力异常痉挛无法对抗的风险",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_nankai_exo",
+      "name": "居家康复延伸闭环",
+      "description": "设备重量极轻且安全系数高 -> 医院出院患者可购买居家使用 -> 大幅提高患者每日有效康复训练时长 -> 产品在病友圈形成口碑裂变",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 30000,
+        "cac": 5000,
+        "revenue_model": "C端硬件单品销售+康复数据订阅服务"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_nankai_exo",
+      "name": "安全保护失效链",
+      "description": "充气泵压力传感器突发故障 -> 气动肌肉输出超过手指关节生理极限的扭矩 -> 导致患者手指韧带拉伤 -> 面临医疗事故纠纷并停售整改",
+      "nodes": ["tech", "risk"],
+      "mitigation": "在气路中增加纯机械式的硬性安全泄压阀，确保最大推力具有物理天花板"
+    }
+  },
+  {
+    "id": "proj_buaa_mid_033",
+    "name": "基于SSVEP的密码输入系统",
+    "description": "利用稳态视觉诱发电位（SSVEP）脑电波信号，为渐冻症等重度运动障碍残疾人设计的非接触式信息输入系统。",
+    "tech": {
+      "name": "高频SSVEP闪烁刺激范式与脑电特征极速解码算法",
+      "maturity": "早期原型与小范围受试者测试",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "无创脑机接口（BCI）与残疾人无障碍信息交互市场",
+      "tam": 8000000000,
+      "sam": 1500000000,
+      "som": 50000000
+    },
+    "risk": {
+      "name": "闪烁刺激易引发视觉疲劳甚至光敏性癫痫的极度安全风险",
+      "severity": "极高"
+    },
+    "value_loop_edge": {
+      "id": "vl_buaa_mid_ssvep",
+      "name": "极弱势群体赋能闭环",
+      "description": "实现零肌肉运动的信息输出 -> 渐冻人重新获得与外界沟通及控制家电的能力 -> 被残联作为辅助器具集中采购 -> 建立社会企业标杆地位",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 50000,
+        "cac": 10000,
+        "revenue_model": "政府采购系统设备+脑电帽耗材持续销售"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_buaa_mid_ssvep",
+      "name": "视觉光敏诱发链",
+      "description": "高频视觉闪烁刺激时长未作严格控制 -> 诱发个别受试者出现光敏性癫痫大发作 -> 引发重大伦理危机 -> 项目被强制永久关停",
+      "nodes": ["tech", "risk"],
+      "mitigation": "融合眼动追踪技术在患者视线偏离时立即关闭闪烁光源，并开发基于高频不可见光（>40Hz）的柔性刺激范式"
+    }
+  },
+  {
+    "id": "proj_buaa_034",
+    "name": "仿生有序交联碳化钛的制备及性能研究",
+    "description": "模拟天然珍珠母“砖-泥”微观结构，利用交联技术大幅提升碳化钛（MXene）薄膜的力学与电磁屏蔽性能。",
+    "tech": {
+      "name": "二维纳米片层氢键/配位共价键仿生有序组装技术",
+      "maturity": "实验室级别材料制备",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "柔性可穿戴电子器件、高频电磁屏蔽与高比能超级电容器电极市场",
+      "tam": 20000000000,
+      "sam": 4000000000,
+      "som": 100000000
+    },
+    "risk": {
+      "name": "MXene前驱体合成涉及高危氢氟酸且大面积薄膜成膜良率极低",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_buaa_mxene",
+      "name": "柔性屏蔽增值闭环",
+      "description": "极薄膜具备与金属媲美的电磁屏蔽效能且可耐受万次折叠 -> 完美契合折叠屏手机与柔性雷达隐身需求 -> 终端巨头高价买单材料专利 -> 占据前沿柔性材料制高点",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 20000000,
+        "cac": 2000000,
+        "revenue_model": "核心材料配方与加工工艺专利一次性买断或授权抽成"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_buaa_mxene",
+      "name": "高危环保停工链",
+      "description": "刻蚀工艺中使用大量强腐蚀性与剧毒的氢氟酸（HF） -> 遭遇地方环保部门一票否决制审查 -> 无法取得环评排污许可证 -> 商业化中试线被迫无限期流产",
+      "nodes": ["tech", "risk"],
+      "mitigation": "全面转向采用氟化锂+盐酸体系的温和无氟刻蚀替代工艺路线，从源头消除剧毒隐患"
+    }
+  },
+  {
+    "id": "proj_bit_035",
+    "name": "基于电子动态调控的飞秒激光制孔新技术",
+    "description": "利用双光束飞秒激光的时空整形动态调控材料内电子状态，实现航空发动机叶片气膜孔的无重熔层冷加工。",
+    "tech": {
+      "name": "超快飞秒激光时空脉冲整形与电子激发态干预干涉技术",
+      "maturity": "航发集团验证试用阶段",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "航空发动机热端部件精密加工与极大规模集成电路先进封装打孔市场",
+      "tam": 18000000000,
+      "sam": 5000000000,
+      "som": 400000000
+    },
+    "risk": {
+      "name": "百瓦级大功率工业飞秒激光器高度依赖进口被“卡脖子”的风险",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_bit_femtosec",
+      "name": "冷加工良率溢价闭环",
+      "description": "实现零重熔层与微裂纹加工 -> 涡轮叶片高温疲劳寿命成倍增长 -> 解决困扰航发多年的核心瓶颈 -> 军工加工设备海量订单及技术垄断",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 15000000,
+        "cac": 800000,
+        "revenue_model": "超快激光非标加工装备整机销售及代工服务"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_bit_femtosec",
+      "name": "光源断供停摆链",
+      "description": "核心高功率飞秒激光光源被海外企业列入禁运清单 -> 国产替代光源光束质量（M2）不达标 -> 导致加工孔壁粗糙度超标 -> 无法向航发交付合格设备",
+      "nodes": ["tech", "risk"],
+      "mitigation": "投资并购国内上游固体激光器核心团队，联合攻关啁啾脉冲放大（CPA）自主光源技术"
+    }
+  },
+  {
+    "id": "proj_hust_036",
+    "name": "基于Hz级电磁波的井下远距离无线通信装置",
+    "description": "利用极低频（Hz级）电磁波对地层的高穿透特性，实现千米级深井在灾难断网状态下的应急无线双向通信。",
+    "tech": {
+      "name": "特低频微弱信号锁相放大提取与地层电磁波传播补偿算法",
+      "maturity": "商业化产品定型及安标认证中",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "智慧矿山安全应急通信与深层地下工程抗毁灾备网络市场",
+      "tam": 12000000000,
+      "sam": 3500000000,
+      "som": 200000000
+    },
+    "risk": {
+      "name": "Hz级频段通信带宽极低仅能传输简短字符以及井下大型机电设备的强电磁干扰",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_hust_mine",
+      "name": "灾备生命线刚需闭环",
+      "description": "矿难引发大规模坍塌切断常规光纤通信 -> 本装备成功实现生命体征与坐标上传 -> 极大提高救援成功率 -> 被煤监局列为千米深井强制配套安保设备",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 800000,
+        "cac": 120000,
+        "revenue_model": "井上井下收发基站成套设备买断销售"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_hust_mine",
+      "name": "底噪淹没失效链",
+      "description": "井下大功率变频采煤机全载运行 -> 产生极其严重的低频谐波电磁干扰 -> 将微弱的求救信号彻底淹没在底噪中 -> 导致灾时通信失败并面临责任追究",
+      "nodes": ["tech", "risk"],
+      "mitigation": "开发基于AI的自适应陷波滤波器，并在天线端采用高磁导率坡莫合金屏蔽罩抑制近场干扰"
+    }
+  },
+  {
+    "id": "proj_thu_037",
+    "name": "“天格计划”二号卫星载荷标定与在轨科学观测",
+    "description": "由大学生完全主导发射的微小卫星，搭载高灵敏度伽马射线暴探测器，实现天文物理观测突破。",
+    "tech": {
+      "name": "GAGG新型闪烁晶体阵列探测技术与微小卫星空间高能粒子防护设计",
+      "maturity": "成功在轨运行并持续下传科学数据",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "商业航天微小卫星定制载荷与空间高能物理探测市场",
+      "tam": 25000000000,
+      "sam": 5000000000,
+      "som": 100000000
+    },
+    "risk": {
+      "name": "空间宇宙射线单粒子翻转导致的单片机死机与运载火箭发射失败风险",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_thu_grid",
+      "name": "空间数据验证溢价闭环",
+      "description": "成功捕获人类首个极化伽马射线暴信号 -> 核心载荷设计获得宇航级抗辐射飞行验证 -> 承接商业卫星公司更高级别的定制化科学载荷研发订单 -> 形成持续的造血能力",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 5000000,
+        "cac": 200000,
+        "revenue_model": "科研载荷定制化开发费及空间实验数据出售"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_thu_grid",
+      "name": "单粒子翻转失联链",
+      "description": "卫星经过南大西洋异常区（SAA）遭遇高能粒子轰击 -> 星载计算机发生单粒子翻转（SEU）甚至闩锁效应死机 -> 卫星永久失联沦为太空垃圾 -> 千万研发资金直接归零",
+      "nodes": ["tech", "risk"],
+      "mitigation": "星上系统采用严格的三模冗余（TMR）架构设计，并配合外部硬件看门狗实现毫秒级自动断电重启纠错"
+    }
+  },
+  {
+    "id": "proj_tjut_038",
+    "name": "基于对比自监督学习的复杂场景下中国手语实时翻译系统",
+    "description": "结合对比自监督学习算法，在光照变化及背景干扰等复杂场景下实现聋哑人手语的高精度实时文本转写。",
+    "tech": {
+      "name": "手部关键点时空图卷积网络与对比自监督零样本学习算法",
+      "maturity": "商业化产品发售（APP级应用）",
+      "barrier": "中"
+    },
+    "market": {
+      "name": "无障碍数字信息交互、特教设备及政务大厅便民智能终端市场",
+      "tam": 6500000000,
+      "sam": 1800000000,
+      "som": 150000000
+    },
+    "risk": {
+      "name": "中国不同地域手语方言差异极大导致模型泛化能力急剧下降",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_tjut_sign",
+      "name": "无障碍沟通赋能闭环",
+      "description": "提供极低延迟与高精度的视觉手语翻译 -> 解决聋哑人群体就医办事交流的根本痛点 -> 大量接入医院银行政府网点服务终端 -> 获取稳定的B端部署费与G端采购支持",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 200000,
+        "cac": 15000,
+        "revenue_model": "B端政务一体机软件授权与C端高级功能年费订阅"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_tjut_sign",
+      "name": "方言鸿沟导致的市场崩盘链",
+      "description": "模型仅在标准手语数据集上训练 -> 落地到方言差异巨大的三四线城市后识别错误率飙升至50%以上 -> 招致残疾人用户集体差评投诉 -> B端客户大面积取消系统部署合约",
+      "nodes": ["tech", "risk"],
+      "mitigation": "引入持续学习（Continual Learning）机制，允许用户在终端针对特定的手语方言进行微调反馈训练"
+    }
+  },
+  {
+    "id": "proj_ahau_039",
+    "name": "防治植物病害的“青霉素”——新型农用杀菌剂研究",
+    "description": "从白蚁共生菌中提取出的具有广谱、强效杀菌活性的新型微生物源农药，旨在替代高毒化学药剂。",
+    "tech": {
+      "name": "极端共生环境微生物代谢产物分离纯化与活性化合物骨架解析",
+      "maturity": "田间试验及新农药登记证申报中",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "绿色生物农药与高价值经济作物高端杀菌剂市场",
+      "tam": 28000000000,
+      "sam": 6500000000,
+      "som": 300000000
+    },
+    "risk": {
+      "name": "长达数年的新农药大田药效试验周期与工业化合成发酵成本难以控制",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_ahau_fungicide",
+      "name": "绿色无残留溢价闭环",
+      "description": "对顽固病害具有特效且无农药残留超标风险 -> 满足出口型高价值水果茶叶的严苛检疫标准 -> 果农愿意支付极高溢价购买 -> 攫取生物农药品类高昂的早期利润",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 1500000,
+        "cac": 200000,
+        "revenue_model": "原药专利独家授权费与制剂终端销售提成"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_ahau_fungicide",
+      "name": "产能瓶颈导致的技术雪藏链",
+      "description": "野生菌株发酵效价极低 -> 且复杂分子骨架无法实现全化学合成 -> 导致农药最终定价超出农民承受极限的10倍 -> 市场完全无法接受被迫退回实验室雪藏",
+      "nodes": ["tech", "risk"],
+      "mitigation": "利用CRISPR/Cas9基因编辑技术对共生菌株进行底盘改造，大幅度上调次级代谢产物合成途径的表达量"
+    }
+  },
+  {
+    "id": "proj_suda_040",
+    "name": "柔性透明电极结构的精确调控及可赋形太阳能电池研制",
+    "description": "基于银纳米线与导电聚合物复合的超薄柔性透明电极，可贴合于任意曲面并保持高光电转化效率。",
+    "tech": {
+      "name": "银纳米线节点原位冷焊技术与界面功函数精准匹配调控",
+      "maturity": "商业化早期，可卷对卷连续化生产",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "柔性钙钛矿太阳能电池、智能穿戴设备及建筑一体化光伏（BIPV）市场",
+      "tam": 32000000000,
+      "sam": 8000000000,
+      "som": 400000000
+    },
+    "risk": {
+      "name": "银纳米线在大电流下的电迁移断裂以及长期氧化导致的方阻攀升",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_suda_electrode",
+      "name": "无处不在的光伏赋能闭环",
+      "description": "透明极薄且可任意弯曲赋形 -> 直接取代笨重的ITO玻璃并覆盖在背包帐篷汽车表面 -> 创造出全新的离网供电应用场景 -> 拓展出传统硅基电池无法触达的巨大蓝海市场",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 5000000,
+        "cac": 300000,
+        "revenue_model": "柔性光伏膜材料按平米出货及特定场景解决方案定制"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_suda_electrode",
+      "name": "雾度超标引发的产品退货链",
+      "description": "银纳米线直径分布不均且发生团聚 -> 导致透明电极薄膜的雾度（Haze）严重超标变白 -> 光学透过率暴跌导致太阳能电池效率跳水 -> 遭下游电池组件厂全量退货销毁",
+      "nodes": ["tech", "risk"],
+      "mitigation": "改进银纳米线的多元醇还原液相合成工艺严控线径，在电极表面旋涂超薄防反射氧化物增透层"
+    }
+  },
+  {
+    "id": "proj_fudan_041",
+    "name": "基于荧光蛋白标签的“夹心法”重组蛋白生产分离纯化系统",
+    "description": "利用自研的高亲和力特异性荧光蛋白标签，实现复杂发酵液中高价值重组蛋白的一步法极速分离纯化。",
+    "tech": {
+      "name": "特异性亲和层析介质开发与荧光融合蛋白可控切割酶工程",
+      "maturity": "成熟商业化，供应生物医药CRO企业",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "生命科学科研上游试剂耗材与抗体药物分离纯化填料市场",
+      "tam": 22000000000,
+      "sam": 5000000000,
+      "som": 300000000
+    },
+    "risk": {
+      "name": "海外巨头（如Cytiva）在高端层析填料市场的垄断与专利壁垒",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_fudan_protein",
+      "name": "极致提纯效率降本闭环",
+      "description": "将传统三步纯化流程缩减为一步法并自带荧光示踪 -> 蛋白纯化周期缩短70%同时收率大幅提高 -> 极大削减创新药企的研发时间成本 -> 取代进口填料实现规模化采购",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 800000,
+        "cac": 50000,
+        "revenue_model": "纯化试剂盒、层析柱填料高频消耗品销售"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_fudan_protein",
+      "name": "切割残留引发的药监红牌链",
+      "description": "蛋白标签可控切割酶的作用不够彻底 -> 药用重组蛋白终产品中残留大量引发免疫反应的标签肽段 -> 药物临床试验安全性宣告失败 -> 药企反向追责并引发行业封杀",
+      "nodes": ["tech", "risk"],
+      "mitigation": "利用定向进化技术筛选具有绝对高度专一识别位点的突变体蛋白酶，确保实现100%无痕切割"
+    }
+  },
+  {
+    "id": "proj_nudt_042",
+    "name": "多功能火炮炮膛自动清洁保养机",
+    "description": "采用自适应胀紧结构与柔性钢丝刷，实现大口径火炮炮膛内壁积碳及铜垢的全自动深度清洗。 ",
+    "tech": {
+      "name": "膛线自适应轨迹跟踪算法与超声波耦合射流清洗技术",
+      "maturity": "定型并列装特定炮兵部队",
+      "barrier": "中"
+    },
+    "market": {
+      "name": "军工武器自动化后勤保障装备市场",
+      "tam": 6500000000,
+      "sam": 2000000000,
+      "som": 150000000
+    },
+    "risk": {
+      "name": "单一军品市场极其漫长且不确定的采购决策周期及列装定型壁垒",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_nudt_artillery",
+      "name": "战斗力保持刚需闭环",
+      "description": "彻底消除人工通条洗炮的重体力劳动并实现360度无死角除垢 -> 恢复炮管内弹道精度且极大延长身管寿命 -> 直击炮兵后勤核心痛点 -> 获得军方批量列装订单",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 3500000,
+        "cac": 300000,
+        "revenue_model": "军品装备整机销售与耗材补给"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_nudt_artillery",
+      "name": "膛线刮伤导致的一票否决链",
+      "description": "胀紧机构压力反馈失灵 -> 清洁头高压高速刮擦火炮内壁 -> 对极其珍贵的火炮膛线造成不可逆机械磨损 -> 武器报废引发重大事故调查并被直接退回定型状态",
+      "nodes": ["tech", "risk"],
+      "mitigation": "刷头采用硬度严格低于身管内壁镀铬层的特种铜基合金，同时引入实时力矩反馈急停保护系统"
+    }
+  },
+  {
+    "id": "proj_ustc_043",
+    "name": "组合仿生UUV",
+    "description": "模仿多种海洋生物（如金枪鱼及鳐鱼）游动模式，兼顾高速巡航与高机动隐蔽悬停的新型无人潜航器。",
+    "tech": {
+      "name": "柔性仿生扑翼机构动力学设计与多模式切换自主水下导航算法",
+      "maturity": "大比例缩比模型水池试验成功",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "军用水下侦察抗干扰网络、海洋测绘与深海油气管线巡检市场",
+      "tam": 25000000000,
+      "sam": 6000000000,
+      "som": 250000000
+    },
+    "risk": {
+      "name": "极低水下声学通信带宽环境下的多机协同失控与深水极端水压密封失效",
+      "severity": "极高"
+    },
+    "value_loop_edge": {
+      "id": "vl_ustc_uuv",
+      "name": "水下极致隐蔽突防闭环",
+      "description": "推进噪音几乎等同于海洋背景环境生物噪声 -> 彻底规避敌方声纳阵列的识别与锁定 -> 能够无缝突防至敌方母港进行抵近侦查 -> 成为海军杀手锏级非对称装备采购刚需",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 20000000,
+        "cac": 1000000,
+        "revenue_model": "军工总装厂科研经费补贴与列装后批量装备发售"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_ustc_uuv",
+      "name": "深海极压渗水沉没链",
+      "description": "随着潜深突破1000米水压剧增 -> 扑翼动密封舱部位发生微弱渗水 -> 导致核心飞控板短路爆炸失去动力 -> 几十万造价的高昂潜航器在深海永远失联沉没",
+      "nodes": ["tech", "risk"],
+      "mitigation": "放弃传统的动密封圈设计，彻底改用磁耦合传动技术实现舱内外的物理刚性隔离"
+    }
+  },
+  {
+    "id": "proj_ustc_044",
+    "name": "全低压超精密扫描隧道显微镜",
+    "description": "抛弃传统高压压电陶瓷驱动，采用全低电压方案实现原子级分辨率形貌扫描的超精密显微设备。",
+    "tech": {
+      "name": "新型低压大行程压电致动器与超低电子噪音微弱隧穿电流前置放大器",
+      "maturity": "商业化仪器发售，服务多所高校科研机构",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "顶尖材料科学研究仪器、半导体缺陷分析与原子级制造测量市场",
+      "tam": 12000000000,
+      "sam": 2800000000,
+      "som": 150000000
+    },
+    "risk": {
+      "name": "环境微小热震动及电磁辐射引起的严重探针漂移以及国外老牌显微镜厂家的绝对生态压制",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_ustc_stm",
+      "name": "低压安全极简科研闭环",
+      "description": "全系统使用安全低电压大幅度简化控制电路体积 -> 使得仪器造价断崖式降低且更加稳定 -> 满足大量经费有限的普通高校基础物理实验室的购置刚需 -> 实现科研精密仪器的国产普惠替代",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 1500000,
+        "cac": 120000,
+        "revenue_model": "高端科学仪器整机销售及高精探针耗材供应"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_ustc_stm",
+      "name": "外界震动掩盖信号链",
+      "description": "实验室周边重型卡车驶过或空调压缩机启动 -> 地基微弱低频震动传导至探针尖端产生剧烈共振位移 -> 原子级扫描图像完全模糊失真成乱码 -> 导致科研数据作废并遭遇客户严重退单",
+      "nodes": ["tech", "risk"],
+      "mitigation": "配套自研的低频涡流主动隔震台底座，并在扫描仓内使用基于音圈电机的多级悬挂隔绝高频噪震"
+    }
+  },
+  {
+    "id": "proj_ustc_045",
+    "name": "新型生物可降解纳米抗癌药物载体",
+    "description": "利用自组装技术构建的具有肿瘤微环境（如低pH或高ROS）响应性的可降解高分子聚合物载药胶束。",
+    "tech": {
+      "name": "精准刺激响应性嵌段共聚物合成与疏水性化疗药物高效包载技术",
+      "maturity": "临床前成药性评价及动物模型验证中",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "高端创新纳米递药系统（NDDS）、靶向抗肿瘤药物及基因治疗载体市场",
+      "tam": 85000000000,
+      "sam": 18000000000,
+      "som": 300000000
+    },
+    "risk": {
+      "name": "进入人体后被网状内皮系统过早清除以及长达十年、动辄数亿的极高新药临床转化失败率",
+      "severity": "极高"
+    },
+    "value_loop_edge": {
+      "id": "vl_ustc_nanocarrier",
+      "name": "减毒增效靶向溢价闭环",
+      "description": "纳米载体利用EPR效应在肿瘤部位精准富集并响应性释放剧毒化疗药 -> 彻底避免传统全身化疗导致的脱发呕吐及骨髓抑制重症 -> 大幅提升患者生存质量与耐受度 -> 药物售价翻倍获得超额创新利润",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 50000000,
+        "cac": 8000000,
+        "revenue_model": "新药管线整体卖断（License-out）给跨国大型药企（MNC）"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_ustc_nanocarrier",
+      "name": "血液循环提前破裂毒性释放链",
+      "description": "载药胶束在血液循环途中受到血清蛋白吸附竞争作用 -> 胶束结构在到达肿瘤前提前解体崩解 -> 极高浓度的剧毒化疗药物直接暴露进入全身血液 -> 导致受试者急性脏器衰竭从而彻底终结临床管线",
+      "nodes": ["tech", "risk"],
+      "mitigation": "引入交联固化核心的壳交联（SCL）设计策略大幅强化胶束血液循环稳定性，表面修饰高密度PEG掩蔽层以逃避巨噬细胞吞噬"
+    }
+  },
+  {
+    "id": "proj_nankai_046",
+    "name": "小型自动光纤拉丝机和特种光纤的拉制",
+    "description": "为科研实验室专门设计的小型化、桌面级光纤拉丝塔系统，解决购买商业庞大设备经费高昂的问题。",
+    "tech": {
+      "name": "微型高温精密加热炉温场控制与亚微米级自适应恒定拉力进给算法",
+      "maturity": "成熟商业化量产销售",
+      "barrier": "中"
+    },
+    "market": {
+      "name": "特种光子晶体光纤研发、光通信基础材料实验室制备装备市场",
+      "tam": 3500000000,
+      "sam": 800000000,
+      "som": 50000000
+    },
+    "risk": {
+      "name": "市场天花板较小仅限于科研圈以及拉丝过程中极易出现断纤良率问题",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_nankai_fiber",
+      "name": "特种光纤低成本制备闭环",
+      "description": "将占地一层楼的拉丝塔浓缩至桌面级且成本降至十分之一 -> 使得普通光电实验室具备自主烧制微结构光纤的能力 -> 极大加速特种光纤领域的基础研究进展 -> 形成在特定学术细分领域的设备垄断采购地位",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 500000,
+        "cac": 30000,
+        "revenue_model": "仪器整机一次性销售外加特种光纤预制棒材料供应"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_nankai_fiber",
+      "name": "断纤导致废品连续爆发链",
+      "description": "小型化加热炉温区极其狭窄导致温控惯性极差 -> 光纤玻璃液滴黏度急剧波动产生直径突变 -> 牵引过程中频繁发生断纤 -> 长达数月的预制棒报废激怒科研用户引发大面积退单",
+      "nodes": ["tech", "risk"],
+      "mitigation": "引入高速双轴激光测径仪实时反馈光纤直径，建立PID与模糊前馈融合控制算法实现对收线马达速度的微秒级动态补偿"
+    }
+  },
+  {
+    "id": "proj_bit_047",
+    "name": "聚焦泛素-蛋白酶体系统（UPS）靶向蛋白降解药物开发",
+    "description": "构建“蛋白生产-机制解析-药物开发”全链条技术体系，研发具有突破性的PROTAC类靶向蛋白降解创新药。",
+    "tech": {
+      "name": "极其复杂的全线泛素连接酶复合物表达纯化及三元复合物晶体结构高通量解析平台",
+      "maturity": "获得华大基因等支持的先导化合物早期研发阶段",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "不可成药靶点（Undruggable）抗肿瘤新药研发及PROTAC底层技术服务市场",
+      "tam": 120000000000,
+      "sam": 25000000000,
+      "som": 1000000000
+    },
+    "risk": {
+      "name": "PROTAC分子量巨大导致的极差口服生物利用度（PK）以及成药脱靶毒性风险",
+      "severity": "极高"
+    },
+    "value_loop_edge": {
+      "id": "vl_bit_protac",
+      "name": "不可成药靶点攻坚超级红利闭环",
+      "description": "利用双功能分子将原本无法结合的致病蛋白强行拖入细胞垃圾桶销毁 -> 成功攻克传统小分子药物束手无策的“不可成药”癌症靶点 -> 创造出具有全球唯一性（First-in-Class）的重磅炸弹药物 -> 获得百亿美元级的管线授权收益",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 200000000,
+        "cac": 5000000,
+        "revenue_model": "早期靶点合作开发首付款（Upfront payment）+里程碑提成金"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_bit_protac",
+      "name": "三元复合物构象崩塌阻断链",
+      "description": "设计的PROTAC连接子（Linker）长度或刚性严重不合理 -> 目标蛋白与泛素连接酶无法形成空间上紧密稳定的三元复合物 -> 导致降解效率在细胞实验中接近于零 -> 巨额研发打水漂必须从头合成设计数百个新分子",
+      "nodes": ["tech", "risk"],
+      "mitigation": "强力整合AlphaFold等深度学习AI预测模型与冷冻电镜（Cryo-EM）技术进行分子对接的理性结构导向设计，拒绝盲目试错合成"
+    }
+  },
+  {
+    "id": "proj_nankai_048",
+    "name": "新型脑电信号采集的脑机接口系统研究",
+    "description": "采用超高阻抗输入的前端放大芯片与干湿电极阵列设计，实现无创高质量头皮脑电信号获取，用于中风康复与意念控制。",
+    "tech": {
+      "name": "抗汗液极化的高阻抗干电极材料与超低共模抑制比（CMRR）模拟前端提取电路",
+      "maturity": "获得心玮医疗支持的商业化样机阶段",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "非侵入式脑机接口（BCI）、神经康复评定与消费级专注力提升训练设备市场",
+      "tam": 25000000000,
+      "sam": 4500000000,
+      "som": 200000000
+    },
+    "risk": {
+      "name": "颅骨与头皮强衰减效应导致信号信噪比极低以及意图识别算法的鲁棒性极差",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_nankai_bci",
+      "name": "无创神经交互赋能闭环",
+      "description": "突破干电极极差的阻抗痛点实现免打导电膏即戴即用 -> 极大提升了医疗端康复训练与消费端意念游戏的体验感 -> 设备粘性与日活数据大幅拉升 -> 打通大脑神经活动大数据分析通道构筑极高技术壁垒",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 120000,
+        "cac": 18000,
+        "revenue_model": "高端医疗器械B端直销与消费电子硬件C端走量"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_nankai_bci",
+      "name": "动作伪影彻底淹没信号链",
+      "description": "用户在设备使用过程中发生轻微眨眼或咀嚼动作 -> 产生强度远超脑电图（EEG）百倍的肌电（EMG）及眼电动作伪影干扰 -> 解码算法完全无法剔除噪声致使意图输出混乱 -> 被用户判定为人工智障从而引发规模退市",
+      "nodes": ["tech", "risk"],
+      "mitigation": "部署基于独立成分分析（ICA）与自适应卡尔曼滤波的极速边缘端伪影在线滤除硬核算法"
+    }
+  },
+  {
+    "id": "proj_ysu_049",
+    "name": "可再生能源高效电解制氢及电氢协同优化",
+    "description": "针对风光电力的强波动性与间歇性，开发出具备宽功率适应区间的碱性/PEM电解水制氢装备与柔性协同控制策略。",
+    "tech": {
+      "name": "宽功率动态跟随变流拓扑与高抗逆性低铱/铂贵金属催化涂层制备技术",
+      "maturity": "具备星灵科技支持的中试工程化及示范应用阶段",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "绿氢制造高端核心装备（电解槽）、储能系统调峰及化工深度脱碳市场",
+      "tam": 150000000000,
+      "sam": 35000000000,
+      "som": 1500000000
+    },
+    "risk": {
+      "name": "电解槽在极低负荷下氢氧互串极易引发爆炸危险以及目前绿氢居高不下的平准化制造成本（LCOH）",
+      "severity": "极高"
+    },
+    "value_loop_edge": {
+      "id": "vl_ysu_hydrogen",
+      "name": "弃风弃光极致套利闭环",
+      "description": "设备能够以极快速度完美适应风光绿电的秒级剧烈波动 -> 将原本只能被废弃的“垃圾电”安全转化为高价值的高纯度绿色氢气储能 -> 大幅拉低综合制氢成本 -> 获得三桶油及大型电力央企的巨量制氢电解槽采购单",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 25000000,
+        "cac": 1200000,
+        "revenue_model": "兆瓦级制氢成套电解槽设备集采及核心变流器销售"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_ysu_hydrogen",
+      "name": "低载氧中加氢致命爆炸链",
+      "description": "在可再生能源电量极低的午夜运行期间 -> 电解隔膜在低负荷极化状态下发生严重的微孔气体串漏渗透 -> 氢气侧混入氧气浓度突然超过4%的爆炸极限 -> 瞬间引发极其惨烈的制氢厂房毁灭性爆炸",
+      "nodes": ["tech", "risk"],
+      "mitigation": "开发具有超致密亲水复合层的新一代抗穿透隔膜，同时在系统中加入高频气体在线分析仪设置冗余急停安全连锁"
+    }
+  },
+  {
+    "id": "proj_nuc_050",
+    "name": "助建医疗——新一代国产颅内压监护仪领航员",
+    "description": "采用MEMS微机电技术开发的具有超低漂移与极小植入体积的光纤及压阻式颅内压（ICP）传感器，打破欧美企业长期价格垄断。",
+    "tech": {
+      "name": "亚微米级MEMS微压敏膜片深硅刻蚀技术与温漂自补偿封装算法",
+      "maturity": "商业化产品进入三类医疗器械注册及大动物模型试验阶段",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "重型颅脑创伤（TBI）、神经外科重症监护室（NICU）及脑卒中生命体征监测高值耗材市场",
+      "tam": 18000000000,
+      "sam": 3500000000,
+      "som": 150000000
+    },
+    "risk": {
+      "name": "植入探头引发的高危颅内感染脑膜炎风险以及传感器在体内数天后因脑脊液腐蚀导致的剧烈零点漂移问题",
+      "severity": "极高"
+    },
+    "value_loop_edge": {
+      "id": "vl_nuc_icp",
+      "name": "生命线极速下沉平权闭环",
+      "description": "彻底打破强生等外企垄断将单根极其昂贵的探头成本压缩至原价的四分之一 -> 大幅减轻了患者家庭因脑创伤带来的毁灭性医保负担 -> 使得该救命技术能够迅速下沉至极度匮乏资金的地市级医院 -> 形成海量的高频耗材复购与设备绑定的商业垄断地盘",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 350000,
+        "cac": 60000,
+        "revenue_model": "监护主机以租代售铺货外加高毛利一次性植入探头海量销售"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_nuc_icp",
+      "name": "零点漂移导致的医疗误诊杀人链",
+      "description": "传感器封装不严被脑脊液微量渗入引发应力释放 -> 探头在使用三天后出现毫无征兆的严重零点漂移（显示压力远高于实际） -> 误导神经外科医生错误地实施了高风险的去骨瓣减压手术 -> 导致患者产生严重手术并发症甚至死亡并面临天价的医疗诉讼追责",
+      "nodes": ["tech", "risk"],
+      "mitigation": "革命性地采用原子层沉积技术（ALD）在传感器芯片表层镀覆纳米级致密三氧化二铝极度绝缘防腐蚀层，利用外置光栅温度探头进行光电联合双通道温漂冗余校准"
+    }
+  }
+
+
+  ]
+}

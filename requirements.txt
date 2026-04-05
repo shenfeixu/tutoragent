@@ -1,0 +1,30 @@
+# Core dependencies
+streamlit>=1.35.0
+pandas>=2.0.0,<2.2.0
+numpy>=1.26.0,<2.0.0
+plotly>=5.18.0
+pydantic==2.12.5
+python-dotenv==1.2.2
+
+# LangChain
+langchain==1.2.12
+langchain-core==1.2.19
+langchain-openai==1.1.11
+langgraph==1.1.2
+langgraph-checkpoint==4.0.1
+langgraph-prebuilt==1.0.8
+langsmith==0.7.17
+
+# OpenAI
+openai==1.28.0
+httpx==0.27.0
+tiktoken==0.7.0
+
+# Neo4j
+neo4j==5.21.0
+
+# Utilities
+requests==2.32.3
+tenacity==8.4.1
+PyYAML==6.0.1
+python-dateutil==2.9.0.post0
