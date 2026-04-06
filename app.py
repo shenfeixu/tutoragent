@@ -1,6 +1,9 @@
 import streamlit as st
 from datetime import datetime
 import uuid
+import pypdf
+import zipfile
+import xml.etree.ElementTree as ET
 
 from src.agents.langgraph_core import run_langgraph_cycle, COMPETITION_WEIGHTS, RUBRIC_DIM_NAMES
 from src.utils.database import (
@@ -82,6 +85,36 @@ def init_session_state():
 
 def generate_session_id() -> str:
     return datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + uuid.uuid4().hex[:6]
+
+def extract_text_from_upload(uploaded_file) -> str:
+    filename = uploaded_file.name.lower()
+    try:
+        if filename.endswith('.pdf'):
+            reader = pypdf.PdfReader(uploaded_file)
+            text = []
+            for page in reader.pages:
+                extracted = page.extract_text()
+                if extracted:
+                    text.append(extracted)
+            return "\n".join(text)
+        elif filename.endswith('.docx'):
+            document = zipfile.ZipFile(uploaded_file)
+            xml_content = document.read('word/document.xml')
+            document.close()
+            tree = ET.fromstring(xml_content)
+            ns = {'w': 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}
+            text = []
+            for paragraph in tree.findall('.//w:p', ns):
+                texts = [node.text for node in paragraph.findall('.//w:t', ns) if node.text]
+                if texts:
+                    text.append("".join(texts))
+            return "\n".join(text)
+        elif filename.endswith('.txt'):
+            return uploaded_file.getvalue().decode("utf-8")
+        else:
+            return "不支持的文件格式。"
+    except Exception as e:
+        return f"文件解析错误: {e}"
 
 
 def create_new_session():
@@ -534,8 +567,18 @@ def main():
     
     render_sidebar()
     
-    st.title("🎯 创新创业教学智能体")
-    st.markdown("基于知识图谱与超图推理的创业项目诊断助手。输入你的创业想法，AI 教练将帮你分析商业逻辑。")
+    col_t1, col_t2 = st.columns([3, 1.2])
+    with col_t1:
+        st.title("🎯 创新创业教学智能体")
+        st.markdown("基于知识图谱与超图推理的创业项目诊断助手。")
+    with col_t2:
+        st.write("")
+        st.write("")
+        with st.popover("📎 上传完整计划书分析", use_container_width=True):
+            st.markdown("💡 **AI 深度解析引擎**\n\n支持拖拽 **PDF / Word / TXT**，AI 会全景扫描提取所有业务节点！")
+            with st.form("file_upload_form"):
+                uploaded_file = st.file_uploader("请在这里拖拽文档", type=["pdf", "docx", "txt"], label_visibility="collapsed")
+                upload_submitted = st.form_submit_button("🔥 确认提交并开始分析")
     
     if st.session_state.accumulated_info:
         with st.expander("📋 已收集的项目信息", expanded=False):
@@ -564,28 +607,57 @@ def main():
                 msg.get("content"),
                 msg.get("state") if msg.get("role") == "assistant" else None
             )
+            
+    # Handle File Upload Submission logic
+    prompt = st.chat_input("请描述你的创业想法，或与我交流...")
     
-    if prompt := st.chat_input("请描述你的创业想法，或补充更多信息..."):
+    # Process either a file upload OR text chat input
+    input_text = None
+    if upload_submitted and uploaded_file:
+        with st.spinner("正在解析文档提取文本..."):
+            doc_text = extract_text_from_upload(uploaded_file)
+            
+        if "文件解析错误" in doc_text or "不支持的文件" in doc_text:
+            st.error(doc_text)
+        elif len(doc_text.strip()) < 10:
+            st.warning(f"⚠️ 警告：从文档中提取到的有效文字极少（仅{len(doc_text)}字）。请确认该 PDF 是否为扫描图片格式，或者是加密文件。")
+        else:
+            st.success(f"✅ 解析成功！检测到 {len(doc_text)} 个字符。")
+            with st.expander("🔍 查看解析出的文本预览 (前 500 字)"):
+                st.text(doc_text[:500] + "...")
+            input_text = f"【用户上传了附件：{uploaded_file.name}】\n\n请评估以下文件内容中的商业逻辑与项目信息：\n\n{doc_text}"
+            
+    # Regular Chat prompt takes precedence if both happen instantly (unlikely but safe)
+    if prompt:
+        input_text = prompt
+
+    if input_text:
         if not st.session_state.current_session_id:
             create_new_session()
         
+        # Determine the display string (we don't want to show the giant raw text to the user in the UI)
+        display_text = prompt if prompt else f"📎 [上传了长文档：{uploaded_file.name}] 请全面分析其中的项目信息与商业漏洞。"
+        
         st.session_state.messages.append({
             "role": "user",
-            "content": prompt,
+            "content": display_text, # We store visual representation
+            "raw_payload": input_text, # Keep raw input for AI
             "timestamp": datetime.now().isoformat(),
         })
         
         with chat_container:
-            render_chat_message("user", prompt)
+            render_chat_message("user", display_text)
         
-        conversation_history = [
-            {"role": msg.get("role"), "content": msg.get("content")}
-            for msg in st.session_state.messages[:-1]
-        ]
+        conversation_history = []
+        for msg in st.session_state.messages[:-1]:
+            conversation_history.append({
+                "role": msg.get("role"), 
+                "content": msg.get("raw_payload", msg.get("content"))
+            })
         
-        with st.spinner("AI 教练正在分析..."):
+        with st.spinner("AI 教练正在全量分析档案内容..."):
             state = run_langgraph_cycle(
-                prompt,
+                input_text, # We feed the giant input text directly to backend
                 conversation_history=conversation_history,
                 accumulated_info=st.session_state.accumulated_info,
                 target_competition=st.session_state.target_competition,
@@ -606,7 +678,8 @@ def main():
             render_chat_message("assistant", state.response, assistant_msg["state"])
         
         if len(st.session_state.messages) == 2:
-            st.session_state.session_title = prompt[:30] + ("..." if len(prompt) > 30 else "")
+            title_source = prompt if prompt else (uploaded_file.name if uploaded_file else "新对话")
+            st.session_state.session_title = title_source[:30] + ("..." if len(title_source) > 30 else "")
         
         save_current_session()
         st.rerun()
