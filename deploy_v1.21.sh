@@ -21,24 +21,25 @@ if [ -d "venv/bin" ]; then
 elif [ -d ".venv/bin" ]; then
     source .venv/bin/activate
 else
-    echo "⚠️ 未找到名为 venv 的虚拟环境，正尝试为您创建..."
+    echo "⚠️ 未找到虚拟环境，正在为您强制创建..."
     python3 -m venv venv
     source venv/bin/activate
 fi
 
-# 3. 安装依赖 (特别是 pypdf 等多模态所需依赖)
+# 3. 安装依赖 (使用强制模式解决之前看到的版本冲突)
 echo "📥 3. 正在同步 v1.21 环境依赖 (安装 pypdf 等组件)..."
 pip install --upgrade pip --quiet
-pip install -r requirements.txt --quiet
+# 增加 --force-reinstall 和 --no-cache-dir 解决服务器上的版本死锁
+pip install -r requirements.txt --force-reinstall --no-cache-dir --quiet
 echo "✅ 环境依赖同步完成。"
 
 # 4. 修复/同步 Neo4j 数据库数据
-echo "🗃️ 4. 正在为您清空并重新导入 52 个商业项目的知识图谱数据 （修复无法检索 Bug）..."
-python scripts/import_kg_v1.19.py
+echo "🗃️ 4. 正在为您从服务器本地重新导入知识图谱数据..."
+python3 scripts/import_kg_v1.19.py
 if [ $? -eq 0 ]; then
-    echo "✅ 数据库同步成功！前沿项目解析数据已恢复。"
+    echo "✅ 数据库同步成功！"
 else
-    echo "❌ 数据库同步可能出现异常，请检查 Neo4j 是否在运行，或检查 .env 密码配置。"
+    echo "❌ 数据库同步失败，请手动确认服务器 Neo4j 状态。"
 fi
 
 # 5. 关闭旧进程并后台启动新进程
