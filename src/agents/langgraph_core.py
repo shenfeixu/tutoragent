@@ -451,6 +451,65 @@ def extract_keywords_local(text: str, max_keywords: int = 5) -> List[str]:
     return unique_keywords[:max_keywords]
 
 
+def llm_semantic_rerank(tech_desc: str, market_desc: str, candidate_projects: List[Dict[str, Any]], top_k: int = 3) -> List[Dict[str, Any]]:
+    """使用 LLM 对粗筛召回的图谱节点进行业务同构性深度重排，剔除泛化词汇骗分的噪音项目。"""
+    if not candidate_projects or not LANGCHAIN_AVAILABLE:
+        return candidate_projects[:top_k]
+    
+    candidates_text = ""
+    for i, p in enumerate(candidate_projects):
+        name = p.get("project_name", "Unknown")
+        desc = p.get("project_desc", "No desc")
+        tech = p.get("tech_name", "Unknown tech")
+        market = p.get("market_name", "Unknown market")
+        candidates_text += f"[{i}] {name} | 技术: {tech} | 市场: {market} | 描述: {desc}\n"
+    
+    system_prompt = "你是一个最高级别的知识图谱重排系统(Reranker)。你的唯一任务是剔除字面匹配成功但是业务核心逻辑毫不相干的噪音数据。"
+    human_prompt = f"""
+【学生目标评估项目】
+技术主张: {tech_desc}
+目标市场: {market_desc}
+
+【初筛图谱候选池 (Top 15)】
+{candidates_text}
+
+请严格比较候选项目与目标项目的"核心技术机制"和"商业交付形态"。
+防范泛化污染：如果一个项目仅仅命中了"农村"、"平台"，但一个是『卖菜的生鲜社区团购』，一个是『送农资的无人机调度硬件』，这属于典型的风马牛不相及，必须无情砍掉！
+任务：从候选池中，选出最高度匹配的最多 {top_k} 个项目序号。
+必须且只能返回如下 JSON 格式（严禁任何多余的开头或结尾解释）：
+{{"top_indices": [0, 2]}}
+"""
+    try:
+        LOGGER.info(f"[Rerank] 正在对 {len(candidate_projects)} 个粗排节点进行大模型跨维语义裁决...")
+        response = _call_openai_manual(system_prompt, human_prompt).strip()
+        response = _sanitize_llm_json(response)
+        
+        # 兼容 LLM 可能仅仅返回一个 JSON 数组的情况
+        if response.startswith("[") and response.endswith("]"):
+            response = '{"top_indices": ' + response + '}'
+            
+        data = json.loads(response)
+        indices = data.get("top_indices", [])
+        
+        if not isinstance(indices, list):
+            indices = []
+            
+        reranked_projects = []
+        for idx in indices:
+            if isinstance(idx, int) and 0 <= idx < len(candidate_projects):
+                reranked_projects.append(candidate_projects[idx])
+                
+        if not reranked_projects:
+            LOGGER.warning("[Rerank] 重排器返回空列表或被全系否决，将退回词频评分排序。")
+            return candidate_projects[:top_k]
+            
+        LOGGER.info(f"[Rerank] 重排完毕，保留 {len(reranked_projects)} 个高危对标项目。")
+        return reranked_projects[:top_k]
+    except Exception as e:
+        LOGGER.warning(f"[Rerank] 重排引擎调用失败: {e}，优雅降维回退至词频排序。")
+        return candidate_projects[:top_k]
+
+
 def check_tech_market_match(tech: Optional[str], market: Optional[str]) -> Tuple[bool, str, Dict[str, Any]]:
     """检查技术是否适用于目标市场（基于Neo4j图谱），返回详细匹配过程
     
@@ -654,29 +713,47 @@ def check_tech_market_match(tech: Optional[str], market: Optional[str]) -> Tuple
     for project in unique_projects:
         score = project.get("relevance_score", 0) or 0
         match_details["match_scores"][project["project_name"]] = score
-    
-    match_details["query_attempts"].append({
-        "stage": "步骤5: 结果汇总与排序",
-        "found": len(unique_projects),
-        "projects": [p["project_name"] for p in unique_projects[:10]],
-        "message": f"共找到 {len(unique_projects)} 个相关项目",
-    })
-    
+        
     if unique_projects:
+        # 初筛排序 (Retrieve)
         sorted_projects = sorted(unique_projects, key=lambda x: x.get("relevance_score", 0) or 0, reverse=True)
-        match_details["project_details"] = sorted_projects
-        match_details["matched_projects"] = [p["project_name"] for p in sorted_projects]
+        candidates_for_rerank = sorted_projects[:15]
         
-        top_project = sorted_projects[0]
-        detail_msg = f"图谱中找到 {len(unique_projects)} 个相关案例"
-        if top_project.get("tech_maturity"):
-            detail_msg += f"，技术成熟度: {top_project['tech_maturity']}"
-        if top_project.get("market_name"):
-            detail_msg += f"，市场: {top_project['market_name'][:30]}..."
+        match_details["query_attempts"].append({
+            "stage": "步骤5: 初筛召回池建立 (Retrieve)",
+            "found": len(candidates_for_rerank),
+            "projects": [p["project_name"] for p in candidates_for_rerank],
+            "message": f"通过 Cypher 并集规则搜寻到 {len(candidates_for_rerank)} 个字面泛化嫌疑标的，准备打入重排网关。",
+        })
         
-        return True, detail_msg, match_details
-    
-    return False, f"图谱中未找到匹配案例（技术关键词: {tech_keywords[:5]}, 市场关键词: {market_keywords[:5]}）", match_details
+        # 智能重排 (Rerank)
+        reranked_projects = llm_semantic_rerank(tech, market, candidates_for_rerank, top_k=3)
+        reranked_names = [p["project_name"] for p in reranked_projects]
+        rejected_names = [p["project_name"] for p in candidates_for_rerank if p["project_name"] not in reranked_names]
+        
+        match_details["project_details"] = reranked_projects
+        match_details["matched_projects"] = reranked_names
+        
+        reject_msg = f"果断剔除弱相关噪音节点：{', '.join(rejected_names[:3]) + (' 等' if len(rejected_names)>3 else '')}" if rejected_names else "无噪音剔除。"
+        
+        match_details["query_attempts"].append({
+            "stage": "步骤6: 降噪与深度语义重排 (LLM Rerank)",
+            "found": len(reranked_projects),
+            "projects": reranked_names,
+            "message": f"经过 Reranker 大模型基于业务同构性的交叉审视，{reject_msg} 最终锁定 {len(reranked_projects)} 个极高相关对标。",
+        })
+        
+        if reranked_projects:
+            top_project = reranked_projects[0]
+            detail_msg = f"穿透图谱锁定 {len(reranked_projects)} 个极高纯度对标"
+            if top_project.get("tech_maturity"):
+                detail_msg += f"，技术成熟度: {top_project['tech_maturity']}"
+            if top_project.get("market_name"):
+                detail_msg += f"，目标生态匹配: {top_project['market_name'][:30]}..."
+            
+            return True, detail_msg, match_details
+
+    return False, f"图谱彻底筛查完毕未捕获高相关性案例（底层检索关键词: {tech_keywords[:3]}）", match_details
 
 
 def check_tech_risks(tech: Optional[str]) -> Tuple[bool, List[str], Dict[str, Any]]:
