@@ -15,6 +15,17 @@ from src.utils.database import (
     get_all_intervention_rules,
     add_intervention_rule,
     delete_intervention_rule,
+    create_class,
+    get_teacher_classes,
+    get_class_by_id,
+    update_class,
+    delete_class,
+    add_student_to_class,
+    add_students_to_class_batch,
+    remove_student_from_class,
+    get_class_students,
+    get_students_not_in_class,
+    get_all_students_for_teacher,
 )
 
 st.set_page_config(
@@ -25,15 +36,70 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-    .metric-card {
-        background-color: #1e1e1e;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        margin-bottom: 1rem;
+    /* =========================================================
+       INSTRUCTOR PREMIUM UI
+       ========================================================= */
+    .stApp {
+        background: radial-gradient(circle at top left, #0D1629 0%, #030712 100%);
     }
-    .risk-high { color: #ff4b4b; }
-    .risk-medium { color: #ffa500; }
-    .risk-low { color: #4caf50; }
+
+    [data-testid="stSidebar"] {
+        background-color: rgba(15, 23, 42, 0.95) !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    button[kind="primary"] {
+        background: linear-gradient(135deg, #4F46E5 0%, #2563EB 100%) !important;
+        border: none !important;
+        border-radius: 8px !important;
+        color: white !important;
+        font-weight: 600 !important;
+        transition: transform 0.2s, box-shadow 0.2s !important;
+    }
+    
+    /* Metrics / Dashboard Cards wrapper in pure CSS */
+    [data-testid="stMetric"] {
+        background: linear-gradient(145deg, rgba(30,41,59,0.5), rgba(15,23,42,0.8));
+        padding: 20px;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+    }
+    [data-testid="stMetric"]:hover {
+        transform: translateY(-3px);
+        background: linear-gradient(145deg, rgba(30,41,59,0.7), rgba(15,23,42,0.9));
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
+    [data-testid="stMetricValue"] {
+        font-size: 2.2rem !important;
+        font-weight: 800 !important;
+        color: #F8FAFC !important;
+    }
+    [data-testid="stMetricLabel"] {
+        font-size: 1.1rem !important;
+        color: #94A3B8 !important;
+        margin-bottom: 5px;
+    }
+    
+    /* Expander styling */
+    .streamlit-expanderHeader {
+        background-color: rgba(30, 41, 59, 0.6) !important;
+        border-radius: 8px !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    }
+    
+    .risk-high { background-color: rgba(239, 68, 68, 0.2); color: #FCA5A5; padding: 2px 8px; border-radius: 4px; border: 1px solid #EF4444;}
+    .risk-medium { background-color: rgba(245, 158, 11, 0.2); color: #FCD34D; padding: 2px 8px; border-radius: 4px; border: 1px solid #F59E0B; }
+    .risk-low { background-color: rgba(16, 163, 127, 0.2); color: #6EE7B7; padding: 2px 8px; border-radius: 4px; border: 1px solid #10A37F; }
+    
+    .hero-title {
+        font-size: 2.8rem; font-weight: 900; 
+        background: -webkit-linear-gradient(45deg, #60A5FA, #A78BFA); 
+        -webkit-background-clip: text; 
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 2rem;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -75,15 +141,19 @@ def render_sidebar(user):
         st.caption("教师端")
         st.divider()
         
-        if st.button("🏠 返回学生端", use_container_width=True):
-            st.session_state.view = "student"
+        if st.button("🚪 退出登录", use_container_width=True):
+            st.session_state.user = None
+            st.session_state.view = None
+            st.session_state.current_session_id = None
+            st.session_state.messages = []
+            st.session_state.accumulated_info = {}
             st.rerun()
         
         st.divider()
         
         page = st.radio(
             "导航",
-            ["📊 班级概览", "👥 学生管理", "📈 详细分析", "🛠 教学干预", "📚 教学案例"],
+            ["📊 班级概览", "👥 教学班管理", "📈 详细分析", "🛠 教学干预", "📚 教学案例"],
             key="teacher_page",
         )
         
@@ -91,7 +161,7 @@ def render_sidebar(user):
 
 
 def render_class_overview():
-    st.header("📊 班级能力分布与预警")
+    st.markdown("<div class='hero-title'>📊 班级全景洞察矩阵</div>", unsafe_allow_html=True)
     
     stats = get_class_fallacy_stats()
     
@@ -175,46 +245,115 @@ def render_class_overview():
 
 
 def render_student_management(user):
-    st.header("👥 学生管理")
+    st.header("👥 教学班管理")
     
-    tab1, tab2 = st.tabs(["我的学生", "添加学生"])
+    tab1, tab2 = st.tabs(["我的教学班", "创建教学班"])
     
     with tab1:
-        my_students = get_teacher_students(user["id"])
+        classes = get_teacher_classes(user["id"])
         
-        if my_students:
-            df_students = pd.DataFrame([
-                {
-                    "姓名": s["display_name"],
-                    "用户名": s["username"],
-                    "邮箱": s.get("email", "-"),
-                    "注册时间": s.get("created_at", "-")[:10] if s.get("created_at") else "-",
-                }
-                for s in my_students
-            ])
-            st.dataframe(df_students, use_container_width=True, hide_index=True)
+        if classes:
+            for cls in classes:
+                with st.expander(f"📚 {cls['name']} ({cls['student_count']}名学生)", expanded=False):
+                    col_info, col_actions = st.columns([3, 1])
+                    with col_info:
+                        st.markdown(f"**描述**: {cls['description'] or '无描述'}")
+                        st.caption(f"创建时间: {cls['created_at'][:10] if cls['created_at'] else '-'}")
+                    with col_actions:
+                        if st.button("🗑️ 删除班级", key=f"del_class_{cls['id']}"):
+                            if delete_class(cls['id']):
+                                st.success("班级已删除")
+                                st.rerun()
+                            else:
+                                st.error("删除失败")
+                    
+                    st.divider()
+                    
+                    class_students = get_class_students(cls['id'])
+                    if class_students:
+                        st.markdown("**班级学生**")
+                        df_students = pd.DataFrame([
+                            {
+                                "姓名": s["display_name"],
+                                "用户名": s["username"],
+                                "邮箱": s.get("email", "-"),
+                                "加入时间": s.get("joined_at", "-")[:10] if s.get("joined_at") else "-",
+                            }
+                            for s in class_students
+                        ])
+                        st.dataframe(df_students, use_container_width=True, hide_index=True)
+                    else:
+                        st.info("该班级暂无学生")
+                    
+                    st.divider()
+                    
+                    st.markdown("**添加学生到班级**")
+                    available_students = get_students_not_in_class(user["id"], cls['id'])
+                    
+                    if available_students:
+                        student_options = {f"{s['display_name']} ({s['username']})": s["id"] for s in available_students}
+                        
+                        col_select, col_btn = st.columns([3, 1])
+                        with col_select:
+                            selected_students = st.multiselect(
+                                "选择学生（可多选）",
+                                list(student_options.keys()),
+                                key=f"multiselect_{cls['id']}"
+                            )
+                        with col_btn:
+                            st.write("")
+                            st.write("")
+                            if st.button("批量添加", key=f"add_batch_{cls['id']}"):
+                                if selected_students:
+                                    student_ids = [student_options[s] for s in selected_students]
+                                    count = add_students_to_class_batch(cls['id'], student_ids)
+                                    st.success(f"成功添加 {count} 名学生")
+                                    st.rerun()
+                                else:
+                                    st.warning("请先选择学生")
+                    else:
+                        st.info("所有学生已在该班级中，或暂无可添加的学生")
         else:
-            st.info("暂无学生，请在「添加学生」标签页添加。")
+            st.info("暂无教学班，请在「创建教学班」标签页创建。")
     
     with tab2:
-        all_students = get_all_students()
-        my_student_ids = [s["id"] for s in get_teacher_students(user["id"])]
-        available_students = [s for s in all_students if s["id"] not in my_student_ids]
-        
-        if available_students:
-            student_options = {f"{s['display_name']} ({s['username']})": s["id"] for s in available_students}
+        st.subheader("创建新教学班")
+        with st.form("create_class_form"):
+            class_name = st.text_input("班级名称", placeholder="例如：2024春季创业基础班")
+            class_desc = st.text_area("班级描述", placeholder="可选：描述该班级的课程信息、学期等")
             
-            selected = st.selectbox("选择学生", list(student_options.keys()))
+            st.divider()
+            st.markdown("**可选：批量导入学生**")
+            all_students = get_all_students_for_teacher()
             
-            if st.button("添加学生"):
-                student_id = student_options[selected]
-                if add_student_to_teacher(user["id"], student_id):
-                    st.success("添加成功！")
-                    st.rerun()
+            if all_students:
+                student_options = {f"{s['display_name']} ({s['username']})": s["id"] for s in all_students}
+                pre_select_students = st.multiselect(
+                    "选择要导入的学生（可多选，也可创建班级后再添加）",
+                    list(student_options.keys())
+                )
+            else:
+                student_options = {}
+                pre_select_students = []
+                st.info("暂无可导入的学生")
+            
+            submit = st.form_submit_button("创建教学班", use_container_width=True)
+            
+            if submit:
+                if not class_name.strip():
+                    st.error("请输入班级名称")
                 else:
-                    st.error("添加失败，请重试。")
-        else:
-            st.info("没有可添加的学生。")
+                    class_id = create_class(user["id"], class_name.strip(), class_desc.strip() if class_desc else None)
+                    if class_id:
+                        if pre_select_students:
+                            student_ids = [student_options[s] for s in pre_select_students]
+                            count = add_students_to_class_batch(class_id, student_ids)
+                            st.success(f"教学班创建成功！已导入 {count} 名学生")
+                        else:
+                            st.success("教学班创建成功！")
+                        st.rerun()
+                    else:
+                        st.error("创建失败，请重试")
 
 
 def render_detailed_analysis(user):
@@ -470,7 +609,7 @@ def main():
     
     if page == "📊 班级概览":
         render_class_overview()
-    elif page == "👥 学生管理":
+    elif page == "👥 教学班管理":
         render_student_management(user)
     elif page == "📈 详细分析":
         render_detailed_analysis(user)
