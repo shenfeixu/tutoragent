@@ -165,6 +165,43 @@ def main():
                     else:
                         st.error("请填写必填项。")
 
+                        st.error("请填写必填项。")
+
+        # 新增批量导入表单
+        with st.expander("📂 批量导入账号 (CSV/Excel 模拟)", expanded=False):
+            st.markdown("💡 仅支持包含 `username, password, role, display_name` 四列的标准 CSV 文件。")
+            
+            # 提供模板下载模拟
+            csv_template = "username,password,role,display_name\nstu01,123456,student,学生张三\ntea01,123456,teacher,导师李四"
+            st.download_button(label="📥 下载 CSV 导入模板", data=csv_template, file_name="账号批量导入模板.csv", mime="text/csv")
+            
+            uploaded_csv = st.file_uploader("上传已填写的分配表", type=["csv"], label_visibility="collapsed")
+            if st.button("🚀 执行批量分配写入"):
+                if uploaded_csv:
+                    try:
+                        import io
+                        df_import = pd.read_csv(io.StringIO(uploaded_csv.getvalue().decode("utf-8")))
+                        success_cnt = 0
+                        fails = 0
+                        for _, row in df_import.iterrows():
+                            un = str(row.get("username", "")).strip()
+                            pw = str(row.get("password", "123456")).strip()
+                            rl = str(row.get("role", "student")).strip()
+                            dn = str(row.get("display_name", un)).strip()
+                            
+                            if un and pw:
+                                uid = create_user(un, pw, rl, dn)
+                                if uid: 
+                                    success_cnt += 1
+                                else:
+                                    fails += 1
+                        
+                        st.success(f"✅ 成功批量分配并写入 {success_cnt} 个账号！(忽略/覆盖 {fails} 个)")
+                    except Exception as e:
+                        st.error(f"❌ 读取 CSV 文件失败，请检查格式约束。详情: {e}")
+                else:
+                    st.warning("请先上传文件。")
+
         st.divider()
         
         # 用户列表与删除

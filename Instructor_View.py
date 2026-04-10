@@ -153,7 +153,7 @@ def render_sidebar(user):
         
         page = st.radio(
             "导航",
-            ["📊 班级概览", "👥 教学班管理", "📈 详细分析", "🛠 教学干预", "📚 教学案例"],
+            ["📊 班级概览", "👥 教学班管理", "📈 详细分析", "✨ 动态能力画像", "🛠 教学干预", "📚 教学案例"],
             key="teacher_page",
         )
         
@@ -375,7 +375,7 @@ def render_detailed_analysis(user):
         st.info("暂无学生数据，请等待学生完成对话。")
         return
     
-    tab1, tab2, tab3, tab4 = st.tabs(["量化评分", "高风险项目", "证据链追溯", "✨ 动态能力画像"])
+    tab1, tab2, tab3 = st.tabs(["量化评分", "高风险项目", "证据链追溯"])
     
     with tab1:
         st.subheader("基于 Rubric 的量化评价")
@@ -457,40 +457,56 @@ def render_detailed_analysis(user):
             else:
                 st.info("该学生暂无会话记录。")
                 
-    with tab4:
-        st.subheader("🤖 动态能力画像评估")
+    
+def render_dynamic_profile(user):
+    st.header("✨ 学生动态能力画像评估")
+    st.markdown("基于全量真实交互上下文，由 AI 自动生成深度的创新创业核心能力剖析。")
+    
+    target_comp = st.selectbox(
+        "评估基准：",
+        list(COMPETITION_WEIGHTS.keys()),
+        key="teacher_profile_sync_comp"
+    )
+    weights = COMPETITION_WEIGHTS[target_comp]
+    student_scores = get_student_scores(weights)
+    
+    if not student_scores:
+        st.info("暂无学生数据。")
+        return
         
-        student_options = {s["display_name"]: s for s in student_scores}
-        selected_student = st.selectbox("选择要分析的学生", list(student_options.keys()), key="profile_student")
+    student_options = {s["display_name"]: s for s in student_scores}
+    selected_student = st.selectbox("🎯 选择要深入解剖的学生", list(student_options.keys()), key="profile_student")
+    
+    if selected_student:
+        student = student_options[selected_student]
+        st.markdown(f"**当前量化得分：{round(student['total_score'], 1)}** · **风险定级：**`{student['risk_level']}`")
         
-        if selected_student:
-            student = student_options[selected_student]
-            
-            if st.button("✨ 生成能力画像"):
-                with st.spinner(f"正在分析 {selected_student} 的综合能力..."):
-                    from src.agents.langgraph_core import generate_student_profile
-                    
-                    student_data = {
-                        "name": student["display_name"],
-                        "total_score": round(student["total_score"], 1),
-                        "risk_level": student["risk_level"],
-                        "rubric_scores": {
-                            "pain_point": student["pain_point_score"],
-                            "planning": student["planning_score"],
-                            "modeling": student["modeling_score"],
-                            "leverage": student["leverage_score"],
-                            "presentation": student["presentation_score"],
-                        },
-                        "frequent_fallacies": student["fallacies"],
-                        "session_count": len(student["sessions"])
-                    }
-                    
-                    profile_md = generate_student_profile(student_data)
-                    st.session_state[f"profile_{selected_student}"] = profile_md
-            
-            profile_key = f"profile_{selected_student}"
-            if profile_key in st.session_state:
-                st.markdown(st.session_state[profile_key])
+        if st.button("🚀 提纯并生成最新 AI 画像"):
+            with st.spinner(f"正在全维检索并深扒 {selected_student} 的交互历史与商战盲区..."):
+                from src.agents.langgraph_core import generate_student_profile
+                
+                student_data = {
+                    "name": student["display_name"],
+                    "total_score": round(student["total_score"], 1),
+                    "risk_level": student["risk_level"],
+                    "rubric_scores": {
+                        "pain_point": student["pain_point_score"],
+                        "planning": student["planning_score"],
+                        "modeling": student["modeling_score"],
+                        "leverage": student["leverage_score"],
+                        "presentation": student["presentation_score"],
+                    },
+                    "frequent_fallacies": student["fallacies"],
+                    "session_count": len(student["sessions"])
+                }
+                
+                profile_md = generate_student_profile(student_data)
+                st.session_state[f"profile_{selected_student}"] = profile_md
+        
+        profile_key = f"profile_{selected_student}"
+        if profile_key in st.session_state:
+            st.markdown("<hr>", unsafe_allow_html=True)
+            st.markdown(st.session_state[profile_key])
 
 
 def render_teaching_cases():
@@ -613,6 +629,8 @@ def main():
         render_student_management(user)
     elif page == "📈 详细分析":
         render_detailed_analysis(user)
+    elif page == "✨ 动态能力画像":
+        render_dynamic_profile(user)
     elif page == "🛠 教学干预":
         render_teacher_intervention(user)
     elif page == "📚 教学案例":

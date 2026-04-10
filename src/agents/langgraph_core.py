@@ -405,6 +405,16 @@ def extract_keywords_local(text: str, max_keywords: int = 5) -> List[str]:
     
     import re
     
+    match_details["query_attempts"].append({
+        "stage": "步骤2: 精确拓扑结构匹配",
+        "found": len(unique_projects),
+        "projects": [p["project_name"] for p in unique_projects[:5]],
+        "message": f"执行图谱连边寻址: (p:Project)-[:USE]->(t:Tech) AND (p)-[:TARGET]->(m:Market), 命中技术节点: {tech_match_count}, 市场节点: {market_match_count}。图谱投影出 {len(unique_projects)} 个相关实体",
+    })
+
+    # Step 3: Cross-matching (Tech keywords in Market or vice versa)
+    initial_count = len(unique_projects)
+    
     stopwords = {"的", "和", "与", "及", "等", "是", "在", "有", "为", "对", "将", "能", "可", "以", "了", "着", "过", "被", "把", "让", "给", "向", "从", "到", "基于", "通过", "进行", "实现", "提供", "支持", "系统", "平台", "服务", "产品", "技术", "解决方案", "应用", "开发", "研究", "设计", "构建", "打造", "创建", "建立", "帮助", "制定", "分析", "诊断", "调控", "制备", "制造", "加工", "检测", "监测", "管理", "控制"}
     
     entity_patterns = [
@@ -584,9 +594,10 @@ def check_tech_market_match(tech: Optional[str], market: Optional[str]) -> Tuple
             result = session.run(query_exact, tech_keywords=tech_keywords, market_keywords=market_keywords)
             exact_results = [dict(record) for record in result]
             match_details["query_attempts"].append({
-                "stage": "步骤2: 精确匹配（技术→技术节点 AND 市场→市场节点）",
+                "stage": "步骤2: 精确匹配（(Project)-[:USE]->(Tech) AND [:TARGET]->(Market)）",
                 "found": len(exact_results),
                 "projects": [p["project_name"] for p in exact_results],
+                "message": f"底层寻址: (p:Project)-[:USE]->(t:Tech) AND (p)-[:TARGET]->(m:Market)",
             })
     except Exception as e:
         LOGGER.warning(f"Exact query failed: {e}")
@@ -623,9 +634,10 @@ def check_tech_market_match(tech: Optional[str], market: Optional[str]) -> Tuple
             result = session.run(query_cross, tech_keywords=tech_keywords, market_keywords=market_keywords)
             cross_results = [dict(record) for record in result]
             match_details["query_attempts"].append({
-                "stage": "步骤3: 跨维度匹配（技术/市场关键词→任意节点）",
+                "stage": "步骤3: 跨维度隐式匹配（拓扑放宽连边）",
                 "found": len(cross_results),
                 "projects": [p["project_name"] for p in cross_results],
+                "message": f"拓扑放宽: (p:Project)-[:USE]->(t) OR (p)-[:TARGET]->(m) 寻找跨层属性漂移节点",
             })
     except Exception as e:
         LOGGER.warning(f"Cross query failed: {e}")
@@ -687,9 +699,10 @@ def check_tech_market_match(tech: Optional[str], market: Optional[str]) -> Tuple
             result = session.run(query_fulltext, all_keywords=all_keywords, tech_keywords=tech_keywords, market_keywords=market_keywords)
             fulltext_results = [dict(record) for record in result]
             match_details["query_attempts"].append({
-                "stage": "步骤4: 全文匹配（关键词→技术/市场/项目名/项目描述）",
+                "stage": "步骤4: 项目全域模糊图谱索引遍历",
                 "found": len(fulltext_results),
                 "projects": [p["project_name"] for p in fulltext_results],
+                "message": f"强力检索: ANY(kw IN keywords WHERE (p.description) CONTAINS...) 搜索非结构化节点",
             })
     except Exception as e:
         LOGGER.warning(f"Fulltext query failed: {e}")
@@ -2080,22 +2093,45 @@ def generate_intervention_plan(stats: Dict[str, Any]) -> str:
         return f"生成干预计划失败：{e}"
 
 
-def generate_student_profile(student_data: Dict[str, Any]) -> str:
-    """A6-4: 根据项目历史生成 3 阶段动态画像 (价值发现 -> 压力测试 -> 执行可行性)。"""
-    system_prompt = (
-        "你是资深的创新创业导师。请根据该学生的『项目得分情况』和『经常触发的薄弱逻辑规则』，"
-        "按照以下三个核心阶段生成『学生动态能力画像报告』：\n\n"
-        "### 第一阶段：价值发现能力 (Value Detection)\n"
-        "分析学生发现真实痛点、定义价值主张的能力及敏感度。\n\n"
-        "### 第二阶段：压力测试表现 (Pressure Test)\n"
-        "评估学生在面对逻辑挑战、盈亏平衡拷问及竞争风险时的防御与修正能力。\n\n"
-        "### 第三阶段：执行可行性 (Execution Feasibility)\n"
-        "判断学生对市场渠道、成本结构及落地微步动作的理解深度。\n\n"
-        "### 💡 教师辅导建议\n"
-        "为授课教师提供针对该学生的『一对一干预重点』与『推荐辅导话术』。\n\n"
-        "要求：排版清晰美观，使用 Markdown 格式，结论要犀利且具备指导意义。"
-    )
-    human_prompt = f"该学生数据分析：\n{student_data}\n请输出综合能力画像及教师1对1辅导策略。"
+def generate_student_profile(student_data: Dict[str, Any], for_student: bool = False) -> str:
+    """A6-4: 根据项目历史生成动态画像，区分师生视角。"""
+    if for_student:
+        system_prompt = (
+            "你是资深的创新创业AI教练。请根据这位学生的『经常触发的薄弱逻辑规则』及表现数据，"
+            "直接向该学生反馈『个人专属能力剖析报告』。注意：绝对不要在回答中透露系统量化评分或底部分数，避免带来焦虑，也不要出现教师术语。\n\n"
+            "请按以下四个核心模块向学生进行反馈：\n"
+            "### 🌟 你的核心优势 (Key Strengths)\n"
+            "分析他在项目推演中未触雷或表现稳定的维度闪光点。\n\n"
+            "### ⚠️ 你的逻辑盲区 (Logic Blind Spots)\n"
+            "基于经常触发的漏洞，一针见血地指出该学生经常犯的逻辑漏洞或认知偏差。\n\n"
+            "### 📈 针对性提升建议 (Actionable Advice)\n"
+            "告诉学生接下来应该在哪些方面恶补（如调研、财务计算等）。\n\n"
+            "### 🚀 下一步突破方向 (Next Milestones)\n"
+            "设定明确的下一步项目迭代目标。\n\n"
+            "要求：排版清晰，使用 Markdown 格式。语气像一位导师：真诚、鼓励但不失犀利。所有内容都在跟学生（“你”）对话。"
+        )
+        safe_data = {
+            "name": student_data.get("name", "学生"),
+            "frequent_fallacies": student_data.get("frequent_fallacies", []),
+            "session_count": student_data.get("session_count", 0)
+        }
+        human_prompt = f"我的项目推演历史漏洞统计：\n{safe_data}\n请输出专属我的能力画像与指导建议。"
+    else:
+        system_prompt = (
+            "你是资深的创新创业导师。请根据该学生的『项目得分情况』和『经常触发的薄弱逻辑规则』，"
+            "按照以下三个核心阶段生成『学生动态能力画像报告』：\n\n"
+            "### 第一阶段：价值发现能力 (Value Detection)\n"
+            "分析学生发现真实痛点、定义价值主张的能力及敏感度。\n\n"
+            "### 第二阶段：压力测试表现 (Pressure Test)\n"
+            "评估学生在面对逻辑挑战、盈亏平衡拷问及竞争风险时的防御与修正能力。\n\n"
+            "### 第三阶段：执行可行性 (Execution Feasibility)\n"
+            "判断学生对市场渠道、成本结构及落地微步动作的理解深度。\n\n"
+            "### 💡 教师辅导建议\n"
+            "为授课教师提供针对该学生的『一对一干预重点』与『推荐辅导话术』。\n\n"
+            "要求：排版清晰美观，使用 Markdown 格式，结论要犀利且具备指导意义。"
+        )
+        human_prompt = f"该学生数据分析：\n{student_data}\n请输出综合能力画像及教师1对1辅导策略。"
+        
     try:
         return _call_openai_manual(system_prompt, human_prompt)
     except Exception as e:

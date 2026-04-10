@@ -16,6 +16,7 @@ from src.utils.database import (
     list_user_sessions,
     delete_user_session,
     get_user_memory,
+    get_student_scores,
 )
 
 st.set_page_config(
@@ -296,6 +297,8 @@ def init_session_state():
         st.session_state.view = "student"
     if "target_competition" not in st.session_state:
         st.session_state.target_competition = "互联网+"
+    if "user_profile" not in st.session_state:
+        st.session_state.user_profile = {}
 
 
 def generate_session_id() -> str:
@@ -384,15 +387,15 @@ def render_login_page():
         st.markdown("""
         <div style="padding-top: 2rem;">
             <h1 style='font-size: 4rem; font-weight: 900; background: -webkit-linear-gradient(45deg, #60A5FA, #A78BFA); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px;'>
-                🎯 超图教练<br>你的数字风投合伙人
+                🎯 超图教练<br>多智能体双创辅导系统
             </h1>
             <p style='font-size: 1.3rem; color: #94A3B8; line-height: 1.6; margin-bottom: 30px;'>
-                结合超大图谱与硅谷风投逻辑，从商业模式漏洞到技术壁垒，为您提供精确到像素级的全维度路演答辩护航。
+                融合底层垂直业务图谱引擎，通过大模型驱动的多Agent协作管线，为师生提供对接主流赛制的量化推演与评估闭环。
             </p>
             <div style="border-left: 3px solid #6366F1; padding-left: 20px; color: #E2E8F0; font-size: 1.1rem; line-height: 1.8;">
-                ✨ <b>全息图谱驱动</b> &nbsp;深挖商业结构隐患<br>
-                ✨ <b>长文多模态解析</b> &nbsp;直连 BP 原文秒级阅卷<br>
-                ✨ <b>赛事防漏网模型</b> &nbsp;千人千面精准靶向给分
+                ✨ <b>图谱节点寻址</b> &nbsp;结构化定位项目逻辑与商业闭环<br>
+                ✨ <b>多端智能体协同</b> &nbsp;技术/市场/财务专家机制交叉质询<br>
+                ✨ <b>AI 动态双视角评估</b> &nbsp;学生精准诊断与教师数据看板
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -497,6 +500,41 @@ def render_sidebar():
             ["互联网+", "挑战杯", "创青春", "数模"],
             index=["互联网+", "挑战杯", "创青春", "数模"].index(st.session_state.target_competition)
         )
+        
+        st.divider()
+        
+        st.divider()
+        
+        if user["role"] == "student":
+            st.markdown("**🤖 AI 专属测评**")
+            if st.button("✨ 生成并查看我的能力画像报告", use_container_width=True):
+                with st.spinner("AI 正在提纯商战能力..."):
+                    weights = COMPETITION_WEIGHTS.get(st.session_state.target_competition, COMPETITION_WEIGHTS["互联网+"])
+                    all_scores = get_student_scores(weights)
+                    my_score = next((s for s in all_scores if s["user_id"] == user["id"]), None)
+                    
+                    if my_score and len(my_score["sessions"]) > 0:
+                        from src.agents.langgraph_core import generate_student_profile
+                        student_data = {
+                            "name": user.get("display_name", user["username"]),
+                            "total_score": round(my_score["total_score"], 1),
+                            "risk_level": my_score["risk_level"],
+                            "rubric_scores": {
+                                "pain_point": my_score["pain_point_score"],
+                                "planning": my_score["planning_score"],
+                                "modeling": my_score["modeling_score"],
+                                "leverage": my_score["leverage_score"],
+                                "presentation": my_score["presentation_score"],
+                            },
+                            "frequent_fallacies": my_score["fallacies"],
+                            "session_count": len(my_score["sessions"])
+                        }
+                        profile_md = generate_student_profile(student_data, for_student=True)
+                        st.session_state["my_ai_profile_content"] = profile_md
+                        st.session_state["show_student_profile"] = True
+                        st.rerun()
+                    else:
+                        st.error("您暂无历史会话或记录过少，请先与教练切磋后再生成能力画像！")
         
         st.divider()
 
@@ -807,6 +845,15 @@ def main():
         return
     
     render_sidebar()
+    
+    if st.session_state.get("show_student_profile", False) and st.session_state.view == "student":
+        st.title("🎓 学生专属动态能力画像")
+        if st.button("🔙 返回当前对话列表", type="primary"):
+            st.session_state["show_student_profile"] = False
+            st.rerun()
+            
+        st.markdown(st.session_state.get("my_ai_profile_content", "生成失败"))
+        return
     
     col_t1, col_t2 = st.columns([3, 1.2])
     with col_t1:

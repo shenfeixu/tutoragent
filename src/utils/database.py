@@ -67,12 +67,35 @@ def init_database():
     CREATE TABLE IF NOT EXISTS intervention_rules (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         teacher_id INTEGER NOT NULL,
-        student_id INTEGER, -- NULL means class-wide
+        student_id INTEGER,
         content TEXT NOT NULL,
         is_active INTEGER DEFAULT 1,
         created_at TEXT NOT NULL,
         FOREIGN KEY (teacher_id) REFERENCES users (id),
         FOREIGN KEY (student_id) REFERENCES users (id)
+    )
+    """)
+    
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS classes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        teacher_id INTEGER NOT NULL,
+        name TEXT NOT NULL,
+        description TEXT,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY (teacher_id) REFERENCES users (id)
+    )
+    """)
+    
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS class_students (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        class_id INTEGER NOT NULL,
+        student_id INTEGER NOT NULL,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY (class_id) REFERENCES classes (id),
+        FOREIGN KEY (student_id) REFERENCES users (id),
+        UNIQUE(class_id, student_id)
     )
     """)
     
@@ -225,6 +248,31 @@ def get_all_users() -> List[Dict[str, Any]]:
         "created_at": row["created_at"],
         "last_login": row["last_login"]
     } for row in rows]
+
+
+def delete_user(user_id: int) -> bool:
+    """级联删除用户及其相关的会话、师生关系、干预指令等所有数据"""
+    conn = get_connection()
+    cursor = conn.cursor()
+    
+    try:
+        # 1. 删除其作为主体（或客体）的相关记录
+        cursor.execute("DELETE FROM sessions WHERE user_id = ?", (user_id,))
+        cursor.execute("DELETE FROM teacher_students WHERE teacher_id = ? OR student_id = ?", (user_id, user_id))
+        cursor.execute("DELETE FROM intervention_rules WHERE teacher_id = ? OR student_id = ?", (user_id, user_id))
+        
+        # 2. 删除用户主记录
+        cursor.execute("DELETE FROM users WHERE id = ?", (user_id,))
+        
+        success = cursor.rowcount > 0
+        conn.commit()
+        return success
+    except Exception as e:
+        print(f"Error deleting user {user_id}: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()
 
 
 def save_user_session(
@@ -956,7 +1004,6 @@ def delete_intervention_rule(rule_id: int):
 def get_active_intervention_rules(teacher_id: int, student_id: int = None) -> List[str]:
     conn = get_connection()
     cursor = conn.cursor()
-    # Fetch class-wide rules (student_id IS NULL) OR specific student rules
     query = """
     SELECT content FROM intervention_rules 
     WHERE teacher_id = ? AND is_active = 1 
@@ -966,3 +1013,234 @@ def get_active_intervention_rules(teacher_id: int, student_id: int = None) -> Li
     rows = cursor.fetchall()
     conn.close()
     return [row["content"] for row in rows]
+
+
+def create_class(teacher_id: int, name: str, description: str = None) -> Optional[int]:
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            """
+            INSERT INTO classes (teacher_id, name, description, created_at)
+            VALUES (?, ?, ?, ?)
+            """,
+            (teacher_id, name, description, datetime.now().isoformat()),
+        )
+        class_id = cursor.lastrowid
+        conn.commit()
+        conn.close()
+        return class_id
+    except sqlite3.IntegrityError:
+        conn.close()
+        return None
+
+
+def get_teacher_classes(teacher_id: int) -> List[Dict[str, Any]]:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        SELECT c.id, c.name, c.description, c.created_at,
+               (SELECT COUNT(*) FROM class_students cs WHERE cs.class_id = c.id) as student_count
+        FROM classes c
+        WHERE c.teacher_id = ?
+        ORDER BY c.created_at DESC
+        """,
+        (teacher_id,),
+    )
+    rows = cursor.fetchall()
+    conn.close()
+    return [
+        {
+            "id": row["id"],
+            "name": row["name"],
+            "description": row["description"],
+            "created_at": row["created_at"],
+            "student_count": row["student_count"],
+        }
+        for row in rows
+    ]
+
+
+def get_class_by_id(class_id: int) -> Optional[Dict[str, Any]]:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM classes WHERE id = ?", (class_id,))
+    row = cursor.fetchone()
+    conn.close()
+    if row:
+        return {
+            "id": row["id"],
+            "teacher_id": row["teacher_id"],
+            "name": row["name"],
+            "description": row["description"],
+            "created_at": row["created_at"],
+        }
+    return None
+
+
+def update_class(class_id: int, name: str = None, description: str = None) -> bool:
+    conn = get_connection()
+    cursor = conn.cursor()
+    updates = []
+    params = []
+    if name is not None:
+        updates.append("name = ?")
+        params.append(name)
+    if description is not None:
+        updates.append("description = ?")
+        params.append(description)
+    if not updates:
+        conn.close()
+        return False
+    params.append(class_id)
+    cursor.execute(f"UPDATE classes SET {', '.join(updates)} WHERE id = ?", params)
+    success = cursor.rowcount > 0
+    conn.commit()
+    conn.close()
+    return success
+
+
+def delete_class(class_id: int) -> bool:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM class_students WHERE class_id = ?", (class_id,))
+    cursor.execute("DELETE FROM classes WHERE id = ?", (class_id,))
+    success = cursor.rowcount > 0
+    conn.commit()
+    conn.close()
+    return success
+
+
+def add_student_to_class(class_id: int, student_id: int) -> bool:
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            """
+            INSERT INTO class_students (class_id, student_id, created_at)
+            VALUES (?, ?, ?)
+            """,
+            (class_id, student_id, datetime.now().isoformat()),
+        )
+        conn.commit()
+        return True
+    except sqlite3.IntegrityError:
+        return False
+    finally:
+        conn.close()
+
+
+def add_students_to_class_batch(class_id: int, student_ids: List[int]) -> int:
+    conn = get_connection()
+    cursor = conn.cursor()
+    success_count = 0
+    now = datetime.now().isoformat()
+    for student_id in student_ids:
+        try:
+            cursor.execute(
+                """
+                INSERT INTO class_students (class_id, student_id, created_at)
+                VALUES (?, ?, ?)
+                """,
+                (class_id, student_id, now),
+            )
+            success_count += 1
+        except sqlite3.IntegrityError:
+            pass
+    conn.commit()
+    conn.close()
+    return success_count
+
+
+def remove_student_from_class(class_id: int, student_id: int) -> bool:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "DELETE FROM class_students WHERE class_id = ? AND student_id = ?",
+        (class_id, student_id),
+    )
+    success = cursor.rowcount > 0
+    conn.commit()
+    conn.close()
+    return success
+
+
+def get_class_students(class_id: int) -> List[Dict[str, Any]]:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        SELECT u.id, u.username, u.display_name, u.email, u.created_at, cs.created_at as joined_at
+        FROM users u
+        JOIN class_students cs ON u.id = cs.student_id
+        WHERE cs.class_id = ?
+        ORDER BY u.display_name
+        """,
+        (class_id,),
+    )
+    rows = cursor.fetchall()
+    conn.close()
+    return [
+        {
+            "id": row["id"],
+            "username": row["username"],
+            "display_name": row["display_name"],
+            "email": row["email"],
+            "created_at": row["created_at"],
+            "joined_at": row["joined_at"],
+        }
+        for row in rows
+    ]
+
+
+def get_students_not_in_class(teacher_id: int, class_id: int) -> List[Dict[str, Any]]:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        SELECT u.id, u.username, u.display_name, u.email, u.created_at
+        FROM users u
+        WHERE u.role = 'student'
+        AND u.id NOT IN (SELECT student_id FROM class_students WHERE class_id = ?)
+        ORDER BY u.display_name
+        """,
+        (class_id,),
+    )
+    rows = cursor.fetchall()
+    conn.close()
+    return [
+        {
+            "id": row["id"],
+            "username": row["username"],
+            "display_name": row["display_name"],
+            "email": row["email"],
+            "created_at": row["created_at"],
+        }
+        for row in rows
+    ]
+
+
+def get_all_students_for_teacher() -> List[Dict[str, Any]]:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        SELECT id, username, display_name, email, created_at
+        FROM users 
+        WHERE role = 'student'
+        ORDER BY display_name
+        """
+    )
+    rows = cursor.fetchall()
+    conn.close()
+    return [
+        {
+            "id": row["id"],
+            "username": row["username"],
+            "display_name": row["display_name"],
+            "email": row["email"],
+            "created_at": row["created_at"],
+        }
+        for row in rows
+    ]
