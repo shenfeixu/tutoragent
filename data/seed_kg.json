@@ -3767,6 +3767,2406 @@
       "nodes": ["tech", "risk"],
       "mitigation": "革命性地采用原子层沉积技术（ALD）在传感器芯片表层镀覆纳米级致密三氧化二铝极度绝缘防腐蚀层，利用外置光栅温度探头进行光电联合双通道温漂冗余校准"
     }
+  },
+  {
+    "id": "yc_w24_001",
+    "name": "Maihem",
+    "description": "基于AI的大语言模型自动化产品测试与可靠性评估平台",
+    "tech": {
+      "name": "生成式AI自动化质量保证与对抗性测试网络",
+      "maturity": "商业化",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "软件测试与AI安全合规自动化",
+      "tam": 317550000000,
+      "sam": 50000000000,
+      "som": 2000000000
+    },
+    "risk": {
+      "name": "大模型底层架构迭代导致测试框架失效风险",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_maihem",
+      "name": "AI可靠性数据飞轮",
+      "description": "边缘测试用例生成 -> 提升企业模型鲁棒性 -> 增强企业信任 -> 规模化平台订阅扩展",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 15500,
+        "cac": 3441,
+        "revenue_model": "B2B SaaS 订阅模式"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_maihem",
+      "name": "信任链崩溃风险",
+      "description": "未检测出的边缘情况 -> 客户端生产环境崩溃 -> 平台信任度丧失 -> 客户流失",
+      "nodes": ["tech", "risk"],
+      "mitigation": "引入人在环路（Human-in-the-loop）验证及动态真实世界数据流集成"
+    }
+  },
+  {
+    "id": "yc_w24_002",
+    "name": "Basepilot",
+    "description": "浏览器原生的企业级工作流多步骤AI代理自动化平台",
+    "tech": {
+      "name": "浏览器端计算机视觉与语义HTML解析（RPA）",
+      "maturity": "商业化",
+      "barrier": "中"
+    },
+    "market": {
+      "name": "企业内部工作流与业务流程自动化",
+      "tam": 317550000000,
+      "sam": 80000000000,
+      "som": 1500000000
+    },
+    "risk": {
+      "name": "第三方SaaS平台频繁UI更新导致脚本断裂",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_basepilot",
+      "name": "运营降本飞轮",
+      "description": "自动化重复任务 -> 显著节省人工时间 -> 深度嵌入核心业务协议 -> 极高客户留存率",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 10800,
+        "cac": 3175,
+        "revenue_model": "按坐席与执行次数计费的SaaS"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_basepilot",
+      "name": "接口波动性风险",
+      "description": "目标软件更新UI -> 自动化代理识别失败 -> 业务流程中断 -> 用户放弃使用",
+      "nodes": ["tech", "risk"],
+      "mitigation": "开发基于DOM语义和视觉特征的自修复（Self-healing）执行脚本"
+    }
+  },
+  {
+    "id": "yc_w24_003",
+    "name": "Topo",
+    "description": "自主驱动的企业级AI销售代理，实现高拟真度的客户开发与跟进",
+    "tech": {
+      "name": "对话式AI与CRM深度集成引擎",
+      "maturity": "商业化",
+      "barrier": "中"
+    },
+    "market": {
+      "name": "销售赋能技术与营销自动化（MarTech）",
+      "tam": 100000000000,
+      "sam": 25000000000,
+      "som": 500000000
+    },
+    "risk": {
+      "name": "外呼合规限制及垃圾邮件过滤器封杀",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_topo",
+      "name": "转化率提升闭环",
+      "description": "高度个性化的AI触达 -> 会议邀约率上升 -> 销售管线扩充 -> 订阅层级升级",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 6800,
+        "cac": 956,
+        "revenue_model": "阶梯式SaaS订阅"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_topo",
+      "name": "触达疲劳与域名封锁链",
+      "description": "大规模自动化外联 -> 触发邮件服务商反垃圾机制 -> 域名被列入黑名单 -> 彻底丧失触达能力",
+      "nodes": ["tech", "risk"],
+      "mitigation": "部署动态IP预热池和算法级个性化限制器以维持高质量送达率"
+    }
+  },
+  {
+    "id": "yc_w24_004",
+    "name": "Terrakotta",
+    "description": "完全自动化的合成语音留言营销解决方案",
+    "tech": {
+      "name": "低延迟合成语音与自动电话拨号API",
+      "maturity": "商业化",
+      "barrier": "低"
+    },
+    "market": {
+      "name": "呼叫中心自动化与外呼销售",
+      "tam": 100000000000,
+      "sam": 15000000000,
+      "som": 200000000
+    },
+    "risk": {
+      "name": "电信法规（如TCPA）红线与消费者反感",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_terrakotta",
+      "name": "音频触达规模化飞轮",
+      "description": "高并发个性化语音投递 -> 客户回拨率提升 -> 销售周期缩短 -> 企业加大用量",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 2400,
+        "cac": 787,
+        "revenue_model": "按触达次数（Pay-per-drop）计费"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_terrakotta",
+      "name": "合规性处罚链",
+      "description": "激进拨号策略 -> 违反消费者保护法规 -> 巨额行政罚款 -> 公司被迫停止运营",
+      "nodes": ["tech", "risk"],
+      "mitigation": "建立严格的基于时区和“勿扰名单”（DNC）的自动过滤系统"
+    }
+  },
+  {
+    "id": "yc_w24_005",
+    "name": "Driver AI",
+    "description": "针对无文档遗留代码库的技术理解与架构自动生成引擎",
+    "tech": {
+      "name": "代码专精型大语言模型与静态分析",
+      "maturity": "商业化",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "开发者生产力工具与IT遗留系统现代化",
+      "tam": 317550000000,
+      "sam": 40000000000,
+      "som": 1000000000
+    },
+    "risk": {
+      "name": "大型企业对源代码知识产权泄露的极度担忧",
+      "severity": "极高"
+    },
+    "value_loop_edge": {
+      "id": "vl_driverai",
+      "name": "开发者效能提升闭环",
+      "description": "瞬间解析复杂逻辑 -> 新员工入职时间大幅缩短 -> 新功能交付加速 -> 全公司强制推广",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 15500,
+        "cac": 3441,
+        "revenue_model": "企业级SaaS许可与API调用"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_driverai",
+      "name": "安全审计拒绝链",
+      "description": "云端读取私有代码 -> 触犯企业InfoSec安全红线 -> 无法通过采购审计 -> 失去大客户订单",
+      "nodes": ["tech", "risk"],
+      "mitigation": "提供完全物理隔离的本地化（On-premise）部署选项及零数据保留策略"
+    }
+  },
+  {
+    "id": "yc_w24_006",
+    "name": "Kater.ai",
+    "description": "通过自然语言交互实现统一数据模型查询与报表生成的企业级分析平台",
+    "tech": {
+      "name": "企业级语义层架构与Text-to-SQL转换引擎",
+      "maturity": "商业化",
+      "barrier": "中"
+    },
+    "market": {
+      "name": "商业智能（BI）与数据分析",
+      "tam": 317550000000,
+      "sam": 60000000000,
+      "som": 3000000000
+    },
+    "risk": {
+      "name": "复杂表结构下的查询不准确与幻觉",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_kater",
+      "name": "数据民主化飞轮",
+      "description": "业务人员直接提问 -> 减轻数据团队瓶颈 -> 决策效率提升 -> 席位授权在企业内有机扩张",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 10800,
+        "cac": 3175,
+        "revenue_model": "按坐席收费的SaaS模式"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_kater",
+      "name": "数据决策失误链",
+      "description": "生成错误的SQL联表 -> 输出错误的财务或业务指标 -> 导致公司战略误判 -> 工具被全面弃用",
+      "nodes": ["tech", "risk"],
+      "mitigation": "实施严格的语义层约束和连续分类引擎进行查询前置校验"
+    }
+  },
+  {
+    "id": "yc_w24_007",
+    "name": "Quivr",
+    "description": "开源且支持多数据源连接的企业级AI聊天与知识库接口",
+    "tech": {
+      "name": "检索增强生成（RAG）与高性能向量数据库",
+      "maturity": "商业化",
+      "barrier": "中"
+    },
+    "market": {
+      "name": "企业知识管理与内部协同平台",
+      "tam": 317550000000,
+      "sam": 35000000000,
+      "som": 1500000000
+    },
+    "risk": {
+      "name": "开源模式的商业化变现阻力及权限控制缺陷",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_quivr",
+      "name": "开源生态转化飞轮",
+      "description": "高度开源可访问性 -> 大量开发者贡献连接器 -> 生态极速繁荣 -> 转化为企业级付费托管服务",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 15500,
+        "cac": 3441,
+        "revenue_model": "开源核心（Open-core）加云托管收费"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_quivr",
+      "name": "越权数据访问链",
+      "description": "RAG索引忽略了原始文件权限 -> 普通员工查询到机密薪酬数据 -> 内部安全审查 -> 软件被迫下线",
+      "nodes": ["tech", "risk"],
+      "mitigation": "在底层深度集成企业级基于角色的访问控制（RBAC）协议"
+    }
+  },
+  {
+    "id": "yc_w24_008",
+    "name": "GetCrux",
+    "description": "专为效果营销打造的AI Copilot，自动分析广告素材并生成高胜率策略",
+    "tech": {
+      "name": "多模态视觉分析与广告平台API深度集成",
+      "maturity": "商业化",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "数字营销技术（AdTech）与广告自动化",
+      "tam": 100000000000,
+      "sam": 20000000000,
+      "som": 1000000000
+    },
+    "risk": {
+      "name": "主流广告平台更改API接口或隐私政策导致归因失效",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_getcrux",
+      "name": "素材优化复利飞轮",
+      "description": "像素级分解视频元素 -> 找出高转化核心特征 -> 降低客户获客成本（CAC） -> 客户投入更多广告预算由平台管理",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 6800,
+        "cac": 956,
+        "revenue_model": "基于管理广告支出（Ad Spend）抽成及SaaS年费"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_getcrux",
+      "name": "归因数据盲区链",
+      "description": "平台实施强隐私策略（如iOS ATT） -> 丧失细粒度转化数据 -> AI模式识别失效 -> 客户投资回报率骤降",
+      "nodes": ["tech", "risk"],
+      "mitigation": "打通第一方客户数据平台（CDP）并采用服务器端追踪机制（CAPI）"
+    }
+  },
+  {
+    "id": "yc_w24_009",
+    "name": "Reprompt",
+    "description": "面向开发者的AI Agent生命周期管理框架，支持在现有代码库中无缝测试与部署",
+    "tech": {
+      "name": "大语言模型运维（LLMOps）与Agent编排技术",
+      "maturity": "概念验证至商业化",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "人工智能基础设施与开发者工具",
+      "tam": 317550000000,
+      "sam": 45000000000,
+      "som": 2000000000
+    },
+    "risk": {
+      "name": "底层大模型原生集成Agent能力导致中间件失去价值",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_reprompt",
+      "name": "应用层繁荣闭环",
+      "description": "简化Agent部署难度 -> 开发者构建出更强功能 -> 终端用户活跃度提升 -> 持续的基础设施调用量增长",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 15500,
+        "cac": 3441,
+        "revenue_model": "基于算力与API调用的消耗计费"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_reprompt",
+      "name": "生态位被替代风险",
+      "description": "OpenAI等底层平台推出一站式Agent构建能力 -> 开发者抛弃第三方中间件框架 -> 公司业务彻底萎缩",
+      "nodes": ["tech", "risk"],
+      "mitigation": "保持绝对的模型不可知性（Model-agnostic），主攻企业级本地部署和合规审查层"
+    }
+  },
+  {
+    "id": "yc_w24_010",
+    "name": "Million Software",
+    "description": "极致优化的前端开发工具链，可将现代Web应用的渲染与编译时间降低一个数量级",
+    "tech": {
+      "name": "虚拟DOM优化算法与下一代编译器架构",
+      "maturity": "商业化",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "前端开发基础设施与Web性能优化",
+      "tam": 317550000000,
+      "sam": 30000000000,
+      "som": 800000000
+    },
+    "risk": {
+      "name": "开发者对现有主流框架（如React）的极高粘性导致迁移意愿低",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_million",
+      "name": "性能转化率飞轮",
+      "description": "实现亚毫秒级页面渲染 -> 显著提升电商等客户的转化率与SEO -> 形成极佳案例 -> 更多大型企业采购企业版许可",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 10800,
+        "cac": 3175,
+        "revenue_model": "开源免费加企业级许可支持服务"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_million",
+      "name": "生态隔离陷阱",
+      "description": "新工具链与旧有第三方库不兼容 -> 开发者在重构时遇到巨大阻力 -> 项目被搁置 -> 失去市场动能",
+      "nodes": ["tech", "risk"],
+      "mitigation": "确保工具链作为现有框架的“无缝下拉替换件”（Drop-in replacement）运行，无需重写底层代码"
+    }
+  },
+  {
+    "id": "yc_w24_011",
+    "name": "InspectMind AI",
+    "description": "专为建筑行业打造的AI审核代理，自动扫描建筑图纸与规范，预防施工延误",
+    "tech": {
+      "name": "工程级计算机视觉与空间数据语义分析",
+      "maturity": "商业化",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "建筑科技（PropTech/ConTech）与工程审计",
+      "tam": 317550000000,
+      "sam": 50000000000,
+      "som": 2000000000
+    },
+    "risk": {
+      "name": "因漏报结构性异常导致的巨额工程索赔和法律责任",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_inspectmind",
+      "name": "工程防损闭环",
+      "description": "自动排查标高与材料不符 -> 避免代价高昂的现场返工 -> 保护总包商利润率 -> 成为顶尖建筑公司的标配软件",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 10800,
+        "cac": 3175,
+        "revenue_model": "基于工程项目体量收费的B2B SaaS"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_inspectmind",
+      "name": "责任转移危机",
+      "description": "AI未能识别出关键承重墙错误 -> 导致严重的建筑安全事故 -> 软件开发商面临巨额诉讼 -> 品牌信誉彻底毁灭",
+      "nodes": ["tech", "risk"],
+      "mitigation": "在法律条款中严格将产品定位为“Copilot审核助手”，最终签批责任必须归属于注册结构工程师"
+    }
+  },
+  {
+    "id": "yc_w24_012",
+    "name": "K-Scale Labs",
+    "description": "开源具身智能初创公司，提供可进行通用物理操作的开源人形机器人及操作系统",
+    "tech": {
+      "name": "端到端强化学习控制与开源运动学模型",
+      "maturity": "原型验证与小规模试产",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "通用人形机器人与泛具身智能",
+      "tam": 50000000000,
+      "sam": 10000000000,
+      "som": 500000000
+    },
+    "risk": {
+      "name": "硬件迭代周期长、烧钱速度过快以及执行器供应链极不稳定",
+      "severity": "极高"
+    },
+    "value_loop_edge": {
+      "id": "vl_kscale",
+      "name": "开源数据护城河飞轮",
+      "description": "廉价开源硬件发布 -> 社区海量极客在真实场景中部署 -> 收集极其丰富的物理交互数据 -> 推动具身智能基础模型跨越式升级",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 10800,
+        "cac": 3175,
+        "revenue_model": "基础硬件套件销售与高级商业版操作系统授权"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_kscale",
+      "name": "硬件迭代技术债务",
+      "description": "零部件供应链瓶颈 -> 机器人延迟发货 -> 数据收集停滞 -> AI能力无法提升 -> 失去后续风险投资",
+      "nodes": ["tech", "risk"],
+      "mitigation": "极致简化设计，核心部件全部兼容消费级3D打印及市面现成的低成本伺服电机"
+    }
+  },
+  {
+    "id": "yc_w24_013",
+    "name": "Marr Labs",
+    "description": "深科技语音技术公司，打造在延迟与情感表达上无法与真人区分的AI语音代理",
+    "tech": {
+      "name": "超低延迟语音合成与多模态情感计算网络",
+      "maturity": "商业化",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "智能客服自动化与下一代呼叫中心系统",
+      "tam": 317550000000,
+      "sam": 45000000000,
+      "som": 2000000000
+    },
+    "risk": {
+      "name": "声学模型幻觉导致不当言论及品牌声誉受损",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_marr",
+      "name": "交互体验闭环",
+      "description": "极致的真人拟真度 -> 客户满意度与问题解决率飙升 -> 在大型跨国企业内部大范围替换人工客服 -> 形成深度业务绑定",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 15500,
+        "cac": 3441,
+        "revenue_model": "基于实际语音交互时长的按分钟计费模式"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_marr",
+      "name": "品牌舆论危机链",
+      "description": "AI代理误判客户愤怒情绪并作出不当回应 -> 负面录音在社交媒体疯传 -> 引发公关危机 -> 失去世界500强企业客户",
+      "nodes": ["tech", "risk"],
+      "mitigation": "部署基于声纹情绪波动的实时监控预警，并在关键情绪节点实现亚秒级（Sub-200ms）的人工坐席无缝接管"
+    }
+  },
+  {
+    "id": "yc_w24_014",
+    "name": "Yarn",
+    "description": "为数字营销团队打造的AI高保真、品牌一致性宣传视频自动生成工具",
+    "tech": {
+      "name": "生成式视频模型（Video LLMs）与品牌风格控制网络",
+      "maturity": "商业化",
+      "barrier": "中"
+    },
+    "market": {
+      "name": "数字内容创作资产生成与营销自动化",
+      "tam": 100000000000,
+      "sam": 15000000000,
+      "som": 800000000
+    },
+    "risk": {
+      "name": "视频生成过程中的几何畸变（Artifacts）与高昂的GPU推理成本",
+      "severity": "低"
+    },
+    "value_loop_edge": {
+      "id": "vl_yarn",
+      "name": "内容素材裂变飞轮",
+      "description": "分钟级出片速度 -> 营销团队可进行海量A/B测试 -> 营销投资回报率（ROI）显著提升 -> 客户高度依赖并购买高级套餐",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 6800,
+        "cac": 956,
+        "revenue_model": "按月订阅的SaaS模式"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_yarn",
+      "name": "算力成本侵蚀利润链",
+      "description": "平台日活用户激增 -> 视频渲染引发天文数字的云端GPU算力开销 -> 收入无法覆盖算力成本 -> 利润率被严重压缩",
+      "nodes": ["tech", "risk"],
+      "mitigation": "优化端侧推理模型架构，并根据用户订阅层级严格限制高清渲染的分辨率与时长"
+    }
+  },
+  {
+    "id": "yc_w24_015",
+    "name": "RetailReady",
+    "description": "智能供应链合规软件，利用计算机视觉审计出库货物以消除高昂的零售商扣款（Chargebacks）",
+    "tech": {
+      "name": "工业边缘计算机视觉与物流数据流清洗",
+      "maturity": "商业化",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "零售供应链管理与智能仓储系统",
+      "tam": 317550000000,
+      "sam": 30000000000,
+      "som": 1500000000
+    },
+    "risk": {
+      "name": "传统仓储管理系统（WMS）接口极度碎片化导致的整合难题",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_retailready",
+      "name": "利润挽回正向闭环",
+      "description": "自动化视觉审计发货规范 -> 立竿见影地降低零售巨头的违规扣款罚单 -> 为客户挽回巨额净利润 -> 在全品牌所有仓库中铺开使用",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 10800,
+        "cac": 3175,
+        "revenue_model": "企业级SaaS许可与硬件部署服务"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_retailready",
+      "name": "系统孤岛部署困境",
+      "description": "客户使用的老旧WMS系统缺乏现代API -> 视觉数据无法与订单系统对齐 -> 部署周期无限期拖延 -> 最终导致订单取消",
+      "nodes": ["tech", "risk"],
+      "mitigation": "提供高度解耦的边缘计算摄像头套件，能够通过OCR直接抓取屏幕信息，绕过传统API对接"
+    }
+  },
+  {
+    "id": "yc_w24_016",
+    "name": "Parcel Bio",
+    "description": "前沿合成生物学企业，利用专有平台设计和递送高度稳定的环状RNA治疗药物",
+    "tech": {
+      "name": "环状RNA工程技术（Circular RNA）与脂质纳米颗粒递送系统",
+      "maturity": "临床前验证与管线开发阶段",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "下一代生物制药与基因治疗技术",
+      "tam": 160000000000,
+      "sam": 25000000000,
+      "som": 1000000000
+    },
+    "risk": {
+      "name": "漫长的临床试验周期、极高的现金流压力及FDA监管不确定性",
+      "severity": "极高"
+    },
+    "value_loop_edge": {
+      "id": "vl_parcelbio",
+      "name": "底层管线授权飞轮",
+      "description": "环状RNA展现出超越传统mRNA的稳定性 -> 在动物模型中获得突破性疗效 -> 吸引全球头部药企重金达成共同研发合作 -> 获取研发资金加速其他管线",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 16300,
+        "cac": 3665,
+        "revenue_model": "早期技术里程碑付款、IP专利授权及未来药物上市的销售分成"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_parcelbio",
+      "name": "临床实验折戟风险",
+      "description": "进入人体临床一期后出现不可预见的免疫排斥反应 -> 核心专利管线被迫终止 -> 前期上亿美元的研发投入全部打水漂 -> 面临破产",
+      "nodes": ["tech", "risk"],
+      "mitigation": "初期战略性避开复杂的系统性疾病，专注针对靶向明确、基因机制已被充分验证的罕见病领域进行概念验证（PoC）"
+    }
+  },
+  {
+    "id": "yc_w24_017",
+    "name": "MathGPTPro",
+    "description": "专精于复杂数学推理与自适应课程生成的个性化AI数学辅导平台",
+    "tech": {
+      "name": "神经符号逻辑推理（Neuro-symbolic）与垂直领域定制大模型",
+      "maturity": "商业化",
+      "barrier": "中"
+    },
+    "market": {
+      "name": "教育科技（EdTech）与智能课外辅导软件",
+      "tam": 100000000000,
+      "sam": 15000000000,
+      "som": 500000000
+    },
+    "risk": {
+      "name": "大模型在严谨数学计算中固有的幻觉问题导致的负面教学后果",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_mathgptpro",
+      "name": "自适应提分闭环",
+      "description": "精准拆解复杂数理化步骤 -> 显著提高学生的理解力与考试成绩 -> 家长与学校极佳的口碑传播 -> 实现低成本的指数级用户增长",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 2400,
+        "cac": 787,
+        "revenue_model": "面向C端家庭的月度订阅及面向B端公立学校的机构采购"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_mathgptpro",
+      "name": "算法误导舆情危机",
+      "description": "AI模型生成了看似合理但推导完全错误的数学解答 -> 学生以此为标准答案导致重要考试失利 -> 家长集体投诉并引发教育局抵制 -> 品牌声誉崩塌",
+      "nodes": ["tech", "risk"],
+      "mitigation": "在后端将LLM的文本生成能力与类似于Wolfram Alpha的确定性符号计算引擎进行深度挂钩，强制实施双重校验"
+    }
+  },
+  {
+    "id": "yc_mature_018",
+    "name": "Airbnb",
+    "description": "颠覆全球住宿业的数字市场，连接旅行者与提供非标体验式短租服务的本地房东",
+    "tech": {
+      "name": "超大规模双边市场交易架构与动态供需定价算法",
+      "maturity": "成熟期",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "全球旅游、短期租赁与酒店住宿业",
+      "tam": 317550000000,
+      "sam": 150000000000,
+      "som": 50000000000
+    },
+    "risk": {
+      "name": "全球各地市政当局对短租房屋日益严苛的法律管制",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_airbnb",
+      "name": "双边网络效应护城河",
+      "description": "平台入驻更多优质房源 -> 吸引更庞大更全球化的旅行者群体 -> 平台交易量与转化率飙升 -> 房东收益增加从而吸引更多人加入成为房东",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 11700,
+        "cac": 2496,
+        "revenue_model": "向房东和房客双向收取交易服务费佣金"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_airbnb",
+      "name": "监管收紧业务停滞链",
+      "description": "纽约、巴黎等核心旅游城市出台法案全面封杀无证短租 -> 平台核心房源供给骤降 -> 消费者无房可定导致价格飙升 -> 相对传统酒店丧失性价比优势",
+      "nodes": ["tech", "risk"],
+      "mitigation": "组建庞大的政府关系团队进行持续游说，同时将业务触角向长期租赁（长租公寓）及在地深度体验项目（Experiences）延伸"
+    }
+  },
+  {
+    "id": "yc_mature_019",
+    "name": "Cruise",
+    "description": "全球领先的自动驾驶全栈技术研发商及无人驾驶车队（Robotaxi）运营商",
+    "tech": {
+      "name": "L4级别多传感器深度融合技术与高级自动驾驶算法",
+      "maturity": "商业化与持续算法迭代期",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "出行即服务（MaaS）与未来交通网络",
+      "tam": 50000000000,
+      "sam": 15000000000,
+      "som": 2000000000
+    },
+    "risk": {
+      "name": "严重的交通安全事故可能导致监管部门瞬间吊销路测及运营牌照",
+      "severity": "极高"
+    },
+    "value_loop_edge": {
+      "id": "vl_cruise",
+      "name": "自动驾驶里程数据飞轮",
+      "description": "车队在复杂城市路况下累积海量行驶里程 -> 算法遭遇并解决长尾边缘案例（Edge Cases） -> 自动驾驶系统安全性跨越式提升 -> 获批在更多城市商业化运营",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 10800,
+        "cac": 3175,
+        "revenue_model": "无人驾驶网约车按里程/时间计费的出行服务费"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_cruise",
+      "name": "灾难性安全事故熔断",
+      "description": "系统对特殊路况判断失误导致恶性伤亡事故 -> 引发强烈的负面公众舆论狂潮 -> 监管当局立刻勒令停止所有车辆上路 -> 公司收入归零且面临解散",
+      "nodes": ["tech", "risk"],
+      "mitigation": "构建极其严苛的仿真测试环境（Simulation），并将初始商业运营严格限制在相对低速、路况简单且天气良好的特定运行设计域（ODD）内"
+    }
+  },
+  {
+    "id": "yc_mature_020",
+    "name": "Instacart",
+    "description": "北美占据统治地位的生鲜与日杂百货极速配送平台及即时物流调度系统",
+    "tech": {
+      "name": "超大规模物流路径规划算法与超市库存实时同步技术",
+      "maturity": "成熟期",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "最后一公里即时物流与本地生活电商",
+      "tam": 317550000000,
+      "sam": 80000000000,
+      "som": 10000000000
+    },
+    "risk": {
+      "name": "骑手劳工属性判定争议及极具挑战的生鲜冷链毛利空间",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_instacart",
+      "name": "订单密度规模化经济闭环",
+      "description": "平台日均订单量飙升 -> 算法能够实现更高效的路线合并（Batching） -> 单个订单的配送履约成本大幅下降 -> 平台留存率与超市合作意愿双重提升",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 6800,
+        "cac": 956,
+        "revenue_model": "消费者服务费、商品加价、会员订阅费及高利润的品牌广告费"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_instacart",
+      "name": "履约成本失控陷阱",
+      "description": "地方法规强制要求将兼职骑手重新划分为全职员工 -> 公司被迫承担高昂的社保与福利开销 -> 单位经济模型彻底破裂 -> 服务涨价导致消费者流失",
+      "nodes": ["tech", "risk"],
+      "mitigation": "在应用内大力发展快消品品牌（CPG）的高毛利零售媒体网络广告（Retail Media Network），以此利润来隐性补贴基础的配送物流业务"
+    }
+  },
+  {
+    "id": "yc_mature_021",
+    "name": "DoorDash",
+    "description": "美国最大的餐饮外卖聚合平台，利用智能派单引擎连接食客、餐厅与庞大的兼职运力网络",
+    "tech": {
+      "name": "全局预测性派单系统与供需动态平衡机器学习引擎",
+      "maturity": "成熟期",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "餐饮外送服务与同城即时配送网络",
+      "tam": 317550000000,
+      "sam": 90000000000,
+      "som": 15000000000
+    },
+    "risk": {
+      "name": "餐厅对高昂抽成比例的强烈抵触以及持续的骑手短缺危机",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_doordash",
+      "name": "三边市场动态平衡飞轮",
+      "description": "上线更多优质本地餐厅 -> 吸引更多渴望丰富选择的食客 -> 区域订单密度几何级增长 -> 骑手单位时间收入增加从而扩大运力池",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 6800,
+        "cac": 956,
+        "revenue_model": "餐厅交易佣金、DashPass会员订阅费及消费者服务费"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_doordash",
+      "name": "佣金反噬餐厅逃离风险",
+      "description": "为维持平台盈利而不断推高对餐厅的抽成比例 -> 触及中小餐厅生死线导致其集体退出平台 -> 消费者选择变少 -> 平台总体订单量陷入停滞",
+      "nodes": ["tech", "risk"],
+      "mitigation": "将业务从低毛利的餐饮延伸至高客单价的杂货生鲜、鲜花酒水配送，并为大型连锁品牌提供纯粹的白标物流SaaS服务以赚取软件服务费"
+    }
+  },
+  {
+    "id": "yc_mature_022",
+    "name": "Dropbox",
+    "description": "奠定现代云协同工作基础的云端存储与文件多端同步软件工具",
+    "tech": {
+      "name": "分布式哈希存储架构与文件块差异化同步算法（Delta Sync）",
+      "maturity": "成熟期",
+      "barrier": "中"
+    },
+    "market": {
+      "name": "个人与企业云端文件存储及内容协作工作区",
+      "tam": 317550000000,
+      "sam": 60000000000,
+      "som": 5000000000
+    },
+    "risk": {
+      "name": "基础存储资源遭遇操作系统巨头（如苹果iCloud、微软OneDrive）的免费捆绑及商品化冲击",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_dropbox",
+      "name": "病毒式增长协同闭环",
+      "description": "免费用户通过生成链接向非用户分享文件 -> 接收方体验到零阻力 onboarding -> 形成庞大的网络扩张 -> 极高比例的团队用户最终转化为企业版付费客户",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 2400,
+        "cac": 787,
+        "revenue_model": "免费增值（Freemium）模式下的SaaS层级订阅费"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_dropbox",
+      "name": "核心功能商品化消亡链",
+      "description": "科技巨头在底层操作系统中免费提供大容量云存储 -> Dropbox仅仅作为网盘的核心价值消失 -> C端用户大量流失回本土生态系统",
+      "nodes": ["tech", "risk"],
+      "mitigation": "战略性抛弃纯网盘定位，向深度的团队文档工作流、电子签名集成以及由AI驱动的企业内部智能搜索引擎方向彻底转型"
+    }
+  },
+  {
+    "id": "yc_mature_023",
+    "name": "Stripe",
+    "description": "以极简API接口为核心的全球数字金融与支付基础设施平台，被誉为“互联网的GDP引擎”",
+    "tech": {
+      "name": "高度抽象的支付网关API与全球合规资金清算路由网络",
+      "maturity": "成熟期",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "全球金融科技（FinTech）底座与在线商务支付处理",
+      "tam": 317550000000,
+      "sam": 150000000000,
+      "som": 30000000000
+    },
+    "risk": {
+      "name": "全球反洗钱（AML）法规的碎片化以及新兴去中心化支付网络的长期潜在威胁",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_stripe",
+      "name": "开发者信任绑定飞轮",
+      "description": "提供极致清晰美观的代码文档 -> 受到全球程序员群体的狂热追捧并迅速集成 -> 支付系统深度嵌入初创公司核心业务 -> 产生几乎为零的客户流失率",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 11700,
+        "cac": 2496,
+        "revenue_model": "基于全网支付流水总额提取百分比手续费"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_stripe",
+      "name": "宏观经济流水萎缩风险",
+      "description": "全球经济陷入大萧条 -> 消费者可支配收入锐减导致电商交易额暴跌 -> 平台按照流水抽成的收入模式遭遇重创",
+      "nodes": ["tech", "risk"],
+      "mitigation": "大力拓展不受消费周期影响的B2B企业软件服务（如Stripe Billing发票订阅、发卡业务及税务自动化SaaS模块）"
+    }
+  },
+  {
+    "id": "yc_mature_024",
+    "name": "Rappi",
+    "description": "横扫拉丁美洲市场的现象级超级应用（Super-app），业务横跨从外卖、杂货到全牌照金融服务",
+    "tech": {
+      "name": "高并发超级应用底层架构与闭环金融科技结算系统",
+      "maturity": "成熟期",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "拉美地区本地生活物流网络与数字普惠金融",
+      "tam": 100000000000,
+      "sam": 30000000000,
+      "som": 5000000000
+    },
+    "risk": {
+      "name": "拉美各国极端残酷的区域市场竞争以及重资产物流扩张带来的巨额资本消耗",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_rappi",
+      "name": "高频生活服务导流闭环",
+      "description": "以高频的餐饮和日用品配送占据用户每日心智 -> 获取极其细致的消费者行为与收入数据 -> 在App内实现向高利润的信用卡、保险等金融产品的无缝交叉销售",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 6800,
+        "cac": 956,
+        "revenue_model": "外送配送费、平台抽成、会员订阅费及金融信贷息差收入"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_rappi",
+      "name": "烧钱扩张休克陷阱",
+      "description": "在多个国家同时发起激进的低价补贴战以抢夺市场份额 -> 迅速耗干数亿美元的风险投资现金储备 -> 若无法进行下一轮融资将面临全面崩盘",
+      "nodes": ["tech", "risk"],
+      "mitigation": "通过数字化数字银行服务及高息消费信贷产品获取庞大的自由现金流，以此来“反哺”并补贴低毛利的末端物流配送业务"
+    }
+  },
+  {
+    "id": "yc_mature_025",
+    "name": "Flexport",
+    "description": "将极其传统的全球货运代理与海关经纪业务带入高度数字化、可视化时代的现代物流软件平台",
+    "tech": {
+      "name": "全球海陆空物流数据流聚合引擎与供应链协同软件",
+      "maturity": "成熟期",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "全球跨境货运代理（Freight Forwarding）与国际贸易供应链管理",
+      "tam": 317550000000,
+      "sam": 80000000000,
+      "som": 10000000000
+    },
+    "risk": {
+      "name": "极其脆弱的地缘政治黑天鹅事件及全球海运费用的剧烈波动",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_flexport",
+      "name": "物流数据透明化议价闭环",
+      "description": "为货主提供前所未有的实时货运追踪能力 -> 吸引大量巨头企业将海量集装箱订单交予平台 -> 凭借汇聚的天量货物总额，获得对跨国海运公司（如马士基）的绝对运费压价能力",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 10800,
+        "cac": 3175,
+        "revenue_model": "赚取海陆空货运的买卖差价利润及纯软件平台服务费"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_flexport",
+      "name": "宏观贸易休克危机",
+      "description": "突发的全球流行病、苏伊士运河堵塞或国际关税贸易战 -> 导致全球航线瘫痪或集装箱价格发生十倍级别的暴涨暴跌 -> 严重破坏公司的财务可预测性",
+      "nodes": ["tech", "risk"],
+      "mitigation": "坚持轻资产（Asset-light）运营模式，不亲自斥巨资购买货轮，而是依靠代码建立数据护城河，保持对极端市场周期的灵活应变能力"
+    }
+  },
+  {
+    "id": "yc_mature_026",
+    "name": "Brex",
+    "description": "专为快速扩张的硅谷初创公司重新设计的B2B财务操作系统、企业信用卡及资金管理平台",
+    "tech": {
+      "name": "基于实时银行账户数据的动态信用核准算法与API银行接口",
+      "maturity": "商业化",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "B2B金融科技、企业支出管理与司库软件",
+      "tam": 317550000000,
+      "sam": 50000000000,
+      "som": 5000000000
+    },
+    "risk": {
+      "name": "对单一初创生态系统过度依赖，在经济下行期极易遭遇集体违约风险",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_brex",
+      "name": "创投生态系统绑定飞轮",
+      "description": "颠覆传统银行，仅依据风投融资额度即可秒批企业信用卡 -> 在Y Combinator等初创圈形成垄断性采用 -> 随客户成长，顺势推出全面的司库与支出管理软件，形成极高的切换成本",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 11700,
+        "cac": 2496,
+        "revenue_model": "高频刷卡产生的基础交易交换费（Interchange Fees）及软件SaaS年费"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_brex",
+      "name": "信贷过度集中系统性风险",
+      "description": "全球资本寒冬导致科技股崩盘 -> 大量初创公司因融不到资而倒闭清算 -> 引发系统性的无抵押企业信用卡坏账潮 -> 公司资产负债表遭到毁灭性打击",
+      "nodes": ["tech", "risk"],
+      "mitigation": "战略性向高端市场（Upmarket）转移，积极开拓盈利稳定、现金流充沛的传统大型企业及生命科学领域客户群"
+    }
+  },
+  {
+    "id": "yc_mature_027",
+    "name": "Ginkgo Bioworks",
+    "description": "合成生物学领域的绝对霸主，其庞大的细胞铸造厂平台能够像编写计算机代码一样重新编程微生物的DNA",
+    "tech": {
+      "name": "高通量全自动化机器人细胞工程筛选与定制DNA合成系统",
+      "maturity": "商业化",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "前沿合成生物学、精细化工制造与未来农业",
+      "tam": 160000000000,
+      "sam": 40000000000,
+      "som": 2000000000
+    },
+    "risk": {
+      "name": "极其严格的生物安全管制、伦理法规以及深科技漫长的商业化前置期",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_ginkgo",
+      "name": "生物代工规模化经济飞轮",
+      "description": "平台上运行的基因工程菌株越多 -> 公司积累的专有基因代码库越庞大 -> 执行单个生物操作的时间与边际成本越低 -> 彻底垄断全球高端定制化生物制造订单",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 16300,
+        "cac": 3665,
+        "revenue_model": "前期的技术研发服务费（R&D Fees）以及产品商业化后的长期高额下游专利分成（Royalties）"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_ginkgo",
+      "name": "商业化转化迟滞链",
+      "description": "深科技研发周期极长 -> 合作企业在临床试验或市场推广阶段遭遇失败 -> Ginkgo无法获取预期的巨额后端分成利润 -> 财报不及预期导致市值大跌",
+      "nodes": ["tech", "risk"],
+      "mitigation": "实施极度分散的“广撒网”投资组合策略，同时横跨制药、农业肥料、香水香精及特殊材料等数十个完全不相关的工业领域"
+    }
+  },
+  {
+    "id": "yc_mature_028",
+    "name": "Zenefits",
+    "description": "曾掀起狂风暴雨的云端人力资源平台，通过免费软件彻底自动化了中小企业的薪酬发放与合规管理",
+    "tech": {
+      "name": "全云端HRIS自动化信息系统与复杂保险经纪对接软件接口",
+      "maturity": "成熟期",
+      "barrier": "中"
+    },
+    "market": {
+      "name": "人力资本管理（HCM）软件即服务",
+      "tam": 317550000000,
+      "sam": 40000000000,
+      "som": 2000000000
+    },
+    "risk": {
+      "name": "美国各个州错综复杂且极其严格的医疗保险代理牌照合规性审查",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_zenefits",
+      "name": "免费增值保险经纪闭环",
+      "description": "向中小企业提供极其好用且完全免费的HR软件 -> 迅速垄断数十万小企业的HR系统入口 -> 顺理成章成为客户的指定医疗保险代理人 -> 从大型保险公司处赚取天文数字的经常性佣金",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 15500,
+        "cac": 3441,
+        "revenue_model": "通过代销医疗保险赚取丰厚佣金，并销售高级版HR SaaS模块"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_zenefits",
+      "name": "狂奔失控合规雷区",
+      "description": "投资人要求指数级增长 -> 雇佣大量未考取各州保险经纪人执照的销售人员违规推销 -> 遭监管部门严厉查处并面临天价罚单 -> 公司估值从独角兽腰斩式暴跌",
+      "nodes": ["tech", "risk"],
+      "mitigation": "在公司内部重拳设立铁腕合规技术栈，将商业模式逐渐向更为纯粹、风险可控的SaaS软件订阅模式过渡"
+    }
+  },
+  {
+    "id": "yc_mature_029",
+    "name": "Coinbase",
+    "description": "拥有极高合规壁垒的数字资产交易所，是全球法币资金进入加密货币及Web3生态系统的最核心桥梁",
+    "tech": {
+      "name": "军工级密码学冷钱包存储设施与超高频交易撮合引擎",
+      "maturity": "成熟期",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "全球数字资产、加密经济与下一代金融科技",
+      "tam": 317550000000,
+      "sam": 100000000000,
+      "som": 15000000000
+    },
+    "risk": {
+      "name": "被SEC等监管机构进行毁灭性打击，面临加密资产被定性为未经注册证券的法律风险",
+      "severity": "极高"
+    },
+    "value_loop_edge": {
+      "id": "vl_coinbase",
+      "name": "合规性流动性正反馈飞轮",
+      "description": "不惜代价投入监管合规 -> 获得华尔街机构投资者的背书与入金 -> 平台汇聚天量资金流动性 -> 交易滑点大幅降低，进一步巩固全球霸主地位",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 11700,
+        "cac": 2496,
+        "revenue_model": "高昂的加密货币买卖手续费差价（Spread）及巨额资产托管服务费"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_coinbase",
+      "name": "监管铁拳诉讼危机",
+      "description": "遭遇SEC等执法机构提出不利的司法诉讼 -> 被迫将排名前列的主流代币紧急下架 -> 平台交易量出现断崖式暴跌 -> 商业模型遭遇结构性瓦解",
+      "nodes": ["tech", "risk"],
+      "mitigation": "积极开发自研的以太坊Layer-2网络（如Base链），并大力将核心业务向更稳定的稳定币利息分成体系以及企业级区块链基础设施服务商转型"
+    }
+  },
+  {
+    "id": "cn_top_030",
+    "name": "小米集团 (Xiaomi)",
+    "description": "全球化布局的先进制造与消费电子巨头，坐拥世界级物联网生态系统，并已成功跨界实现智能电动车量产",
+    "tech": {
+      "name": "AIoT平台级跨端融合技术与整车超级电机及电子电气架构",
+      "maturity": "成熟期",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "消费级智能终端、智能家居与新能源出行",
+      "tam": 317550000000,
+      "sam": 200000000000,
+      "som": 50000000000
+    },
+    "risk": {
+      "name": "中美地缘政治博弈导致的半导体高端制程断供风险及供应链脱钩冲击",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_xiaomi",
+      "name": "硬件引流软件收割飞轮",
+      "description": "坚持硬件硬件贴近成本价销售 -> 获取数亿全球活跃用户及家庭中枢控制权 -> 依靠高毛利的互联网服务（广告、游戏联运）赚取丰厚净利润 -> 反哺核心底层技术研发",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 10800,
+        "cac": 3175,
+        "revenue_model": "海量智能硬件销售及高利润率的互联网服务体系"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_xiaomi",
+      "name": "芯片卡脖子断供危机",
+      "description": "遭遇更为严厉的国际贸易出口管制 -> 彻底无法采购高端手机SoC与汽车先进制程芯片 -> 旗舰产品技术停滞 -> 彻底丧失在高端市场的全球竞争力",
+      "nodes": ["tech", "risk"],
+      "mitigation": "在极度隐秘的情况下战略投资国内一整条半导体晶圆代工产业链，并大力研发独立自主的汽车电子架构底层系统"
+    }
+  },
+  {
+    "id": "cn_top_031",
+    "name": "百度 (Baidu)",
+    "description": "中国早期人工智能领域的绝对先驱，在搜索引擎基建、自然语言处理（文心一言）及L4级别无人驾驶（Apollo）生态中占据主导地位",
+    "tech": {
+      "name": "千亿级参数大语言模型（Ernie）与全栈自动驾驶操作系统",
+      "maturity": "成熟期",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "通用人工智能底座、搜索引擎广告与智慧交通网络",
+      "tam": 317550000000,
+      "sam": 150000000000,
+      "som": 40000000000
+    },
+    "risk": {
+      "name": "国内外大语言模型开源生态的残酷价格战以及极其严苛的数据本地化安全审查",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_baidu",
+      "name": "数据引力智能闭环",
+      "description": "垄断性的搜索引擎入口 -> 获取全网独一无二的高质量中文语料库 -> 训练出更聪明的本土化大语言模型 -> 深度绑定企业级政务云架构采购",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 15500,
+        "cac": 3441,
+        "revenue_model": "核心数字搜索引擎广告体系与智能云基础设施租赁"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_baidu",
+      "name": "生成式AI反噬主业风险",
+      "description": "用户习惯从搜索框转向直接向竞争对手的AI助手提问 -> 传统搜索广告展示量遭遇断崖式暴跌 -> 研发资金链断裂 -> 陷入技术停滞的死循环",
+      "nodes": ["tech", "risk"],
+      "mitigation": "壮士断腕般向企业级API调用售卖及大力推进Apollo无人驾驶出租车（Robotaxi）在全中国核心城市的商业化落地转型"
+    }
+  },
+  {
+    "id": "cn_top_032",
+    "name": "字节跳动 (Bytedance)",
+    "description": "全球性的算法媒体帝国，依靠令人惊叹的深度推荐系统引擎在短视频分发与直播电商领域所向披靡",
+    "tech": {
+      "name": "深度强化学习内容分发网络与用户行为特征向量映射算法",
+      "maturity": "成熟期",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "全球数字内容消费矩阵、在线广告系统与直播电子商务",
+      "tam": 317550000000,
+      "sam": 200000000000,
+      "som": 80000000000
+    },
+    "risk": {
+      "name": "在部分西方核心国家面临空前严厉的地缘政治审查及被强制剥离甚至全网封杀的致命立法威胁",
+      "severity": "极高"
+    },
+    "value_loop_edge": {
+      "id": "vl_bytedance",
+      "name": "沉浸式算法多巴胺飞轮",
+      "description": "无限下滑的沉浸式应用体验 -> 榨取并捕捉海量极度颗粒化的用户行为标签 -> 实现令人毛骨悚然的精准内容与商品推送 -> 将用户的日均在屏时间最大化",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 6800,
+        "cac": 956,
+        "revenue_model": "信息流精准广告变现与直播电商GMV高额抽佣"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_bytedance",
+      "name": "地缘政治强行剥夺风险",
+      "description": "海外核心市场国家通过强硬法案迫使其出售本地资产 -> 核心推荐算法被硬性从全球海量数据池中物理切断 -> 本地竞争对手克隆产品趁虚而入吞噬市场份额",
+      "nodes": ["tech", "risk"],
+      "mitigation": "在海外部署极度严格的服务器数据物理隔离政策并引入第三方代码审计，同时在国内积极向企业级办公软件（飞书）及火山引擎云服务进行多元化对冲"
+    }
+  },
+  {
+    "id": "cn_top_033",
+    "name": "小鹏汽车 (Xpeng)",
+    "description": "中国造车新势力中在智能化标签上走得最远的领先企业，极致痴迷于全栈自研自动驾驶与下一代智能座舱电子技术",
+    "tech": {
+      "name": "XNGP全场景高阶智能驾驶辅助架构及800V高压纯电平台",
+      "maturity": "商业化",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "全球新能源智能网联汽车终端制造与未来出行",
+      "tam": 317550000000,
+      "sam": 150000000000,
+      "som": 10000000000
+    },
+    "risk": {
+      "name": "中国国内新能源车市血腥的价格绞肉机竞争正在无情地摧毁整车制造的毛利率",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_xpeng",
+      "name": "软件定义汽车数据闭环",
+      "description": "将领先的高级辅助驾驶（ADAS）标配到量产车中 -> 获取极其宝贵的真实中国道路海量行驶数据 -> 持续通过OTA进行软件升级 -> 树立不可替代的高端智能化品牌护城河",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 10800,
+        "cac": 3175,
+        "revenue_model": "硬件整车销售利润叠加高级辅助驾驶软件系统的订阅买断费"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_xpeng",
+      "name": "资本消耗型价格战泥潭",
+      "description": "头部竞争对手疯狂降价清库 -> 被迫卷入跟进调低官方售价 -> 导致卖一辆亏一辆的负面毛利率困境 -> 现金流被快速烧干陷入倒闭边缘",
+      "nodes": ["tech", "risk"],
+      "mitigation": "将自身降维为核心技术供应商，通过向西方传统燃油车巨头（如大众汽车）直接出售自动驾驶算法及底层电子电气架构技术来获取高额纯利润"
+    }
+  },
+  {
+    "id": "cn_top_034",
+    "name": "小马智行 (Pony.ai)",
+    "description": "在L4级全自动驾驶技术栈上积累最深厚的超级独角兽，同时布局城市无人出租车与干线物流重型卡车双赛道",
+    "tech": {
+      "name": "不依赖人为干预的L4级多传感器融合自动驾驶大脑架构",
+      "maturity": "商业化小规模试运营与大规模量产筹备期",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "完全无人驾驶出行服务与无人物流干线货运网络",
+      "tam": 50000000000,
+      "sam": 20000000000,
+      "som": 1500000000
+    },
+    "risk": {
+      "name": "完全拿掉安全员的“全无人”商业化进程面临政府法规极其漫长与反复的审批延误",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_pony",
+      "name": "双擎驱动模型验证飞轮",
+      "description": "Robotaxi的复杂城市博弈数据叠加卡车的极速高速公路数据 -> 训练出具备泛化能力的超级驾驶模型 -> 展现出超越人类司机的安全指标 -> 拿到传统造车巨头天价量产合作大单",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 10800,
+        "cac": 3175,
+        "revenue_model": "出行业务运营收入以及面向大型车企的底层系统级软件授权费"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_pony",
+      "name": "政策红线卡壳窒息危机",
+      "description": "政府对L4级公开道路无安全员测试按下暂停键 -> 迟迟无法进行大规模车队商业化变现 -> 前期庞大的研发团队支出无法对冲 -> 资本市场失去耐心抽走弹药",
+      "nodes": ["tech", "risk"],
+      "mitigation": "拉入带有官方背景的大型国有汽车集团与物流巨头成立深度的合资公司，以此作为在监管部门游说并获取路测牌照的强力政治后盾"
+    }
+  },
+  {
+    "id": "cn_top_035",
+    "name": "大卓智能 (Dazhuo Intelligence)",
+    "description": "深度嵌入大型汽车制造商供应链体系的新锐智能驾驶技术提供商，致力于加速高性价比ADAS智驾方案在走量车型上的普及",
+    "tech": {
+      "name": "具备极高算力成本比的可扩展高阶智驾域控制器与感知算法栈",
+      "maturity": "商业化批量交付期",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "汽车产业Tier-1/Tier-0.5核心技术供应商生态",
+      "tam": 50000000000,
+      "sam": 15000000000,
+      "som": 800000000
+    },
+    "risk": {
+      "name": "整车厂（OEM）极端残酷的压价要求正在疯狂榨取二级供应商的微薄利润空间",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_dazhuo",
+      "name": "量产上车闭环",
+      "description": "交付低成本且高可靠性的ADAS方案 -> 获得车企在十万级走量车型上的全系标配搭载 -> 获取百万量级的“影子模式”海量真实路况数据 -> 通过OTA不断迭代反哺高阶自动驾驶算法",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 10800,
+        "cac": 3175,
+        "revenue_model": "B2B层面的软硬件一体化打包供货以及长期的算法技术授权许可费"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_dazhuo",
+      "name": "供应商白菜价挤压惨剧",
+      "description": "整车市场爆发残酷价格战 -> 车企将降本压力全盘转移给智驾供应商，要求每年大幅降价 -> 供应商毛利率被击穿变成负数 -> 无钱维持庞大的算法研发团队",
+      "nodes": ["tech", "risk"],
+      "mitigation": "全力研发更高集成度的“行泊一体”域控制器，通过减少车辆整体线束与芯片冗余来变相降低整车厂的物料清单（BOM）总成本"
+    }
+  },
+  {
+    "id": "cn_top_036",
+    "name": "木牛领航 (Muniu Pilot)",
+    "description": "在微波雷达领域具有深厚护城河的硬核硬件公司，主攻能够提供高密度点云的4D成像毫米波雷达技术，以解决恶劣天气下的自动驾驶感知难题",
+    "tech": {
+      "name": "多级联4D高分辨率成像毫米波雷达射频与信号处理技术",
+      "maturity": "商业化稳定供货阶段",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "智能汽车上游核心传感硬件与物联网感知终端",
+      "tam": 50000000000,
+      "sam": 10000000000,
+      "som": 600000000
+    },
+    "risk": {
+      "name": "行业技术路线分歧（如特斯拉坚持的纯视觉AI路线或不断降价的激光雷达）可能导致产品生态位被边缘化",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_muniu",
+      "name": "全天候安全冗余标配飞轮",
+      "description": "在暴雨大雾等恶劣天气下展现出远超摄像头的稳定性 -> 被主流车企指定为L3级以上自动驾驶不可或缺的关键安全冗余传感器 -> 达成几十万套级别的巨量前装定点订单 -> 规模效应使其成本逼近传统雷达",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 10800,
+        "cac": 3175,
+        "revenue_model": "大规模标准化车载硬件元器件的直接销售与维保替换"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_muniu",
+      "name": "传感器技术被彻底淘汰风险",
+      "description": "纯视觉大模型神经网络进化速度远超预期 -> 车企为省钱彻底砍掉毫米波雷达只用摄像头 -> 公司主营产品一夜之间变得毫无用处面临清盘",
+      "nodes": ["tech", "risk"],
+      "mitigation": "将4D雷达的定位从“昂贵的前沿技术”下探为一种成本极低、对光学失效具有绝对免疫力的“底层兜底安全装置”"
+    }
+  },
+  {
+    "id": "cn_top_037",
+    "name": "爱德曼氢能 (Edelman Hydrogen)",
+    "description": "致力于通过极其硬核的氢能技术推动重工业脱碳的绿色科技领军企业，生产全球领先的氢燃料电池与电解槽设备",
+    "tech": {
+      "name": "大功率金属双极板氢燃料电池电堆及高效制氢电解槽技术",
+      "maturity": "商业化大规模交付期",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "新能源重型交通、绿色低碳技术及国家能源新基建",
+      "tam": 100000000000,
+      "sam": 20000000000,
+      "som": 1000000000
+    },
+    "risk": {
+      "name": "加氢站等基础建设成本高昂且铺设缓慢，严重阻碍了氢能源在C端市场的普及速度",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_edelman",
+      "name": "碳中和政策红利消化飞轮",
+      "description": "全球各国出台严苛的重工业碳排放指标 -> 重卡及钢铁企业获国家巨额补贴大面积换装氢燃料电池 -> 巨大的出货量摊薄了复杂的制造工艺成本 -> 氢能相对柴油取得成本优势",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 10800,
+        "cac": 3175,
+        "revenue_model": "高端工业能源装备直销、后续长期维护协议及技术升级服务"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_edelman",
+      "name": "基建停滞导致下游拒收危机",
+      "description": "加氢站网络建设不及预期 -> 物流公司买回去的氢能重卡加不到气变成废铁 -> 客户果断取消后续巨额订单 -> 公司重金建设的电堆生产线面临闲置折旧",
+      "nodes": ["tech", "risk"],
+      "mitigation": "从单一的电池供应商向产业链上游纵向延伸，同步提供本地化、分布式的可再生能源绿氢制取（电解槽）全套解决方案"
+    }
+  },
+  {
+    "id": "cn_top_038",
+    "name": "傲鲨智能 (Ausha Intelligence)",
+    "description": "专注于研发工业级外骨骼机器人的智能制造服务商，旨在大幅增强一线产业工人的力量并从根本上解决职业劳损",
+    "tech": {
+      "name": "人体仿生运动学控制算法、被动储能机构与微型高扭矩伺服电机执行器",
+      "maturity": "商业化多场景落地期",
+      "barrier": "中"
+    },
+    "market": {
+      "name": "泛工业自动化补偿、航空物流及人体工程学防护装备",
+      "tam": 50000000000,
+      "sam": 8000000000,
+      "som": 400000000
+    },
+    "risk": {
+      "name": "重型穿戴设备带来的工人体感不适，导致设备常年闲置吃灰，复购率低下",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_ausha",
+      "name": "人体工效提升与保险双赢闭环",
+      "description": "工人疲劳度与腰肌损伤显著下降 -> 企业支付的工伤赔偿与医疗保险开支大幅暴跌 -> 提供极其明确且短期的投资回报率证明 -> 大型车企与物流巨头进行全产线大批量集中采购",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 10800,
+        "cac": 3175,
+        "revenue_model": "智能外骨骼硬件销售收入及售后长期维保服务"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_ausha",
+      "name": "终端使用者抗拒抵制链",
+      "description": "初代外骨骼产品又重又勒人 -> 一线工人在领导走后立刻脱下拒不使用 -> 管理层发现设备利用率极低判定为浪费预算 -> 终止采购合作合约",
+      "nodes": ["tech", "risk"],
+      "mitigation": "产品线彻底重构，放弃笨重的主动电机，大量采用碳纤维等超轻材料设计出极其便宜且轻便的“纯被动助力”无源外骨骼款式"
+    }
+  },
+  {
+    "id": "cn_top_039",
+    "name": "拿森汽车电子 (Nansen Auto)",
+    "description": "中国本土顶尖的汽车Tier-1核心零部件供应商，打破了国际巨头在底盘线控与电子制动系统上长达数十年的垄断",
+    "tech": {
+      "name": "车规级底盘线控技术（X-by-Wire）、集成式电子制动系统控制逻辑与机械失效冗余",
+      "maturity": "商业化大批量前装定点期",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "高端智能汽车核心底盘架构及电子控制单元部件",
+      "tam": 50000000000,
+      "sam": 15000000000,
+      "som": 1000000000
+    },
+    "risk": {
+      "name": "制动等关乎人命的A级关键部件一旦出现群体性故障，将引发毁灭性的召回索赔",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_nansen",
+      "name": "极限安全信任验证闭环",
+      "description": "在百万辆级乘用车上保持零事故记录 -> 彻底建立在极端苛刻的整车厂心目中的信任基石 -> 成功挤进多个全球性汽车平台的底盘核心供应商目录 -> 获取动辄数十亿元规模的长线订单流水",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 10800,
+        "cac": 3175,
+        "revenue_model": "面向大型车企的B2B大宗汽车零部件硬件供货协议"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_nansen",
+      "name": "夺命刹车召回破产链",
+      "description": "深埋在代码里的一个罕见Bug或电磁干扰导致某批次车辆刹车失灵 -> 国家强制发起覆盖数十万辆车的大规模召回 -> 面临天价诉讼与罚款 -> 资金链断裂导致公司倒闭",
+      "nodes": ["tech", "risk"],
+      "mitigation": "遵循最严酷的汽车级功能安全ASIL-D认证标准，在系统底层设计完全独立的纯机械后备失效保护装置作为最终防线"
+    }
+  },
+  {
+    "id": "cn_top_040",
+    "name": "伯镭智能 (Bolei Intelligence)",
+    "description": "极具特色的场景化自动驾驶科技企业，其核心战略是避开城市道路，专攻危险、高强度且环境封闭的矿区无人驾驶运输系统",
+    "tech": {
+      "name": "非结构化地形感知算法、重载卡车底盘线控改造与多车队云端调度系统",
+      "maturity": "商业化常态运营期",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "智慧矿山建设体系与特种自动驾驶物流作业",
+      "tam": 50000000000,
+      "sam": 5000000000,
+      "som": 300000000
+    },
+    "risk": {
+      "name": "高度依赖大宗商品周期，一旦矿业遇冷，矿山主将冻结一切智能化改造的资本开支",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_bolei",
+      "name": "全天候无休采矿印钞机飞轮",
+      "description": "剥离高危环境下的人类重卡司机 -> 矿山实现无视粉尘恶劣天气的24小时不间断高强度采掘 -> 矿区产量出现极为可观的暴涨 -> 极短的投资回本周期促使大型矿业集团砸下巨资全面改造名下所有矿区",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 10800,
+        "cac": 3175,
+        "revenue_model": "旧卡车自动化硬件套件改装费及矿山自动驾驶调度平台SaaS使用费"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_bolei",
+      "name": "宏观矿业周期性冰封危机",
+      "description": "全球经济衰退导致煤炭和铁矿石价格遭遇历史级暴跌 -> 矿企被迫大幅削减甚至冻结一切旨在升级设备的资本支出（CAPEX） -> 自动驾驶系统部署计划被迫无限期推迟 -> 导致初创公司营收增速停滞",
+      "nodes": ["tech", "risk"],
+      "mitigation": "在推销话术上彻底摒弃“昂贵的科技前沿体验”概念，将其重新包装为能够立竿见影砍掉天价人力成本的“必需型运营降本（OPEX）急救包”"
+    }
+  },
+  {
+    "id": "cn_top_041",
+    "name": "达闼机器人 (Dataa Robotics)",
+    "description": "具有深厚底蕴的智能机器人独角兽，其最大创举在于构建了一个庞大的“云端大脑”，通过极速网络无缝控制分布在企业各处的安全泛用型人形与服务机器人",
+    "tech": {
+      "name": "云端集中式大规模机器人并行计算架构及安全高速的5G专属控制切片网络",
+      "maturity": "商业化大规模落地与平台升级期",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "泛在云端智能体、高端服务机器人与未来全自动化劳动市场",
+      "tam": 50000000000,
+      "sam": 10000000000,
+      "som": 500000000
+    },
+    "risk": {
+      "name": "强烈的网络通信依赖，5G基站的延迟抖动与云端服务器的天价推理算力开销构成极大制约",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_dataa",
+      "name": "群智云端进化飞轮",
+      "description": "数千台服役中的机器人化身传感器网络 -> 将海量的真实场景视觉与空间交互数据回传至中央云端大脑 -> 集中式AI大模型获得神速迭代 -> 一夜之间将更新的能力同时推送给所有机器人终端，实现群体智慧暴涨",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 10800,
+        "cac": 3175,
+        "revenue_model": "向企业客户推行硬件极低利润的机器人即服务（Robot-as-a-Service, RaaS）月租模式"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_dataa",
+      "name": "断网物理瘫痪灾难",
+      "description": "遭遇罕见的区域性5G网络彻底中断或产生极高的毫秒级延迟抖动 -> 机器人本体瞬间与云端大脑失联 -> 在人流密集的医院或工厂车间集体僵死或产生危险行为 -> 引发企业客户的极度恐慌与退单",
+      "nodes": ["tech", "risk"],
+      "mitigation": "痛定思痛，在机器人躯干内强制加装算力不俗的边缘计算（Edge Computing）冗余模块，确保断网瞬间能立刻接管底层的避障与急停等基础安全动作"
+    }
+  },
+  {
+    "id": "uni_gold_042",
+    "name": "微观生命之眼 (Micro Life Eye)",
+    "description": "脱胎于海南大学的顶级科技成果转化项目，首创了能够快速且智能检测海洋微生物威胁的高端环保预警装备",
+    "tech": {
+      "name": "前沿生物光学成像、微流控技术与AI微生物图谱深度学习分类算法",
+      "maturity": "核心原型验证成功并进入小规模应用量产阶段",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "海洋生态环境精密监测网络及国家级生态安防体系",
+      "tam": 160000000000,
+      "sam": 15000000000,
+      "som": 500000000
+    },
+    "risk": {
+      "name": "极度依赖政府财政预算审批，长达数年的G端采购周期可能拖垮团队现金流",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_microlife",
+      "name": "生态数据库霸权飞轮",
+      "description": "在全国多处海域率先实现快速部署 -> 累积出中国最全面最丰富的海洋微生物特征数据库 -> 算法精度达到无可匹敌的绝对准度 -> 顺势被国家相关部门指定为区域水质监测的强制性技术标准",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 16300,
+        "cac": 3665,
+        "revenue_model": "监测核心硬件设备一次性销售叠加长期排他性的数据分析平台订阅费"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_microlife",
+      "name": "单点G端采购窒息瓶颈",
+      "description": "公司客户画像极其单一，仅指望少数几个地方市级海洋环保局买单 -> 遭遇财政紧缩导致设备采购审批被无限期搁置 -> 初创团队资金链断裂导致研发停摆",
+      "nodes": ["tech", "risk"],
+      "mitigation": "迅速拓展高净值的B端民间商业化应用场景，如打入利润丰厚的大型私人近海养殖基地及远洋商业远洋货轮的压舱水污染强制监测市场"
+    }
+  },
+  {
+    "id": "uni_gold_043",
+    "name": "机不可失 (Unmissable Generator)",
+    "description": "来自西南大学的深科技机械工程重器，研发出专门针对极端高原高海拔缺氧环境优化的新一代工业级柴油发电机组",
+    "tech": {
+      "name": "高原低氧极端环境燃烧热力学建模、涡轮增压系统与智能热管理技术",
+      "maturity": "商业化并具备强大市场造血能力",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "极端条件下的重型工业能源基建与国家战略应急电力储备设施",
+      "tam": 50000000000,
+      "sam": 8000000000,
+      "som": 400000000
+    },
+    "risk": {
+      "name": "全球范围不可逆的能源绿色转型进程可能会在中长期逐步蚕食甚至抹杀柴油发电机的市场份额",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_unmissable",
+      "name": "极端工况垄断验证闭环",
+      "description": "在海拔五千米以上缺氧区展现出竞争对手无法企及的稳定输出性能 -> 轻松包揽西部高原地区国家级大型基建项目的电力保障标段 -> 获得极高毛利的大单并形成了难以逾越的工程验证壁垒",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 10800,
+        "cac": 3175,
+        "revenue_model": "传统工业重装设备的大宗直销、租赁业务及高原专属配件耗材利润"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_unmissable",
+      "name": "绿色低碳国策性灭绝危机",
+      "description": "国家突然颁布极其严厉的高原生态保护与碳排放环保法案 -> 明令禁止在敏感地区新部署任何柴油动力设备 -> 公司现有主打产品直接沦为不合法规的废铁",
+      "nodes": ["tech", "risk"],
+      "mitigation": "利用现有的内燃机底盘与热管理专利储备，提前并大力度转型预研掺氢燃烧技术以及能够适应高原极端低温的大容量储能电池热控系统"
+    }
+  },
+  {
+    "id": "uni_gold_044",
+    "name": "芯药基因 (Core Medicine Gene)",
+    "description": "四川大学培育的生命科学前沿平台，巧妙地利用人工智能重塑并极致加速了极为繁琐的基因组靶点筛药与早期药物发现流程",
+    "tech": {
+      "name": "多组学AI筛选架构、分子对接算法及大规模前沿生物信息学计算平台",
+      "maturity": "商业化落地并获得顶级药企合作",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "人工智能药物研发（AIDD）与前沿生物制药外包研发服务",
+      "tam": 160000000000,
+      "sam": 30000000000,
+      "som": 1500000000
+    },
+    "risk": {
+      "name": "引以为傲的AI算法预测出的候选分子在极其烧钱的临床三期实验中宣告无效而导致全盘皆输",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_coremed",
+      "name": "分子挖掘提速印钞机闭环",
+      "description": "实现令人瞠目的虚拟高通量分子筛选速度 -> 在短时间内生成远超人工团队体量的潜在高分候选药物库 -> 斩获全球顶级跨国制药巨头的上亿美元联合研发大单 -> 获取更多生化测试数据形成飞轮",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 16300,
+        "cac": 3665,
+        "revenue_model": "向药企提供SaaS计算平台使用许可，并在候选药物研发成功上市后抽取巨额的里程碑授权费"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_coremed",
+      "name": "复杂生物体黑盒陷阱",
+      "description": "AI在计算机模拟中信誓旦旦预测某化合物具有完美靶向疗效 -> 耗资过亿进入复杂的生物体活体实验后却发现人体产生了强烈的排斥反应 -> 资金投入全部打水漂并导致平台算法名誉扫地",
+      "nodes": ["tech", "risk"],
+      "mitigation": "在算法逻辑中极度深入地集成湿实验室（Wet-lab）的活体验证反馈循环，将冰冷的代码与真实的生化反应进行持续且高频的双向校准"
+    }
+  },
+  {
+    "id": "uni_gold_045",
+    "name": "颌图 (Jaw Map)",
+    "description": "一项具有颠覆性意义的先进医疗科技项目，通过研发高度智能的主动式外科导航系统，将错综复杂的口腔颌面手术带入微米级精准时代",
+    "tech": {
+      "name": "医用机械臂辅助执行系统、高精度光学实时空间追踪与三维解剖结构建模导航",
+      "maturity": "商业化推向市场阶段",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "尖端医疗手术机器人与微创手术主动导航系统",
+      "tam": 160000000000,
+      "sam": 20000000000,
+      "som": 1000000000
+    },
+    "risk": {
+      "name": "获取国家药监局（NMPA）等三类高风险医疗器械注册证的过程中充满难以预料的官僚与实验阻碍",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_jawmap",
+      "name": "微创临床金标准确立闭环",
+      "description": "展现出亚毫米级的手术操作精度 -> 极大降低了患者的面部神经损伤风险并缩短恢复期 -> 被全国顶级三甲医院竞相引进 -> 成为该类复杂手术的全国公认标准诊疗设备",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 16300,
+        "cac": 3665,
+        "revenue_model": "千万级的单台大型资本设备销售及单次手术必须购买的高毛利一次性专用无菌耗材"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_jawmap",
+      "name": "注册证难产拖死危机",
+      "description": "医疗器械监管法案或分类规则突然修改 -> 导致NMPA三类注册证的获批时间被迫推延整整两年 -> 公司早期融资烧尽 -> 拥有更强资金实力的竞品率先拿证抢占所有三甲医院预算",
+      "nodes": ["tech", "risk"],
+      "mitigation": "从研发第一天起就与处于金字塔尖的顶级学术研究型医院深度绑定，利用其强大的临床背书资源为注册临床试验大开绿灯以换取极速获批"
+    }
+  },
+  {
+    "id": "uni_gold_046",
+    "name": "波光领引 (Wave Light Leading)",
+    "description": "电子科技大学孕育的国防与通信级硬核创新项目，为国家正在大力布局的下一代卫星互联网星座打造不可或缺的高性能天线架构",
+    "tech": {
+      "name": "高频相控阵卫星天线技术、波束动态赋形与微波射频集成电路设计",
+      "maturity": "商业化大规模交付期",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "低轨卫星通信（LEO）核心组件、星链技术体系与国防级空天网络设施",
+      "tam": 4000000000,
+      "sam": 1500000000,
+      "som": 300000000
+    },
+    "risk": {
+      "name": "客户群体极度集中，几乎完全仰仗少数几家具有垄断地位的国家队卫星网络运营商",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_wavelight",
+      "name": "近地轨道入围验证闭环",
+      "description": "在复杂的太空中表现出卓越的信号保真度及极高的抗干扰能力 -> 顺利中标并被全面采纳入国家级庞大星座部署计划 -> 获取海量发射级别的巨额生产订单 -> 规模效应带来极高的毛利与成本护城河",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 10800,
+        "cac": 3175,
+        "revenue_model": "面向国家核心航天院所及企业的大规模B2B高端硬件定向供应"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_wavelight",
+      "name": "唯一买方剥削挤压链",
+      "description": "市场上只有屈指可数的两三家卫星运营商 -> 运营商利用垄断地位要求零利润甚至负利润供货以换取入库资格 -> 公司被迫签下城下之盟 -> 硬件毛利被彻底压榨殆尽",
+      "nodes": ["tech", "risk"],
+      "mitigation": "将核心相控阵与射频技术降维打击并平移至更为广阔的地面5G/6G基站建设以及利润极度丰厚的军工特种通信市场，实现收入结构的多元化对冲"
+    }
+  },
+  {
+    "id": "uni_gold_047",
+    "name": "心有灵析 (Heart Soul Analysis)",
+    "description": "致力于填补基层医疗鸿沟的智能诊断平台，通过极其平价的AI算法为资源匮乏的诊所提供专家级的冠心病筛查诊断方案",
+    "tech": {
+      "name": "基于轻量化边缘计算的医疗AI影像诊断分析与心血管图谱病理深度学习网络",
+      "maturity": "商业化",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "基层公共卫生网络、普惠医疗诊断软件与心血管健康管理",
+      "tam": 160000000000,
+      "sam": 25000000000,
+      "som": 1500000000
+    },
+    "risk": {
+      "name": "在关乎性命的冠心病筛查中，算法假阴性（漏诊）导致的不可估量的人命责任与医疗纠纷",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_heartsoul",
+      "name": "下沉市场健康数据飞轮",
+      "description": "以极低的成本武装缺乏专业心内科医生的乡村与社区诊所 -> 迅速完成百万级的海量患者基层筛查 -> 获取极其罕见且规模庞大的中国本土真实世界健康数据 -> 喂养出准确率更为惊人的筛查算法",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 16300,
+        "cac": 3665,
+        "revenue_model": "向基层医疗机构提供廉价的基础SaaS订阅费以及针对每次AI影像扫描的微型抽成"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_heartsoul",
+      "name": "假阴性漏诊引发的连环医疗诉讼灾难",
+      "description": "系统因图像质量不佳未发现严重心血管堵塞 -> 患者几天后突发心梗不幸身故 -> 死者家属发起天价医疗事故索赔诉讼 -> 合作医院立刻禁用全套软件并引发媒体口诛笔伐",
+      "nodes": ["tech", "risk"],
+      "mitigation": "在产品设计与法务层面设立铜墙铁壁，系统严格定位为初筛“分流红旗”（Triage）工具，任何危及生命的诊断结果必须强制通过具有执业资格的人类医师进行双重确认和最终签字"
+    }
+  },
+  {
+    "id": "uni_gold_048",
+    "name": "漠土新生 (Desert Soil Rebirth)",
+    "description": "承载着人类荒漠化治理宏大愿景的生态农业企业，其全球首套“SAS”基质培系统能够化腐朽为神奇，在寸草不生的戈壁滩上种出高品质农作物",
+    "tech": {
+      "name": "前沿农业材料工程、抗旱保水分子基质网络架构与智能化微滴灌控制系统",
+      "maturity": "商业化推广阶段",
+      "barrier": "中"
+    },
+    "market": {
+      "name": "极端环境农业科技（AgTech）、生态治理与国家级土地复垦工程",
+      "tam": 100000000000,
+      "sam": 15000000000,
+      "som": 500000000
+    },
+    "risk": {
+      "name": "需要运送极其庞大体积的基质土壤材料，高昂的物理运输成本在广袤的西部地区成为致命伤",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_desertsoil",
+      "name": "生态绿洲奇迹复刻闭环",
+      "description": "在原本毫无价值的死亡戈壁中成功实现惊人的经济作物大丰收 -> 获得国家环保部门的高度表彰及天文数字级的专项绿化补贴 -> 模式被火速复制并铺展至广袤的西北干旱地区",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 10800,
+        "cac": 3175,
+        "revenue_model": "专有农业基质材料论吨销售叠加一揽子的智能灌溉设备施工落地指导服务费"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_desertsoil",
+      "name": "物流吞噬利润的扩张陷阱",
+      "description": "基质土壤是一种体积庞大且廉价的物理产品 -> 恰逢国际原油价格飙升导致重卡运输费暴涨 -> 将材料运往偏远沙漠的运费直接超过了产品本身的销售价值 -> 公司业务扩张版图被迫全面停滞",
+      "nodes": ["tech", "risk"],
+      "mitigation": "全力攻关并研发极高倍率的“超浓缩压缩基质”配方，同时采用游击战术在各大核心沙漠化治理区域周边直接设立低成本的分布式本地化混合生产中心"
+    }
+  },
+  {
+    "id": "uni_gold_049",
+    "name": "粒启新生 (Mitochondrial Rebirth)",
+    "description": "生命科学领域的先锋工程，以国家力量为背书，从零构建起中国首个针对致命线粒体病出生缺陷的立体防控与早筛网络",
+    "tech": {
+      "name": "高深度全外显子组测序技术、分子病理诊断算法体系及生物信息学早筛探针",
+      "maturity": "临床广泛应用与全链条商业化打通",
+      "barrier": "极高"
+    },
+    "market": {
+      "name": "高端基因诊断筛查、优生优育干预工程及母婴生命健康检测体系",
+      "tam": 160000000000,
+      "sam": 35000000000,
+      "som": 2000000000
+    },
+    "risk": {
+      "name": "不仅需要面对极其复杂的遗传病理信息学算力挑战，还面临严厉的生命伦理学底线审查",
+      "severity": "中"
+    },
+    "value_loop_edge": {
+      "id": "vl_mitorebirth",
+      "name": "国本级生命优育闭环",
+      "description": "实现极其精准的早期孕检致病靶点甄别 -> 成功阻断数以千计的严重先天遗传缺陷患儿出生 -> 作为极其重要的卫生政绩被全盘纳入国家妇幼保健标准化流程 -> 获得面向全社会的无限市场下沉准入权",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 16300,
+        "cac": 3665,
+        "revenue_model": "依托于各大生殖医学中心及三甲医院展开的高昂基因检测套餐服务费"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_mitorebirth",
+      "name": "生物伦理红线触发危机",
+      "description": "国家对涉及人类遗传基因信息的筛查出台了毫无预警的严酷限制与冻结法案 -> 导致核心技术手段无法在民间医院合法落地开展 -> 实验室海量的待检孕妇样本无法合法出具报告处理",
+      "nodes": ["tech", "risk"],
+      "mitigation": "建立行业最高级别的患者隐私数据强物理隔离机制，并确保所有筛查环节均在国家卫健委及顶级医疗伦理委员会的直接监管和白名单指导下严格执行"
+    }
+  },
+  {
+    "id": "uni_gold_050",
+    "name": "Intelligent Mine Ventilator",
+    "description": "硬核的工业安全改造巨作，为极其高危的地下矿山量身打造了不仅能大幅节电更能拯救矿工生命的智能通风大脑",
+    "tech": {
+      "name": "极端环境下的工业物联网（IIoT）传感器网络、流体力学自动化气流调配与智能变频控制算法",
+      "maturity": "商业化",
+      "barrier": "高"
+    },
+    "market": {
+      "name": "全球矿业生命安全防线、工业自动化基建及高耗能企业绿色低碳转型",
+      "tam": 50000000000,
+      "sam": 12000000000,
+      "som": 800000000
+    },
+    "risk": {
+      "name": "充满剧毒腐蚀性粉尘及甲烷爆炸风险的千米级井下恶劣环境会轻易摧毁一切精密电子传感元器件",
+      "severity": "高"
+    },
+    "value_loop_edge": {
+      "id": "vl_minevent",
+      "name": "安全与降本双螺旋飞轮",
+      "description": "精准智能调节有效抑制了井下致命瓦斯的浓度 -> 实现零矿难的工程奇迹并为矿企省下天价的电费账单 -> 产生了一年内收回成本的惊人投资回报率（ROI） -> 成为国家安监局对大型煤炭巨头强制推行的标准化整改范本",
+      "nodes": ["tech", "market"],
+      "metrics": {
+        "ltv": 10800,
+        "cac": 3175,
+        "revenue_model": "大型通风基建设备与硬件阵列安装工程款，及后续细水长流的预测性维护平台服务费"
+      }
+    },
+    "risk_pattern_edge": {
+      "id": "rp_minevent",
+      "name": "极端恶劣环境击穿硬件防线",
+      "description": "酸性矿井水和煤炭粉尘腐蚀了关键的风速传感器 -> 自动化通风大脑被错误数据蒙蔽进而错误关闭了救命风机 -> 导致井下瓦斯迅速积聚并可能引发毁灭性的连环大爆炸 -> 承担灭顶的刑事责任",
+      "nodes": ["tech", "risk"],
+      "mitigation": "不惜血本采用军工级甚至航天级的防爆防腐传感器外壳，并在最底层的控制逻辑中焊死机械硬链接保险：一旦任何传感器掉线，系统将无视一切节能指令，以不惜烧毁电机的代价全功率强制向井下输送新鲜空气"
+    }
+  },
+  {
+    "id": "ai_rob_001",
+    "name": "优必选",
+    "description": "人形机器人与智能服务机器人研发商",
+    "tech": { "name": "全栈式人形机器人运动控制与伺服驱动", "maturity": "商业化", "barrier": "极高" },
+    "market": { "name": "智能制造与泛服务业替代", "tam": 120000000000, "sam": 45000000000, "som": 8000000000 },
+    "risk": { "name": "核心零部件成本与长尾场景适应性风险", "severity": "高" },
+    "value_loop_edge": { "id": "vl_ubt", "name": "软硬一体规模化闭环", "description": "硬件量产降本 -> 应用场景拓展 -> 真实交互数据反哺 -> 运动控制算法升级", "nodes": ["tech", "market"], "metrics": { "ltv": 2500000, "cac": 150000, "revenue_model": "硬件销售+RaaS订阅服务" } },
+    "risk_pattern_edge": { "id": "rp_ubt", "name": "泛化瓶颈风险链", "description": "非标场景引入 -> 运动规划失效 -> 任务中断 -> 客户信任度不可逆下降", "nodes": ["tech", "risk"], "mitigation": "引入通用具身大模型提升零样本(Zero-shot)泛化能力" }
+  },
+  {
+    "id": "ai_rob_002",
+    "name": "梅卡曼德机器人",
+    "description": "AI+3D视觉工业机器人解决方案",
+    "tech": { "name": "高精度3D视觉与无序抓取算法", "maturity": "规模化商用", "barrier": "高" },
+    "market": { "name": "工业物流与精密制造自动化", "tam": 85000000000, "sam": 30000000000, "som": 6000000000 },
+    "risk": { "name": "工业现场光照与材质干扰风险", "severity": "中" },
+    "value_loop_edge": { "id": "vl_mech", "name": "视觉感知赋能闭环", "description": "AI视觉介入 -> 传统机械臂智能化 -> 产线效率提升 -> 跨行业模块化复制", "nodes": ["tech", "market"], "metrics": { "ltv": 1200000, "cac": 800000, "revenue_model": "标准化软硬件产品(3D相机)及集成授权" } },
+    "risk_pattern_edge": { "id": "rp_mech", "name": "集成适配风险链", "description": "车间异构硬件极多 -> 协议打通部署周期长 -> 实施成本超支 -> 利润率严重承压", "nodes": ["tech", "risk"], "mitigation": "推出免代码部署平台与标准化视觉识别矩阵，降低交付门槛" }
+  },
+  {
+    "id": "ai_rob_003",
+    "name": "升维科技 (LiftAI)",
+    "description": "多模态具身智能与仿真系统开发商",
+    "tech": { "name": "多模态具身认知与高保真物理仿真引擎", "maturity": "早期商业化", "barrier": "高" },
+    "market": { "name": "下一代通用智能机器人大脑与开发生态", "tam": 200000000000, "sam": 50000000000, "som": 2000000000 },
+    "risk": { "name": "Sim2Real（仿真到现实）差距带来的模型失效风险", "severity": "高" },
+    "value_loop_edge": { "id": "vl_liftai", "name": "虚拟至现实增强闭环", "description": "海量合成数据训练 -> 零成本虚拟环境试错 -> 物理实体无缝部署 -> 实时微调与进化", "nodes": ["tech", "market"], "metrics": { "ltv": 800000, "cac": 120000, "revenue_model": "模型授权使用费与仿真SaaS平台订阅" } },
+    "risk_pattern_edge": { "id": "rp_liftai", "name": "物理幻觉风险链", "description": "仿真参数微小失真 -> 实体控制动作偏移放大 -> 发生物理碰撞损伤 -> 生产线部署失败", "nodes": ["tech", "risk"], "mitigation": "结合高频触觉传感器与力矩数据进行闭环动态修正" }
+  },
+  {
+    "id": "ai_rob_004",
+    "name": "枢途科技 (Synapath.Ai)",
+    "description": "前沿人工智能与工业控制协同平台",
+    "tech": { "name": "AI驱动的工业控制全局调度算法", "maturity": "成长期", "barrier": "中高" },
+    "market": { "name": "智能工厂级调度、控制与资源优化", "tam": 60000000000, "sam": 15000000000, "som": 1000000000 },
+    "risk": { "name": "传统工业协议壁垒与数据孤岛导致的接入困难风险", "severity": "高" },
+    "value_loop_edge": { "id": "vl_syna", "name": "全域协同优化闭环", "description": "多源工业数据接入 -> 算力全局统筹调度 -> 生产节拍精准优化 -> 产能与良率直接提升", "nodes": ["tech", "market"], "metrics": { "ltv": 3000000, "cac": 450000, "revenue_model": "企业级控制软件授权与深度实施服务费" } },
+    "risk_pattern_edge": { "id": "rp_syna", "name": "实时响应延迟风险", "description": "数据并发量激增 -> 边缘算力通道拥堵 -> 调度控制指令延迟 -> 引发产线停机或次品", "nodes": ["tech", "risk"], "mitigation": "采用云边端协同架构与轻量化硬实时计算引擎保障毫秒级响应" }
+  },
+  {
+    "id": "ai_rob_005",
+    "name": "它石智航",
+    "description": "通用具身大模型AWE3.0研发者",
+    "tech": { "name": "能干活的通用物理AI系统与统一架构", "maturity": "技术验证与早期商业化", "barrier": "极高" },
+    "market": { "name": "全行业自动化终端的神经中枢底座", "tam": 500000000000, "sam": 100000000000, "som": 3000000000 },
+    "risk": { "name": "底层模型训练算力成本极高与资金链断裂风险", "severity": "极高" },
+    "value_loop_edge": { "id": "vl_tashi", "name": "物理认知跨越闭环", "description": "基础模型训练突破 -> 硬件控制接口解耦 -> 涌现多场景通用能力 -> 边际交付成本断崖式递减", "nodes": ["tech", "market"], "metrics": { "ltv": 5000000, "cac": 500000, "revenue_model": "大模型API调用抽成与行业垂直领域私有化部署" } },
+    "risk_pattern_edge": { "id": "rp_tashi", "name": "算力枯竭与对齐困难风险", "description": "模型参数规模爆炸 -> 训练资源耗尽 -> 物理规律对齐失败 -> 动作指令不可靠无法商用", "nodes": ["tech", "risk"], "mitigation": "引入稀疏激活(MoE)架构与刚体物理引擎约束进行梯度优化" }
+  },
+  {
+    "id": "ai_rob_006",
+    "name": "CODE27",
+    "description": "AI驱动的下一代软件开发智能体",
+    "tech": { "name": "Agentic Engineering与全生命周期代码生成", "maturity": "商业化", "barrier": "中高" },
+    "market": { "name": "全球开发者工具链与自动化开发市场", "tam": 40000000000, "sam": 12000000000, "som": 1500000000 },
+    "risk": { "name": "生成代码的安全性与隐蔽逻辑漏洞衍生风险", "severity": "中" },
+    "value_loop_edge": { "id": "vl_code27", "name": "人机协同开发闭环", "description": "需求自然语言输入 -> 智能体自主规划编码测试 -> 团队研发效能跃升 -> 开发者形成深度工具依赖", "nodes": ["tech", "market"], "metrics": { "ltv": 15000, "cac": 1200, "revenue_model": "基于席位的SaaS订阅费与算力消耗计费" } },
+    "risk_pattern_edge": { "id": "rp_code27", "name": "上下文遗忘风险链", "description": "大型项目代码库庞大 -> 上下文窗口严重溢出 -> 生成逻辑前后冲突 -> 人工修复成本反而高于手写", "nodes": ["tech", "risk"], "mitigation": "深度采用RAG技术与模块化代码沙盒自动验证机制" }
+  },
+  {
+    "id": "ai_rob_007",
+    "name": "智谱GLM-5",
+    "description": "新一代多模态大语言模型与AI底座",
+    "tech": { "name": "超大规模预训练架构与多模态对齐算法", "maturity": "成熟商业化", "barrier": "极高" },
+    "market": { "name": "通用人工智能基础设施与企业级AI赋能", "tam": 300000000000, "sam": 80000000000, "som": 15000000000 },
+    "risk": { "name": "顶尖算法人才争夺与GPU芯片禁运风险", "severity": "极高" },
+    "value_loop_edge": { "id": "vl_zhipu", "name": "开源生态繁荣闭环", "description": "顶级模型能力开源 -> 吸引全球开发者构建繁荣应用层 -> 模型标准成为行业公理 -> 形成极强的生态护城河", "nodes": ["tech", "market"], "metrics": { "ltv": 2000000, "cac": 150000, "revenue_model": "闭源商业版授权、云端API计费与算力一体机销售" } },
+    "risk_pattern_edge": { "id": "rp_zhipu", "name": "推理成本反噬风险", "description": "模型参数与用户并发量双重爆炸 -> 云端推理算力成本远超API收益 -> 陷入规模不经济的死亡螺旋", "nodes": ["tech", "risk"], "mitigation": "研发极致的模型量化(Quantization)与算子优化技术，降低推理门槛" }
+  },
+  {
+    "id": "ai_rob_008",
+    "name": "进化智能",
+    "description": "用AI实现下一代设计方式的工业软件",
+    "tech": { "name": "生成式AI辅助CAD与物理场拓扑优化引擎", "maturity": "成长期", "barrier": "高" },
+    "market": { "name": "下一代工业设计与创成式设计软件", "tam": 25000000000, "sam": 6000000000, "som": 800000000 },
+    "risk": { "name": "海外巨头生态封锁与工业核心数据匮乏风险", "severity": "高" },
+    "value_loop_edge": { "id": "vl_jinhua", "name": "算力驱动创新闭环", "description": "输入边界条件与物理约束 -> 算法自动生成仿生拓扑结构 -> 实现极致轻量化 -> 帮助客户大幅降本", "nodes": ["tech", "market"], "metrics": { "ltv": 450000, "cac": 60000, "revenue_model": "高阶SaaS订阅及云端仿真算力使用费" } },
+    "risk_pattern_edge": { "id": "rp_jinhua", "name": "加工可行性断裂风险", "description": "AI生成的仿生结构过于复杂诡异 -> 现有数控机床无法加工 -> 设计方案沦为不可落地的废案", "nodes": ["tech", "risk"], "mitigation": "将加工制造工艺约束（DFM）深度嵌入生成模型的损失函数中" }
+  },
+  {
+    "id": "ai_rob_009",
+    "name": "小马智行",
+    "description": "全球领先的L4级自动驾驶科技公司",
+    "tech": { "name": "多源传感器融合与端到端自动驾驶大模型", "maturity": "商业化运营", "barrier": "极高" },
+    "market": { "name": "无人驾驶出租车与干线物流货运", "tam": 500000000000, "sam": 120000000000, "som": 5000000000 },
+    "risk": { "name": "各国路权法规限制与极端事故舆论风险", "severity": "极高" },
+    "value_loop_edge": { "id": "vl_pony", "name": "数据飞轮垄断闭环", "description": "车队路测 -> 捕获海量长尾数据 -> 算法迭代降维打击 -> 吸引车企硬件前装", "nodes": ["tech", "market"], "metrics": { "ltv": 15000000, "cac": 1000000, "revenue_model": "Robotaxi运营收入与车企集成费" } },
+    "risk_pattern_edge": { "id": "rp_pony", "name": "安全冗余击穿风险", "description": "恶劣天气导致传感器失效 -> 算法误判 -> 车辆失控 -> 遭遇监管全面叫停", "nodes": ["tech", "risk"], "mitigation": "构建异构冗余计算平台，并引入远程安全员5G接管系统作为最终防线" }
+  },
+  {
+    "id": "ai_rob_010",
+    "name": "讯兔科技 (Alpha派)",
+    "description": "金融AI领跑者与智能投研数据服务商",
+    "tech": { "name": "金融垂直大语言模型与实时非结构化数据解析", "maturity": "商业化落地", "barrier": "高" },
+    "market": { "name": "机构投资者量化因子挖掘与智能投研SaaS", "tam": 18000000000, "sam": 5000000000, "som": 800000000 },
+    "risk": { "name": "金融数据安全审计与AI幻觉导致投资失误风险", "severity": "极高" },
+    "value_loop_edge": { "id": "vl_xuntu", "name": "信息差抹平与重构闭环", "description": "AI秒级提取海量数据 -> 转化为结构化Alpha因子 -> 助力抢占交易先机 -> 产生极高订阅粘性", "nodes": ["tech", "market"], "metrics": { "ltv": 1500000, "cac": 120000, "revenue_model": "金融机构级SaaS高昂年费席位与专有数据接口API调用费" } },
+    "risk_pattern_edge": { "id": "rp_xuntu", "name": "幻觉诱导灾难交易风险", "description": "大模型凭空捏造虚假财务数据 -> 量化程序自动执行 -> 导致严重亏损并面临法律诉讼", "nodes": ["tech", "risk"], "mitigation": "采用极严的RAG机制并强制溯源每个数据点的原文链接，禁止自主发散推理" }
+  },
+  {
+    "id": "bio_001",
+    "name": "惠每科技",
+    "description": "医疗人工智能解决方案与智慧医疗提供商",
+    "tech": { "name": "医学知识图谱与NLP诊疗逻辑引擎", "maturity": "规模化商用", "barrier": "高" },
+    "market": { "name": "智慧医疗质量控制与规范", "tam": 50000000000, "sam": 15000000000, "som": 3000000000 },
+    "risk": { "name": "医学指南更新滞后导致临床路径偏移风险", "severity": "高" },
+    "value_loop_edge": { "id": "vl_huimei", "name": "医疗质控降本闭环", "description": "AI系统规范诊疗行为 -> 避免医院发生医保违规罚款 -> 提升医院精细化管理 -> 持续获取续费", "nodes": ["tech", "market"], "metrics": { "ltv": 5000000, "cac": 800000, "revenue_model": "系统SaaS年费与本地化部署维保" } },
+    "risk_pattern_edge": { "id": "rp_huimei", "name": "临床路径偏移风险", "description": "国家指南更新滞后 -> AI推荐方案不符最新专家共识 -> 医生拒绝采纳 -> 系统沦为摆设失去黏性", "nodes": ["tech", "risk"], "mitigation": "建立国家级三甲医院专家委员会进行底层医学库的高频动态人工校准" }
+  },
+  {
+    "id": "bio_002",
+    "name": "深势科技",
+    "description": "AI for Science 驱动的微观计算与药物设计",
+    "tech": { "name": "多尺度分子动力学模拟与深度学习架构", "maturity": "成长期商用", "barrier": "极高" },
+    "market": { "name": "创新药研发CRO与前沿材料设计平台", "tam": 45000000000, "sam": 15000000000, "som": 3000000000 },
+    "risk": { "name": "干湿实验闭环断裂与化合物成药性未知风险", "severity": "高" },
+    "value_loop_edge": { "id": "vl_shenshi", "name": "第一性原理计算降本闭环", "description": "打破方程维数灾难 -> 虚拟筛选效率指数提升 -> 药企研发降本 -> 按研发里程碑获取分成", "nodes": ["tech", "market"], "metrics": { "ltv": 15000000, "cac": 2000000, "revenue_model": "PaaS平台计算订阅与药物管线里程碑(Milestone)收益" } },
+    "risk_pattern_edge": { "id": "rp_shenshi", "name": "体内代谢失效风险", "description": "计算预测亲和力高 -> 活体动物实验阶段出现毒性或代谢过快 -> 研发管线被迫终止", "nodes": ["tech", "risk"], "mitigation": "向下游深度拓展，自建或绑定高通量自动化湿实验平台进行干湿闭环验证" }
+  },
+  {
+    "id": "bio_003",
+    "name": "普世利华",
+    "description": "全球医疗健康分子诊断与即时检测(POCT)",
+    "tech": { "name": "等温扩增微流控与便携式分子诊断芯片", "maturity": "规模化商用", "barrier": "高" },
+    "market": { "name": "基层医疗机构与居家传染病快检下沉市场", "tam": 75000000000, "sam": 25000000000, "som": 5000000000 },
+    "risk": { "name": "全球渠道拓展阻力与各国准入认证延期风险", "severity": "中" },
+    "value_loop_edge": { "id": "vl_pushi", "name": "医疗资源下沉耗材闭环", "description": "诊断设备微型化低成本 -> 赋能偏远基层 -> 产生海量检测耗材消耗 -> 形成剃须刀商业模式", "nodes": ["tech", "market"], "metrics": { "ltv": 300000, "cac": 40000, "revenue_model": "仪器零毛利销售 + 高频耗材试剂复购赚取利润" } },
+    "risk_pattern_edge": { "id": "rp_pushi", "name": "生化试剂效期失效风险", "description": "冷链物流不完善 -> 运输途中试剂失活 -> 临床检测大面积假阴性 -> 引发医疗纠纷", "nodes": ["tech", "risk"], "mitigation": "研发核心冻干珠等常温稳定存储技术，摆脱冷链依赖" }
+  },
+  {
+    "id": "bio_004",
+    "name": "医工同心",
+    "description": "国际领先的介入式人工心脏引领者",
+    "tech": { "name": "超微型磁悬浮血泵与精密介入导管技术", "maturity": "临床试验中", "barrier": "极高" },
+    "market": { "name": "心衰急救生命支持(pVAD)与循环辅助市场", "tam": 50000000000, "sam": 18000000000, "som": 2000000000 },
+    "risk": { "name": "高等级三类医疗器械极高的临床试验失败风险", "severity": "极高" },
+    "value_loop_edge": { "id": "vl_yigong", "name": "急危重症救命闭环", "description": "微创介入免开胸 -> 降低手术创伤 -> 普及心衰患者 -> 实现极高单品溢价", "nodes": ["tech", "market"], "metrics": { "ltv": 250000, "cac": 30000, "revenue_model": "高值医用耗材/器械一次性销售给顶尖心血管医院" } },
+    "risk_pattern_edge": { "id": "rp_yigong", "name": "血液相容性致命风险", "description": "转子剪切力控制不当 -> 导致红细胞破坏(溶血)或血栓 -> 患者出现致死性并发症", "nodes": ["tech", "risk"], "mitigation": "运用超级计算机进行CFD流体力学迭代，结合仿生涂层实现无血栓流道设计" }
+  },
+  {
+    "id": "bio_005",
+    "name": "智惠超声",
+    "description": "智能医学超声机器人引领者",
+    "tech": { "name": "超声+AI影像实时识别与柔性机械臂探头力控", "maturity": "产品化验证与申报取证中", "barrier": "高" },
+    "market": { "name": "远程超声诊断与医疗资源均衡化设备", "tam": 30000000000, "sam": 10000000000, "som": 1500000000 },
+    "risk": { "name": "网络延迟与远程操作安全责任界定风险", "severity": "高" },
+    "value_loop_edge": { "id": "vl_zhihui", "name": "专家资源时空解耦闭环", "description": "专家异地操作 -> 机器人精准复现手法 -> 解决基层医生荒 -> 大幅提升人口筛查吞吐量", "nodes": ["tech", "market"], "metrics": { "ltv": 1500000, "cac": 200000, "revenue_model": "终端机器人硬件销售及远程诊疗网络平台按次抽成" } },
+    "risk_pattern_edge": { "id": "rp_zhihui", "name": "力控过度致伤风险", "description": "网络抖动导致力控反馈滞后 -> 机械臂对患者施加过大压强 -> 造成机械性损伤", "nodes": ["tech", "risk"], "mitigation": "植入纯硬件级微秒级力矩限制器，网络断开即刻物理自锁" }
+  },
+  {
+    "id": "bio_006",
+    "name": "编织生命通道",
+    "description": "基于医用纺织技术的高值器械研发与产业化",
+    "tech": { "name": "仿生医用纺织拓扑编织与高分子覆膜技术", "maturity": "成长期", "barrier": "高" },
+    "market": { "name": "心血管支架、人造血管与疝气修复补片", "tam": 40000000000, "sam": 12000000000, "som": 1800000000 },
+    "risk": { "name": "高值耗材集采降价压力与长期异常粘连风险", "severity": "高" },
+    "value_loop_edge": { "id": "vl_bianzhi", "name": "材料微观结构重构闭环", "description": "创新编织结构带来血管顺应性 -> 促进内皮细胞爬覆 -> 降低血栓发生率 -> 取代进口高分子支架", "nodes": ["tech", "market"], "metrics": { "ltv": 80000, "cac": 12000, "revenue_model": "通过国家集采中标实现规模化高值耗材出货" } },
+    "risk_pattern_edge": { "id": "rp_bianzhi", "name": "编织工艺良率崩盘风险", "description": "医用超细丝线极易断裂 -> 微米级编织瑕疵导致力学性能异常 -> 批次报废率高企", "nodes": ["tech", "risk"], "mitigation": "引入高速机器视觉在线进行微米级瑕疵剔除与动态张力补偿技术" }
+  },
+  {
+    "id": "bio_007",
+    "name": "MagOss",
+    "description": "定制化可降解镁基骨植入物",
+    "tech": { "name": "镁合金成分调控、表面控降解涂层及3D打印工艺", "maturity": "临床试验申报阶段", "barrier": "极高" },
+    "market": { "name": "骨科创伤与颌面外科高值植入物", "tam": 35000000000, "sam": 10000000000, "som": 800000000 },
+    "risk": { "name": "降解速率与骨愈合速度不匹配风险", "severity": "高" },
+    "value_loop_edge": { "id": "vl_magoss", "name": "免二次手术闭环", "description": "植入物提供坚固力学支撑 -> 骨愈合期稳步降解 -> 骨折愈合后完全消散 -> 患者免受二次手术痛苦", "nodes": ["tech", "market"], "metrics": { "ltv": 45000, "cac": 6000, "revenue_model": "基于患者CT影像的定制化植入物产品直接销售" } },
+    "risk_pattern_edge": { "id": "rp_magoss", "name": "析氢反应气腔风险", "description": "体内环境下过快降解产生大量氢气 -> 局部组织形成气腔 -> 导致严重排异与骨整合失败", "nodes": ["tech", "risk"], "mitigation": "运用精密微弧氧化工艺与复合涂层锁死初始快速降解窗口" }
+  },
+  {
+    "id": "bio_008",
+    "name": "基于“活细胞”组学筛选平台的小分子创新药开发",
+    "description": "结合活细胞组学与AI的高通量小分子药开发",
+    "tech": { "name": "单细胞组学测序与高通量活细胞微流控筛选技术", "maturity": "成长期商用", "barrier": "极高" },
+    "market": { "name": "难成药靶点发现与源头创新药开发平台", "tam": 55000000000, "sam": 18000000000, "som": 2000000000 },
+    "risk": { "name": "小分子在复杂动物体内PK/PD表现不佳风险", "severity": "高" },
+    "value_loop_edge": { "id": "vl_livecell", "name": "原位功能验证降维闭环", "description": "抛弃纯生化筛选 -> 真实活细胞系统高通量验证 -> 获得天然生理活性化合物 -> 临床前成药率上升", "nodes": ["tech", "market"], "metrics": { "ltv": 20000000, "cac": 1800000, "revenue_model": "提供靶点筛选服务及共同推进研发管线分润" } },
+    "risk_pattern_edge": { "id": "rp_livecell", "name": "组学数据噪音淹没风险", "description": "活细胞状态受扰动波动大 -> 单细胞测序产生海量噪音 -> 浪费算力且导致核心靶点误判", "nodes": ["tech", "risk"], "mitigation": "开发AI去噪图神经网络模型与时间序列动态分析系统滤除噪音" }
+  },
+  {
+    "id": "bio_009",
+    "name": "倍生生物",
+    "description": "基于合成生物学的高通量菌株培育与筛选公司",
+    "tech": { "name": "底盘细胞高通量基因编辑与自动化筛选引擎", "maturity": "成长期", "barrier": "高" },
+    "market": { "name": "精细化学品、食品与工业特种酶制剂合成", "tam": 120000000000, "sam": 35000000000, "som": 4000000000 },
+    "risk": { "name": "向万升工业罐放大过程中的减产风险", "severity": "高" },
+    "value_loop_edge": { "id": "vl_beisheng", "name": "生物制造降本闭环", "description": "AI指导通路设计 -> 海量构建突变库 -> 获得超级工程菌株 -> 替代高污染石化生产路径", "nodes": ["tech", "market"], "metrics": { "ltv": 6000000, "cac": 500000, "revenue_model": "高表达菌株IP授权、联合开发提成及原料直接销售" } },
+    "risk_pattern_edge": { "id": "rp_beisheng", "name": "发酵染菌放大死亡谷风险", "description": "万升工业罐剪切力与溶氧梯度剧变或染菌 -> 细胞大规模破裂或停止产物 -> 产线停摆", "nodes": ["tech", "risk"], "mitigation": "建立多尺度工业发酵微缩模拟器提前排雷并优化工艺包" }
+  },
+  {
+    "id": "bio_010",
+    "name": "BioPilot",
+    "description": "智能活菌机器人肿瘤疫苗的开拓先锋",
+    "tech": { "name": "基因编辑工程化益生菌与肿瘤微环境靶向感应", "maturity": "临床前动物实验阶段", "barrier": "极高" },
+    "market": { "name": "实体瘤免疫治疗与下一代活体生物药(LBP)", "tam": 85000000000, "sam": 15000000000, "som": 500000000 },
+    "risk": { "name": "工业质控极难与患者脱靶免疫风暴风险", "severity": "极高" },
+    "value_loop_edge": { "id": "vl_biopilot", "name": "智能靶向溶瘤闭环", "description": "工程菌感应肿瘤缺氧微环境 -> 原位释放抗肿瘤蛋白载荷 -> 引发强抗肿瘤免疫记忆 -> 长效治愈", "nodes": ["tech", "market"], "metrics": { "ltv": 800000, "cac": 150000, "revenue_model": "创新药(FIC)上市销售或早期管线License-out" } },
+    "risk_pattern_edge": { "id": "rp_biopilot", "name": "生物安全逃逸风险", "description": "工程菌在患者体内复制突变失控 -> 在健康组织中大量繁殖 -> 引发不可控败血症危及生命", "nodes": ["tech", "risk"], "mitigation": "在基因组中硬编码多重自杀开关，断绝自然存活可能" }
+  },
+  {
+    "id": "mat_eng_001",
+    "name": "启华科技",
+    "description": "算力基础设施智能温控的绿色解决方案",
+    "tech": { "name": "浸没式液冷与AI动态能耗调度", "maturity": "商业化落地", "barrier": "高" },
+    "market": { "name": "智算中心温控基础设施", "tam": 80000000000, "sam": 20000000000, "som": 5000000000 },
+    "risk": { "name": "环保氟化冷却液供应链断裂被卡脖子", "severity": "极高" },
+    "value_loop_edge": { "id": "vl_qihua", "name": "算力能效降维闭环", "description": "极致降低数据中心PUE值释放更高密度算力", "nodes": ["tech", "market"], "metrics": { "ltv": 8000000, "cac": 500000, "revenue_model": "液冷物理基础设施销售及能源管理云SaaS订阅" } },
+    "risk_pattern_edge": { "id": "rp_qihua", "name": "氟化液供应链断裂风险", "description": "冷却介质依赖海外进口 -> 遭遇制裁或环保限产 -> 算力中心无法加注导致系统瘫痪", "nodes": ["tech", "risk"], "mitigation": "联合国内氟化工巨头攻关开发自主可控的环保替代冷却液" }
+  },
+  {
+    "id": "mat_eng_002",
+    "name": "智检先锋",
+    "description": "生态环境风险监测预警解决方案引领者",
+    "tech": { "name": "物联网多源传感矩阵与边缘AI风险预测模型", "maturity": "规模化商用", "barrier": "中" },
+    "market": { "name": "政府生态监测网与大型企业ESG合规市场", "tam": 30000000000, "sam": 8000000000, "som": 1200000000 },
+    "risk": { "name": "G端市场回款周期漫长与宏观预算缩减风险", "severity": "高" },
+    "value_loop_edge": { "id": "vl_zhijian", "name": "政企合规数据闭环", "description": "部署前置预警系统 -> 提前阻断违规排污 -> 消除监管盲区 -> 促成规模化采购", "nodes": ["tech", "market"], "metrics": { "ltv": 2000000, "cac": 300000, "revenue_model": "软硬件设备交付与逐年收取的维保数据服务费" } },
+    "risk_pattern_edge": { "id": "rp_zhijian", "name": "极端环境设备失效风险", "description": "长期暴露在恶劣气候中 -> 核心传感器老化腐蚀 -> 预警数据断流 -> 引发重大污染问责", "nodes": ["tech", "risk"], "mitigation": "采用航天防护材料设计外壳，并内置冗余切换算法" }
+  },
+  {
+    "id": "mat_eng_003",
+    "name": "牵星科技",
+    "description": "太空资产安全服务的开拓者",
+    "tech": { "name": "天基态势感知网络与轨道机动智能协同计算", "maturity": "成长期", "barrier": "极高" },
+    "market": { "name": "全球商业航天资产保护与空间碎片监测", "tam": 18000000000, "sam": 5000000000, "som": 600000000 },
+    "risk": { "name": "太空政策博弈不确定性与火箭发射成本高昂风险", "severity": "高" },
+    "value_loop_edge": { "id": "vl_qianxing", "name": "空天防御免灾闭环", "description": "卫星星座实时监测 -> 提前预警空间碎片轨迹 -> 生成机动避险指令 -> 挽回千万级卫星资产", "nodes": ["tech", "market"], "metrics": { "ltv": 8000000, "cac": 1000000, "revenue_model": "高精度太空数据包订阅与定制化避碰算法授权" } },
+    "risk_pattern_edge": { "id": "rp_qianxing", "name": "在轨计算失效风险", "description": "深空高能辐射干扰 -> 星载计算平台宕机 -> 碰撞预警延迟 -> 导致灾难性相撞", "nodes": ["tech", "risk"], "mitigation": "底层采用抗辐照芯片设计，配合异构冗余计算架构" }
+  },
+  {
+    "id": "mat_eng_004",
+    "name": "华起智造",
+    "description": "全球港机智造新势力与港口自动化方案",
+    "tech": { "name": "重型港机高保真数字孪生与全自动协同调度", "maturity": "规模化商用", "barrier": "极高" },
+    "market": { "name": "全球智慧港口升级与巨型无人物流枢纽基建", "tam": 90000000000, "sam": 30000000000, "som": 5000000000 },
+    "risk": { "name": "国际贸易周期波动与重型装备出海阻力风险", "severity": "中高" },
+    "value_loop_edge": { "id": "vl_huaqi", "name": "港航周转率极限提升闭环", "description": "自动化岸桥无缝协同 -> 消除人力疲劳瓶颈 -> 集装箱船装卸骤减 -> 吞吐量跨越式提升", "nodes": ["tech", "market"], "metrics": { "ltv": 50000000, "cac": 5000000, "revenue_model": "千万级重型自动化装备打包销售与数十年维保收费" } },
+    "risk_pattern_edge": { "id": "rp_huaqi", "name": "极端环境通信瘫痪风险", "description": "强台风或雷暴干扰 -> 港区核心通信链路中断 -> 数百吨自动化巨兽失控盲行导致事故", "nodes": ["tech", "risk"], "mitigation": "建立本地毫米波专网并植入自主视觉安全停机底层协议" }
+  },
+  {
+    "id": "mat_eng_005",
+    "name": "智飞氢龙",
+    "description": "氢动力低空飞行器引领者",
+    "tech": { "name": "航空级氢燃料电池与超高压碳纤维储氢系统", "maturity": "原型机试飞阶段", "barrier": "极高" },
+    "market": { "name": "长续航工业级无人机与未来eVTOL清洁动力系统", "tam": 40000000000, "sam": 12000000000, "som": 1000000000 },
+    "risk": { "name": "加氢基础设施极度匮乏与高空泄漏爆燃风险", "severity": "极高" },
+    "value_loop_edge": { "id": "vl_zhifei", "name": "续航破局时效闭环", "description": "打破锂电池能量密度天花板 -> 实现数小时连续长航时巡检 -> 替代燃油直升机 -> 工业运维效率暴增", "nodes": ["tech", "market"], "metrics": { "ltv": 1200000, "cac": 180000, "revenue_model": "长航时无人机整机销售与特定飞行服务合同采购" } },
+    "risk_pattern_edge": { "id": "rp_zhifei", "name": "储氢瓶重量反噬风险", "description": "厚重碳纤维缠绕储罐 -> 物理重量抵消氢能高能量密度优势 -> 飞行器有效载荷断崖下跌", "nodes": ["tech", "risk"], "mitigation": "采用新型高分子轻质内胆搭配变张力碳纤维结构，并优化气动布局" }
+  },
+  {
+    "id": "mat_eng_006",
+    "name": "臻锂新材",
+    "description": "一步法磁控溅射复合集流体开拓者",
+    "tech": { "name": "高真空磁控溅射与PET/PP基膜双面金属化精密工艺", "maturity": "中试线跑通并扩产中", "barrier": "高" },
+    "market": { "name": "高安全固态及半固态锂电池核心基础材料", "tam": 120000000000, "sam": 40000000000, "som": 3000000000 },
+    "risk": { "name": "设备折旧极高与下游电池巨头验证周期漫长风险", "severity": "高" },
+    "value_loop_edge": { "id": "vl_zhenli", "name": "内生安全增效闭环", "description": "中间高分子基底不导电 -> 杜绝电池穿刺内短路爆炸 -> 替代纯铜箔减重 -> 能量密度与安全性双升", "nodes": ["tech", "market"], "metrics": { "ltv": 80000000, "cac": 2000000, "revenue_model": "作为核心原材料按吨直供动力电池巨头" } },
+    "risk_pattern_edge": { "id": "rp_zhenli", "name": "高温针孔良率雪崩风险", "description": "靶材高速溅射释放高热 -> 灼穿极薄塑料基底 -> 形成海量微观针孔 -> 导致电芯成批报废", "nodes": ["tech", "risk"], "mitigation": "研发闭环冷水辊精密温控系统，辅以冷等离子源沉积降温" }
+  },
+  {
+    "id": "mat_eng_007",
+    "name": "零翼起航",
+    "description": "地球第三种交通生态引领者(低空经济)",
+    "tech": { "name": "复合气动构型与分布式强冗余电推进系统", "maturity": "全尺寸验证机完成试飞", "barrier": "高" },
+    "market": { "name": "城市空中交通(UAM)与跨城短途高客单价客运", "tam": 300000000000, "sam": 50000000000, "som": 1500000000 },
+    "risk": { "name": "适航取证(TC)难度史诗级与空域管制风险", "severity": "极高" },
+    "value_loop_edge": { "id": "vl_lingyi", "name": "三维路网时效降维闭环", "description": "转化地面拥堵为三维直达 -> 分钟级跨城通达 -> 颠覆出行范式 -> 构建空中Uber生态", "nodes": ["tech", "market"], "metrics": { "ltv": 15000000, "cac": 500000, "revenue_model": "初期硬件销售，后期转型为提供航线调度的MaaS服务商" } },
+    "risk_pattern_edge": { "id": "rp_lingyi", "name": "旋翼失效坠机灾难风险", "description": "极端风切变或单侧电机停转 -> 姿态控制解算无法挽回 -> 发生灾难性坠毁抹杀行业信任", "nodes": ["tech", "risk"], "mitigation": "极其保守的多余度飞控架构并在整机集成弹道降落伞系统保底" }
+  },
+  {
+    "id": "mat_eng_008",
+    "name": "天瞳",
+    "description": "突破低空通感器件核心技术",
+    "tech": { "name": "低成本相控阵雷达与通信感知一体化(ISAC)基带芯片", "maturity": "小批量流片试产", "barrier": "极高" },
+    "market": { "name": "低空经济基础设施网与低轨卫星通信终端", "tam": 45000000000, "sam": 15000000000, "som": 1200000000 },
+    "risk": { "name": "底层芯片流片失败与频谱资源冲突风险", "severity": "高" },
+    "value_loop_edge": { "id": "vl_tiantong", "name": "通感一体化赋能空管闭环", "description": "同一硬件兼具通信与高精度感知 -> 消除低空黑飞盲区 -> 赋能空管系统 -> 加速低空航线合法开放", "nodes": ["tech", "market"], "metrics": { "ltv": 4000000, "cac": 300000, "revenue_model": "基站级通感一体化器件与微型模组直接销售" } },
+    "risk_pattern_edge": { "id": "rp_tiantong", "name": "功耗散热墙熔断风险", "description": "毫米波高频计算并发 -> 端侧芯片发热严重突破功耗限值 -> 无人机续航缩水或芯片直接烧毁", "nodes": ["tech", "risk"], "mitigation": "采用最先进硅基异构封装(Chiplet)与新型氮化镓射频材料" }
+  },
+  {
+    "id": "mat_eng_009",
+    "name": "曦曙科技",
+    "description": "零碳太阳能跨季储热开创者",
+    "tech": { "name": "高储能密度热化学储能特殊材料与系统集控", "maturity": "商业级工程示范应用", "barrier": "中高" },
+    "market": { "name": "高耗能工业脱碳与极寒地区绿色集中供暖", "tam": 60000000000, "sam": 18000000000, "som": 800000000 },
+    "risk": { "name": "重资产成本高昂与化石能源价格下跌影响投资意愿风险", "severity": "高" },
+    "value_loop_edge": { "id": "vl_xishu", "name": "时空能量解耦供需闭环", "description": "利用光热无损转化为化学键锁定 -> 跨季节冬季稳定释放 -> 极大降低供能成本与未来碳税", "nodes": ["tech", "market"], "metrics": { "ltv": 12000000, "cac": 800000, "revenue_model": "推行EMC模式，按节省巨额电费/燃气费比例进行15年分成" } },
+    "risk_pattern_edge": { "id": "rp_xishu", "name": "材料微观循环衰减风险", "description": "上千次极限吸放热循环 -> 储热微晶体板结表面积剧减 -> 储热容量腰斩导致测算破产", "nodes": ["tech", "risk"], "mitigation": "在分子层级掺杂多孔纳米陶瓷骨架作为支撑结构保证循环稳定性" }
+  },
+  {
+    "id": "mat_eng_010",
+    "name": "Vastech Energy",
+    "description": "下一代本征安全的大功率储能系统",
+    "tech": { "name": "新型水系/固态绝对不易燃电解液与大容量电芯架构", "maturity": "中试线验证与送样评测", "barrier": "极高" },
+    "market": { "name": "GWh级电网侧大储能与工商业微电网", "tam": 180000000000, "sam": 60000000000, "som": 2000000000 },
+    "risk": { "name": "体积能量密度物理上限与传统锂电池价格战风险", "severity": "极高" },
+    "value_loop_edge": { "id": "vl_vastech", "name": "极致安全免运维护城河闭环", "description": "从底层拔除起火基因 -> 免除昂贵消防液冷成本 -> 实现系统全生命周期度电成本绝对领先", "nodes": ["tech", "market"], "metrics": { "ltv": 40000000, "cac": 1500000, "revenue_model": "向国家电网及能源企业提供兆瓦级安全储能交钥匙销售" } },
+    "risk_pattern_edge": { "id": "rp_vastech", "name": "循环寿命跳水死亡风险", "description": "水系电解液电压窗口狭窄 -> 频繁充放电下正极溶解或发生副反应 -> 撑不过电网要求的寿命门槛", "nodes": ["tech", "risk"], "mitigation": "引入高度浓缩的盐包水电解质体系强行拓展电化学稳定窗口" }
+  },
+  {
+    "id": "saas_fin_001",
+    "name": "Clipboard Health",
+    "description": "医疗护理外包与零工经济平台",
+    "tech": { "name": "动态人力与信度匹配算法", "maturity": "成熟商业化", "barrier": "中" },
+    "market": { "name": "医疗护理外包与零工经济", "tam": 60000000000, "sam": 18000000000, "som": 4000000000 },
+    "risk": { "name": "飞单漏损与医患连带责任合规", "severity": "高" },
+    "value_loop_edge": { "id": "vl_clipboard", "name": "供需匹配闭环", "description": "解决护士荒并提升供需匹配效率", "nodes": ["tech", "market"], "metrics": { "ltv": 45000, "cac": 3500, "revenue_model": "向医疗机构抽取高额时薪差价与技术服务费" } },
+    "risk_pattern_edge": { "id": "rp_clipboard", "name": "飞单(Disintermediation)漏损风险", "description": "护士绕开平台私下签约 -> 平台流失最优质供需双方", "nodes": ["tech", "risk"], "mitigation": "提供专属当日薪酬预支与职业责任险强制绑定增加摩擦成本" }
+  },
+  {
+    "id": "saas_fin_002",
+    "name": "Meesho",
+    "description": "印度互联网社交电商与去中心化电商平台",
+    "tech": { "name": "社交图谱多级裂变分销引擎与AI爆款预测", "maturity": "成熟独角兽企业", "barrier": "中高" },
+    "market": { "name": "印度下沉市场零基础个体户电商基建", "tam": 65000000000, "sam": 20000000000, "som": 5000000000 },
+    "risk": { "name": "履约亏损与退货率失控风险", "severity": "高" },
+    "value_loop_edge": { "id": "vl_meesho", "name": "微型创业网络赋能闭环", "description": "极低门槛货源 -> 强信任分销获利 -> 获取海量零成本流量 -> 轻资产扩张", "nodes": ["tech", "market"], "metrics": { "ltv": 1500, "cac": 150, "revenue_model": "零佣金入驻，通过物流溢价与流量排名广告费盈利" } },
+    "risk_pattern_edge": { "id": "rp_meesho", "name": "劣币驱逐良币风控崩溃风险", "description": "免佣金导致假货泛滥 -> 消费者海量退货 -> 逆向物流成本压垮现金流", "nodes": ["tech", "risk"], "mitigation": "引入多维度卖家质量信用积分，对劣质卖家实施流量阻断" }
+  },
+  {
+    "id": "saas_fin_003",
+    "name": "Odeko",
+    "description": "独立咖啡馆与烘焙店的运营及供应链管理SaaS",
+    "tech": { "name": "预测性补货AI模型与多端轻量化ERP", "maturity": "成长期商用", "barrier": "中" },
+    "market": { "name": "中小实体餐饮后厨物料一站式供应链网络", "tam": 30000000000, "sam": 8000000000, "som": 1200000000 },
+    "risk": { "name": "中小餐饮极高倒闭率导致生命周期短暂风险", "severity": "高" },
+    "value_loop_edge": { "id": "vl_odeko", "name": "长尾集采降本赋能闭环", "description": "智能预测需求 -> 整合碎片化订单压价采购 -> 小店降低成本免除库存积压", "nodes": ["tech", "market"], "metrics": { "ltv": 45000, "cac": 4000, "revenue_model": "集中采购差价叠加核心ERP软件月度订阅费" } },
+    "risk_pattern_edge": { "id": "rp_odeko", "name": "仓配履约重资产拖累陷阱风险", "description": "被迫自建重度冷链物流节点 -> 资产变重侵蚀高利润率与估值 -> 资金见底", "nodes": ["tech", "risk"], "mitigation": "坚决采用轻资产模式，开放API接入第三方成熟城配网络" }
+  },
+  {
+    "id": "saas_fin_004",
+    "name": "Razorpay",
+    "description": "印度全栈式企业B2B金融科技解决方案与支付网关",
+    "tech": { "name": "超高并发支付网关、API与反欺诈风控引擎", "maturity": "成熟金融独角兽", "barrier": "高" },
+    "market": { "name": "新兴市场企业收单与信贷数字核心基建", "tam": 120000000000, "sam": 40000000000, "som": 8000000000 },
+    "risk": { "name": "强力反垄断监管与金融牌照被吊销风险", "severity": "高" },
+    "value_loop_edge": { "id": "vl_razorpay", "name": "资金流水数据垄断降维闭环", "description": "提供流畅支付API -> 截获企业现金流数据 -> 衍生无抵押信贷 -> 锁定企业财务命脉", "nodes": ["tech", "market"], "metrics": { "ltv": 200000, "cac": 12000, "revenue_model": "交易流水抽佣、高息信贷息差与增值财务软件订阅费" } },
+    "risk_pattern_edge": { "id": "rp_razorpay", "name": "系统性欺诈穿透底线风险", "description": "风控模型漏洞未识别大规模洗钱 -> 触犯反洗钱法案 -> 遭到巨额罚款与业务强行熔断", "nodes": ["tech", "risk"], "mitigation": "建立图神经网络分析异常流向并引入监管沙盒秒级报备" }
+  },
+  {
+    "id": "saas_fin_005",
+    "name": "Zepto",
+    "description": "印度10分钟极速生鲜日用品杂货配送平台",
+    "tech": { "name": "超密集前置仓网格拓扑与毫秒级派单算法", "maturity": "成长期明星独角兽", "barrier": "中" },
+    "market": { "name": "高线城市即时零售与生鲜电商市场", "tam": 45000000000, "sam": 15000000000, "som": 3000000000 },
+    "risk": { "name": "极低微观毛利无法覆盖履约成本风险", "severity": "极高" },
+    "value_loop_edge": { "id": "vl_zepto", "name": "多巴胺即时满足上瘾闭环", "description": "极致10分钟送达 -> 打破传统采买习惯 -> 催生高频复购 -> 前置仓坪效指数跃升", "nodes": ["tech", "market"], "metrics": { "ltv": 350, "cac": 20, "revenue_model": "快消商品加价率、动态配送费及App广告坑位费" } },
+    "risk_pattern_edge": { "id": "rp_zepto", "name": "订单密度塌陷失血风险", "description": "补贴退坡后特定区域订单密度低下 -> 骑手闲置且生鲜损耗 -> 现金流迅速枯竭", "nodes": ["tech", "risk"], "mitigation": "高精度人口热力图苛刻选址并扩充高毛利非标品拉升客单价" }
+  },
+  {
+    "id": "saas_fin_006",
+    "name": "翼方健数",
+    "description": "隐私计算与医疗数据要素可信流通平台",
+    "tech": { "name": "多方安全计算、联邦学习与可信执行硬件", "maturity": "规模化商用", "barrier": "高" },
+    "market": { "name": "医疗高敏感大数据运营与联合计算市场", "tam": 40000000000, "sam": 12000000000, "som": 2500000000 },
+    "risk": { "name": "数据确权立法滞后与缺乏信任意愿风险", "severity": "中高" },
+    "value_loop_edge": { "id": "vl_yifang", "name": "数据价值安全变现闭环", "description": "数据可用不可见 -> 促成互不信任医院联合建模 -> 生成高价值模型 -> 药企高价购买", "nodes": ["tech", "market"], "metrics": { "ltv": 4500000, "cac": 600000, "revenue_model": "收软硬件部署费并对数据计算调用按流量高额抽成" } },
+    "risk_pattern_edge": { "id": "rp_yifang", "name": "密码学计算性能瓶颈瘫痪风险", "description": "多方加密通信开销极大 -> 处理多模态数据时算力瘫痪 -> 业务无法落地", "nodes": ["tech", "risk"], "mitigation": "研发软硬一体隐私加速一体机优化密码学加解密" }
+  },
+  {
+    "id": "saas_fin_007",
+    "name": "Authing",
+    "description": "基于云原生架构的现代身份云安全基础设施",
+    "tech": { "name": "单点登录、多因素强认证与零信任网关", "maturity": "成熟商业化", "barrier": "高" },
+    "market": { "name": "大中型企业IDaaS核心安全底座市场", "tam": 25000000000, "sam": 8000000000, "som": 2000000000 },
+    "risk": { "name": "核心安全架构被攻破导致的毁灭性信任危机", "severity": "极高" },
+    "value_loop_edge": { "id": "vl_authing", "name": "数字身份中枢网络效应闭环", "description": "统一IT系统账号 -> 提供极简接入体验 -> 业务系统不断接入使得替换成本无穷大", "nodes": ["tech", "market"], "metrics": { "ltv": 800000, "cac": 60000, "revenue_model": "按MAU阶梯计费的SaaS订阅费及高级审计模块附加费" } },
+    "risk_pattern_edge": { "id": "rp_authing", "name": "单点故障引发瘫痪风险", "description": "云服务器宕机或遭DDoS攻击 -> 企业旗下系统均无法验证 -> 造成商业停摆与天价索赔", "nodes": ["tech", "risk"], "mitigation": "构建异地多活架构并敢于承诺99.999%苛刻的现金赔付SLA条款" }
+  },
+  {
+    "id": "saas_fin_008",
+    "name": "Klavi",
+    "description": "开放银行助力巴西金融行业数字化转型赋能者",
+    "tech": { "name": "海量异构API聚合解析引擎与信用评分AI", "maturity": "成长期落地", "barrier": "中高" },
+    "market": { "name": "拉美无卡人群金融普惠底座与风控基建", "tam": 18000000000, "sam": 5000000000, "som": 800000000 },
+    "risk": { "name": "拉美金融监管朝令夕改带来的直接断网风险", "severity": "高" },
+    "value_loop_edge": { "id": "vl_klavi", "name": "信用孤岛破壁互通闭环", "description": "打通银行脱敏流水 -> 赋能非银机构精准信用评估 -> 释放消费潜力 -> 坐收数据过路费", "nodes": ["tech", "market"], "metrics": { "ltv": 150000, "cac": 15000, "revenue_model": "基础API微薄计费与深度风险联合建模高额业务抽成" } },
+    "risk_pattern_edge": { "id": "rp_klavi", "name": "黑客脱库窃取隐私风险", "description": "关键枢纽成为高价值目标被攻破 -> 百万民众受损 -> 遭到重罚并永久吊销牌照", "nodes": ["tech", "risk"], "mitigation": "落实最苛刻加密标准与端到端不可逆脱敏及毫秒级密钥轮换" }
+  },
+  {
+    "id": "saas_fin_009",
+    "name": "沐数一下",
+    "description": "全球首创的企业AI数据探查与智能分析解决方案",
+    "tech": { "name": "高准确率NL2SQL大模型与异构数据虚拟化", "maturity": "成长期商用", "barrier": "中高" },
+    "market": { "name": "超大型企业内部商业智能与自动化探查", "tam": 35000000000, "sam": 12000000000, "som": 1500000000 },
+    "risk": { "name": "底层数据湖脏乱差导致解析准确率低下风险", "severity": "高" },
+    "value_loop_edge": { "id": "vl_mushu", "name": "业务决策敏捷化闭环", "description": "大白话对话获取深度报表 -> 绕过IT开发排期瓶颈 -> 敏捷响应市场提升续费意愿", "nodes": ["tech", "market"], "metrics": { "ltv": 350000, "cac": 50000, "revenue_model": "标准SaaS云端订阅及央国企重资产私有化部署实施费" } },
+    "risk_pattern_edge": { "id": "rp_mushu", "name": "越界灾难风险", "description": "AI引擎绕过复杂RBAC访问控制 -> 基层查阅到核心机密 -> 触发政治危机导致产品被弃用", "nodes": ["tech", "risk"], "mitigation": "在NL2SQL底层硬编码原有数据库级行/列绝对权限网关" }
+  },
+  {
+    "id": "saas_fin_010",
+    "name": "寒序科技",
+    "description": "概率计算芯片与底层硬件架构创新颠覆者",
+    "tech": { "name": "打破冯诺依曼架构的概率计算指令集与硬件", "maturity": "早期研发流片中", "barrier": "极高" },
+    "market": { "name": "通用AI推理绝对加速与特定算法能效优化", "tam": 45000000000, "sam": 10000000000, "som": 500000000 },
+    "risk": { "name": "流片良率低与软件编译生态彻底缺失风险", "severity": "极高" },
+    "value_loop_edge": { "id": "vl_hanxu", "name": "算力能效颠覆闭环", "description": "打破功耗墙 -> 概率计算能效数十倍越级 -> 支持百亿大模型边缘超低功耗部署", "nodes": ["tech", "market"], "metrics": { "ltv": 10000000, "cac": 1500000, "revenue_model": "芯片IP底层授权与深度定制化芯片批量销售利润" } },
+    "risk_pattern_edge": { "id": "rp_hanxu", "name": "生态鸿沟风险", "description": "硬件范式改变 -> 现有AI框架无法直接调用 -> 遭到开发者集体弃用成为废铁", "nodes": ["tech", "risk"], "mitigation": "战略性重金投入开发完美兼容主流框架的无缝中间层编译器" }
+  },
+  {
+    "id": "iot_hw_001",
+    "name": "神经乐手 (Neusician)",
+    "description": "前沿非侵入式脑机接口与AI音乐生成跨界项目",
+    "tech": { "name": "微弱神经信号精准解析与多模态大语言生成", "maturity": "概念验证阶段", "barrier": "极高" },
+    "market": { "name": "数字康养与情绪非药物干预治疗", "tam": 15000000000, "sam": 3000000000, "som": 150000000 },
+    "risk": { "name": "信噪比低与医学监管合规极难风险", "severity": "高" },
+    "value_loop_edge": { "id": "vl_neu", "name": "情绪闭环无缝干预", "description": "无感采集脑波 -> AI实时解码焦虑 -> 生成靶向音频 -> 情绪改善闭环提升留存", "nodes": ["tech", "market"], "metrics": { "ltv": 50000, "cac": 8000, "revenue_model": "高溢价智能硬件套装加高毛利数字疗法按月订阅" } },
+    "risk_pattern_edge": { "id": "rp_neu", "name": "医学效度验证失败风险", "description": "干预效果个体差异极大 -> 严苛临床双盲中未达统计显著性 -> 无法获批医疗资质沦为玩具", "nodes": ["tech", "risk"], "mitigation": "先从无资质要求的消费级助眠切入，缓慢积累真实临床证据" }
+  },
+  {
+    "id": "iot_hw_002",
+    "name": "极壳",
+    "description": "极具颠覆性的户外人能穿的外骨骼产品",
+    "tech": { "name": "高柔性自适应驱动与轻量化微电机集群", "maturity": "成熟商业化", "barrier": "高" },
+    "market": { "name": "消费级泛户外与轻度老龄康复", "tam": 35000000000, "sam": 8000000000, "som": 1500000000 },
+    "risk": { "name": "极寒环境续航缩水与大众尝鲜后吃灰风险", "severity": "中" },
+    "value_loop_edge": { "id": "vl_jike", "name": "硬核医疗消费平权闭环", "description": "高昂医疗技术消费化改造 -> 大生产压低成本 -> KOL疯狂种草 -> 形成科技潮牌心智", "nodes": ["tech", "market"], "metrics": { "ltv": 8000, "cac": 1500, "revenue_model": "通过跨境独立站与电商平台进行DTC硬件直销" } },
+    "risk_pattern_edge": { "id": "rp_jike", "name": "供应链失控断货风险", "description": "微型高扭矩定制电机产能不足 -> 旺季爆款断货缺口 -> 劣质山寨趁机抢占市场份额", "nodes": ["tech", "risk"], "mitigation": "创始人扎根珠三角深度扶持核心零部件的独家二供与三供体系" }
+  },
+  {
+    "id": "iot_hw_003",
+    "name": "电目科技",
+    "description": "细分行业领先的毫米波雷达技术提供商",
+    "tech": { "name": "高频毫米波射频阵列与点云降噪边缘算法", "maturity": "规模化商用", "barrier": "高" },
+    "market": { "name": "智能物联网感知、康养监护与全屋智能", "tam": 55000000000, "sam": 15000000000, "som": 2500000000 },
+    "risk": { "name": "红海价格战惨烈与硬件利润严重压缩风险", "severity": "高" },
+    "value_loop_edge": { "id": "vl_dianmu", "name": "感知维度升级闭环", "description": "突破光学隐私限制 -> 渗透高敏感康养场景 -> 获取独家活体数据 -> 建立行业数据标准", "nodes": ["tech", "market"], "metrics": { "ltv": 500000, "cac": 60000, "revenue_model": "批量销售雷达模组并辅以高级点云解析算法授权" } },
+    "risk_pattern_edge": { "id": "rp_dianmu", "name": "同质化红海白刃战风险", "description": "主控芯片级集成度提高 -> PCB门槛降低 -> 白牌低价倾销冲击 -> 品牌方沦为代工厂", "nodes": ["tech", "risk"], "mitigation": "拒绝纯卖硬件，提供雷达+边缘视觉+业务控制的软硬三位一体方案" }
+  },
+  {
+    "id": "iot_hw_004",
+    "name": "脑动引擎",
+    "description": "多模态神经调控提升极值运动能力新方案",
+    "tech": { "name": "非侵入式微电流神经刺激与神经重塑", "maturity": "专业级商业化", "barrier": "中高" },
+    "market": { "name": "竞技体育极限训练增强与高净值运动康复", "tam": 18000000000, "sam": 4000000000, "som": 500000000 },
+    "risk": { "name": "效果量化困难与安慰剂效应质疑风险", "severity": "高" },
+    "value_loop_edge": { "id": "vl_naodong", "name": "体能神经超频闭环", "description": "无痛刺激运动皮层 -> 加速肌肉募集与固化响应 -> 打破极值瓶颈 -> 引发国家队级采购", "nodes": ["tech", "market"], "metrics": { "ltv": 35000, "cac": 6000, "revenue_model": "专业机构旗舰设备直销与发烧友便携版年费订阅" } },
+    "risk_pattern_edge": { "id": "rp_naodong", "name": "过度调控损伤风险", "description": "滥用过度超频 -> 脑神经递质耗竭 -> 运动表现断崖下降 -> 引发伦理抵制与彻底禁用", "nodes": ["tech", "risk"], "mitigation": "建立严格剂量医学监测闭环并推行云端个性化调控安全熔断" }
+  },
+  {
+    "id": "iot_hw_005",
+    "name": "睛彩未来",
+    "description": "儿童青少年常见眼病大规模AI筛查管理",
+    "tech": { "name": "端侧AI眼底图像解析与近视曲率预测", "maturity": "公立校园规模化", "barrier": "中" },
+    "market": { "name": "儿童青少年视力普筛与公卫基建", "tam": 25000000000, "sam": 8000000000, "som": 1500000000 },
+    "risk": { "name": "公立校园准入合规与未成年人敏感隐私风险", "severity": "高" },
+    "value_loop_edge": { "id": "vl_jingcai", "name": "普筛导流变现闭环", "description": "低成本普筛获取海量数据 -> 预测近视高危群体 -> 合规导流至高端线下眼科验配极高毛利产品", "nodes": ["tech", "market"], "metrics": { "ltv": 25000, "cac": 2000, "revenue_model": "向教育局收取代建费并在后续眼科服务中获取高佣金分成" } },
+    "risk_pattern_edge": { "id": "rp_jingcai", "name": "隐私红线死亡风险", "description": "非法商用敏感数据被曝光 -> 引发网信办重罚 -> 切断资质并面临高管刑诉", "nodes": ["tech", "risk"], "mitigation": "实行底层脱敏上链与端侧联邦学习确保原始图像绝不出离本地设备" }
+  },
+  {
+    "id": "iot_hw_006",
+    "name": "智念",
+    "description": "非侵入脑机交互具身智能情绪管理系统",
+    "tech": { "name": "抗干扰微型采集与多模态智能体交互", "maturity": "验证阶段出样机", "barrier": "中高" },
+    "market": { "name": "心理健康干预与家用高端陪伴机器人", "tam": 22000000000, "sam": 4000000000, "som": 300000000 },
+    "risk": { "name": "读取大脑隐私恐惧与长期佩戴不适风险", "severity": "高" },
+    "value_loop_edge": { "id": "vl_zhinian", "name": "情感正反馈闭环", "description": "无感采集预判抑郁低谷 -> 机器人主动实施干预 -> 用户形成强情感依赖品牌忠诚度跃升", "nodes": ["tech", "market"], "metrics": { "ltv": 12000, "cac": 2500, "revenue_model": "前卫智能头带加机器人高价直销叠加辅导内容订阅" } },
+    "risk_pattern_edge": { "id": "rp_zhinian", "name": "低级误判反噬风险", "description": "剧烈运动伪影干扰 -> 情绪发生灾难误判生成错误交互 -> 激怒低落用户导致退货潮", "nodes": ["tech", "risk"], "mitigation": "强制在底层融合高清视觉微表情识别大幅降低脑电误判率" }
+  },
+  {
+    "id": "iot_hw_007",
+    "name": "钢柔智控",
+    "description": "老旧小区加装电梯沉降监测物联网",
+    "tech": { "name": "光纤光栅微应变传感网络与云端AI推演", "maturity": "规模化商用", "barrier": "低" },
+    "market": { "name": "城市更新适老化改造与特种设备安全", "tam": 15000000000, "sam": 4000000000, "som": 600000000 },
+    "risk": { "name": "壁垒较低陷入同质化招投标价格血战风险", "severity": "中高" },
+    "value_loop_edge": { "id": "vl_gangrou", "name": "隐患前置排除闭环", "description": "全天候光纤捕捉毫米级形变 -> 触发警报阻断塌陷惨剧 -> 成为政府特种设备招标强制标配", "nodes": ["tech", "market"], "metrics": { "ltv": 180000, "cac": 15000, "revenue_model": "一次性买断硬件安装费与云平台高粘性逐年监控服务费" } },
+    "risk_pattern_edge": { "id": "rp_gangrou", "name": "海量误报信用破产风险", "description": "昼夜温差与大型车辆震动干扰传感器 -> 频繁触发狼来了假警报 -> 耗费大量维保被彻底拔电弃用", "nodes": ["tech", "risk"], "mitigation": "建立AI多传感融合基线大模型动态消噪且只针对长期趋势形变报警" }
+  },
+  {
+    "id": "iot_hw_008",
+    "name": "知耘",
+    "description": "AI驱动的无人农业与土地集约化开拓者",
+    "tech": { "name": "卫星遥感田间边缘计算重型农机全地形无人驾驶", "maturity": "成长期商用", "barrier": "中高" },
+    "market": { "name": "智慧农业与大规模集约化农场自动化刚需", "tam": 55000000000, "sam": 15000000000, "som": 1500000000 },
+    "risk": { "name": "传统农业付费意愿低与碎片化阻碍规模部署风险", "severity": "高" },
+    "value_loop_edge": { "id": "vl_zhiyun", "name": "全托管增效闭环", "description": "厘米级无人精准作业降低农资损耗 -> 解决老龄化劳动力危机 -> 肉眼可见利润增收 -> 农场主复购", "nodes": ["tech", "market"], "metrics": { "ltv": 600000, "cac": 80000, "revenue_model": "自动驾驶昂贵套件销售死死绑定高粘性全局农田SaaS按年订阅" } },
+    "risk_pattern_edge": { "id": "rp_zhiyun", "name": "信号被遮挡失控毁灭风险", "description": "进入茂密果园或山区树冠遮挡导致卫星信号全丢 -> 重型农机横冲直撞毁坏作物坠沟", "nodes": ["tech", "risk"], "mitigation": "深度融合视觉里程计(VIO)与惯性导航(IMU)提供无信号环境高精断点续航防线" }
+  },
+  {
+    "id": "iot_hw_009",
+    "name": "新型皮影机器人",
+    "description": "非遗与现代微型机器人结合开拓者",
+    "tech": { "name": "微型连杆极速控制与艺术家毫米级动捕重现", "maturity": "文旅产品化推广", "barrier": "中" },
+    "market": { "name": "下沉文旅夜游、K12国学教培与文创衍生品", "tam": 8000000000, "sam": 2000000000, "som": 300000000 },
+    "risk": { "name": "纯体验导致小众且走马观花复购率极低风险", "severity": "高" },
+    "value_loop_edge": { "id": "vl_piying", "name": "文化科技降维闭环", "description": "光捕老艺术家绝活形成云动作库 -> 赋能机器手臂永续极致表演 -> 成为5A景区国学展演免维护标配", "nodes": ["tech", "market"], "metrics": { "ltv": 150000, "cac": 20000, "revenue_model": "高溢价定制版设备全包销售并对独家新剧目开发按项目天价收费" } },
+    "risk_pattern_edge": { "id": "rp_piying", "name": "新奇感衰退闲置风险", "description": "缺乏持续懂文化的剧本更新 -> 度过网红蜜月期后被游客抛弃彻底沦为积灰废铁", "nodes": ["tech", "risk"], "mitigation": "建立低门槛云端剧本拖拽式编辑生态引入UGC玩家共创模式持续海量生成新派剧目" }
+  },
+  {
+    "id": "iot_hw_010",
+    "name": "Honeylove",
+    "description": "科技塑身衣与顶尖DTC直接消费品牌",
+    "tech": { "name": "柔性力学微观编织与精准3D人体工学成衣", "maturity": "成熟商业化", "barrier": "低" },
+    "market": { "name": "千亿级女性高频贴身衣物与科技美学红海赛道", "tam": 45000000000, "sam": 12000000000, "som": 1500000000 },
+    "risk": { "name": "获客成本(CAC)飙升吞噬全部利润风险", "severity": "高" },
+    "value_loop_edge": { "id": "vl_honeylove", "name": "痛点秒杀溢价闭环", "description": "隐藏软骨彻底解决卷边勒肉终极痛点 -> 引发博主病毒式自来水种草传播 -> 形成品牌垄断溢价", "nodes": ["tech", "market"], "metrics": { "ltv": 800, "cac": 120, "revenue_model": "彻底砍掉经销商依赖DTC独立站模式获取暴利电商零售纯利润" } },
+    "risk_pattern_edge": { "id": "rp_honeylove", "name": "低劣抄袭反噬风险", "description": "白牌黑心厂商逆向工程廉价平替品砸钱投流 -> 原创价格体系崩溃核心高净值流量被稀释", "nodes": ["tech", "risk"], "mitigation": "植入极高难度异形缝纫工艺壁垒配合高频迭代并在私域建立强IP社群护城河防线" }
   }
 
 
