@@ -2139,6 +2139,76 @@ def generate_student_profile(student_data: Dict[str, Any], for_student: bool = F
         return f"生成能力画像失败：{e}"
 
 
+def generate_financial_report(project_data: Dict[str, Any], for_student: bool = False) -> str:
+    """A9: 根据项目对话中积累的商业数据，生成结构化财务分析报告。"""
+    if for_student:
+        system_prompt = (
+            "你是一位资深的创业财务顾问（CFO Advisor）。请根据学生项目的商业数据，"
+            "为该学生生成一份『项目财务健康诊断报告』。\n\n"
+            "注意：你是在直接向学生反馈，语气应该专业但亲切，避免过于学术化。"
+            "不要透露系统内部评分机制，专注于帮助学生理解自己项目的财务逻辑。\n\n"
+            "请严格按照以下 Markdown 格式输出：\n\n"
+            "### 💰 收入模型诊断 (Revenue Model)\n"
+            "分析当前项目的收入来源是否清晰，盈利模式是否可持续。如果数据不足，指出需要补充哪些关键数据。\n\n"
+            "### 📊 成本结构拆解 (Cost Structure)\n"
+            "拆解项目的固定成本与变动成本，分析边际成本趋势。如果缺少成本数据，给出一个同类项目的参考框架。\n\n"
+            "### ⚖️ 盈亏平衡测算 (Break-Even Analysis)\n"
+            "基于现有数据，估算项目需要多少用户/订单才能达到盈亏平衡点。如果数据不够，给出假设条件下的推演。\n\n"
+            "### 📈 现金流与生存预警 (Cash Flow Forecast)\n"
+            "根据烧钱率和现金跑道，评估项目的生存周期。给出具体的财务预警信号和应对建议。\n\n"
+            "### 🎯 你的财务行动清单 (Action Items)\n"
+            "列出 3 个最紧迫的、学生可以立即着手的财务优化动作。\n\n"
+            "要求：如果某些数据缺失，不要跳过该模块，而是基于行业常识给出合理假设并标注『⚠️ 基于假设推演』。"
+        )
+    else:
+        system_prompt = (
+            "你是一位顶级投行的财务分析师。请根据该学生项目的商业数据，"
+            "生成一份面向教师/评委的『项目财务深度诊断报告』。\n\n"
+            "请严格按照以下 Markdown 格式输出：\n\n"
+            "### 💰 收入模型评估 (Revenue Model Assessment)\n"
+            "量化分析收入来源、定价策略合理性，给出行业对标数据。\n\n"
+            "### 📊 成本结构与单位经济学 (Unit Economics)\n"
+            "拆解 LTV/CAC 比率、边际成本、固定成本占比，评估单位经济模型是否成立。\n\n"
+            "### ⚖️ 盈亏平衡与敏感性分析 (Break-Even & Sensitivity)\n"
+            "计算盈亏平衡点，并对关键变量（客单价、转化率、获客成本）进行敏感性分析。\n\n"
+            "### 📈 现金流预测与融资需求 (Cash Flow & Funding)\n"
+            "基于烧钱率预测现金跑道，评估是否需要外部融资以及合理的融资节奏。\n\n"
+            "### ⚠️ 财务风险矩阵 (Financial Risk Matrix)\n"
+            "列出 Top 3 财务风险及其发生概率和影响程度，给出对冲策略建议。\n\n"
+            "### 💡 教师辅导建议 (Teaching Recommendations)\n"
+            "针对该学生的财务薄弱环节，为教师提供具体的辅导切入点和推荐练习。\n\n"
+            "要求：数据驱动，结论犀利，排版清晰。如数据缺失请标注并给出行业基准假设。"
+        )
+
+    # 构建财务数据上下文
+    accumulated = project_data.get("accumulated_info", {})
+    extracted = project_data.get("extracted_nodes", {})
+    
+    finance_context = {
+        "project_name": accumulated.get("project_name", extracted.get("project_name", "未命名项目")),
+        "revenue": extracted.get("revenue", accumulated.get("revenue", 0)),
+        "LTV": extracted.get("LTV", 0),
+        "CAC": extracted.get("CAC", 0),
+        "monthly_burn": extracted.get("monthly_burn", 0),
+        "cash_runway": extracted.get("cash_runway", 0),
+        "marginal_cost": extracted.get("marginal_cost", ""),
+        "revenue_model": extracted.get("revenue_model", accumulated.get("revenue_model", "")),
+        "target_market": accumulated.get("target_market", extracted.get("target_market", "")),
+        "tech_maturity": accumulated.get("tech_maturity", extracted.get("tech_maturity", "")),
+        "funding_stage": accumulated.get("funding_stage", ""),
+        "frequent_fallacies": project_data.get("frequent_fallacies", []),
+        "session_count": project_data.get("session_count", 0),
+    }
+
+    human_prompt = f"项目财务数据：\n{json.dumps(finance_context, ensure_ascii=False, indent=2)}\n请生成完整的财务分析报告。"
+
+    try:
+        return _call_openai_manual(system_prompt, human_prompt)
+    except Exception as e:
+        LOGGER.error(f"Error generating financial report: {e}")
+        return f"生成财务分析报告失败：{e}"
+
+
 def build_state_graph() -> StateGraph:
     graph = StateGraph(name="HypergraphCoach")
     nodes = [

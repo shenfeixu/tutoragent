@@ -5,7 +5,7 @@ import pypdf
 import zipfile
 import xml.etree.ElementTree as ET
 
-from src.agents.langgraph_core import run_langgraph_cycle, COMPETITION_WEIGHTS, RUBRIC_DIM_NAMES
+from src.agents.langgraph_core import run_langgraph_cycle, COMPETITION_WEIGHTS, RUBRIC_DIM_NAMES, generate_financial_report
 from src.utils.database import (
     authenticate_user,
     create_user,
@@ -535,6 +535,39 @@ def render_sidebar():
                         st.rerun()
                     else:
                         st.error("您暂无历史会话或记录过少，请先与教练切磋后再生成能力画像！")
+            
+            st.markdown("**💰 AI 财务诊断**")
+            if st.button("📊 生成项目财务分析报告", use_container_width=True):
+                with st.spinner("AI 正在进行财务深度诊断..."):
+                    # 从当前对话中收集财务数据
+                    finance_data = {
+                        "accumulated_info": st.session_state.get("accumulated_info", {}),
+                        "extracted_nodes": {},
+                        "frequent_fallacies": [],
+                        "session_count": 0,
+                    }
+                    # 从最新一轮对话的 state 中提取实体
+                    for msg in reversed(st.session_state.get("messages", [])):
+                        if msg.get("role") == "assistant" and msg.get("state"):
+                            finance_data["extracted_nodes"] = msg["state"].get("extracted_nodes", {})
+                            finance_data["frequent_fallacies"] = msg["state"].get("detected_fallacies", [])
+                            break
+                    
+                    # 补充历史会话数据
+                    weights = COMPETITION_WEIGHTS.get(st.session_state.target_competition, COMPETITION_WEIGHTS["互联网+"])
+                    all_scores = get_student_scores(weights)
+                    my_score = next((s for s in all_scores if s["user_id"] == user["id"]), None)
+                    if my_score:
+                        finance_data["session_count"] = len(my_score["sessions"])
+                        finance_data["frequent_fallacies"] = my_score.get("fallacies", [])
+                    
+                    if finance_data["extracted_nodes"] or finance_data["accumulated_info"]:
+                        report_md = generate_financial_report(finance_data, for_student=True)
+                        st.session_state["finance_report_content"] = report_md
+                        st.session_state["show_finance_report"] = True
+                        st.rerun()
+                    else:
+                        st.error("暂无足够的项目数据，请先与教练进行至少一轮对话，描述您的商业模式后再生成财务报告！")
         
         st.divider()
 
@@ -853,6 +886,17 @@ def main():
             st.rerun()
             
         st.markdown(st.session_state.get("my_ai_profile_content", "生成失败"))
+        return
+    
+    if st.session_state.get("show_finance_report", False) and st.session_state.view == "student":
+        st.title("💰 项目财务健康诊断报告")
+        st.caption("基于 AI 多维度财务分析引擎生成")
+        if st.button("🔙 返回当前对话列表", type="primary"):
+            st.session_state["show_finance_report"] = False
+            st.rerun()
+        
+        st.divider()
+        st.markdown(st.session_state.get("finance_report_content", "生成失败"))
         return
     
     col_t1, col_t2 = st.columns([3, 1.2])
