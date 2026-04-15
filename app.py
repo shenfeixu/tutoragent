@@ -5,7 +5,7 @@ import pypdf
 import zipfile
 import xml.etree.ElementTree as ET
 
-from src.agents.langgraph_core import run_langgraph_cycle, COMPETITION_WEIGHTS, RUBRIC_DIM_NAMES, generate_financial_report
+from src.agents.langgraph_core import run_langgraph_cycle, COMPETITION_WEIGHTS, RUBRIC_DIM_NAMES, generate_financial_report, generate_business_plan
 from src.utils.database import (
     authenticate_user,
     create_user,
@@ -568,6 +568,33 @@ def render_sidebar():
                         st.rerun()
                     else:
                         st.error("暂无足够的项目数据，请先与教练进行至少一轮对话，描述您的商业模式后再生成财务报告！")
+            
+            st.markdown("**✨ 深度智慧合成**")
+            # 条件：对话轮数 >= 3 (即消息数 >= 6)
+            msg_count = len(st.session_state.get("messages", []))
+            if msg_count >= 6:
+                if st.button("🌟 合成完整项目商业计划书", use_container_width=True):
+                    with st.spinner("AI 正在深度扫描对话上下文，合成 BP 初稿..."):
+                        bp_data = {
+                            "accumulated_info": st.session_state.get("accumulated_info", {}),
+                            "conversation_history": st.session_state.get("messages", []),
+                            "extracted_nodes": {},
+                            "frequent_fallacies": [],
+                        }
+                        # 提取最新状态
+                        for msg in reversed(st.session_state.messages):
+                            if msg.get("role") == "assistant" and msg.get("state"):
+                                bp_data["extracted_nodes"] = msg["state"].get("extracted_nodes", {})
+                                bp_data["frequent_fallacies"] = msg["state"].get("detected_fallacies", [])
+                                break
+                        
+                        full_bp_md = generate_business_plan(bp_data, target_comp=st.session_state.target_competition)
+                        st.session_state["full_bp_content"] = full_bp_md
+                        st.session_state["show_full_bp"] = True
+                        st.rerun()
+            else:
+                rounds_left = (6 - msg_count + 1) // 2
+                st.info(f"💡 再进行 {rounds_left} 轮深度对话，即可解锁‘商业计划书自动合成’功能！", icon="🔒")
         
         st.divider()
 
@@ -897,6 +924,22 @@ def main():
         
         st.divider()
         st.markdown(st.session_state.get("finance_report_content", "生成失败"))
+        return
+
+    if st.session_state.get("show_full_bp", False) and st.session_state.view == "student":
+        st.title(f"✨ {st.session_state.target_competition} 商业计划书 (AI 合成版)")
+        st.caption("基于全量对话逻辑深度合成，仅供参赛参考")
+        
+        col_b1, col_b2 = st.columns([1, 4])
+        with col_b1:
+            if st.button("🔙 返回对话列表", type="primary", use_container_width=True):
+                st.session_state["show_full_bp"] = False
+                st.rerun()
+        with col_b2:
+            st.info("💡 提示：您可以直接全选、复制以下内容到您的正式 Word/PPT 文档中。")
+            
+        st.divider()
+        st.markdown(st.session_state.get("full_bp_content", "生成失败"))
         return
     
     col_t1, col_t2 = st.columns([3, 1.2])

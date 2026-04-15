@@ -2252,6 +2252,64 @@ def render_frontend_snapshot(state: AgentState) -> None:
     print("-------------------------------\n")
 
 
+
+def generate_business_plan(project_data: Dict[str, Any], target_comp: str = "互联网+") -> str:
+    """A10: 综合对话上下文与累积数据，生成完整的、具有赛道针对性的商业计划书。"""
+    
+    # 赛道偏好定义
+    COMP_FOCUS = {
+        "互联网+": "重点关注：商业模式闭环、市场增长潜力、融资计划与规模化能力。话术应具有强烈的‘创业家’和‘商业风控’色彩。",
+        "挑战杯": "重点关注：核心学术创新、技术发明点、社会贡献度、产学研转化价值。话术应更学术专业、稳健，强调‘科技强国’和‘成果转化’。",
+        "创青春": "重点关注：方案的落地可行性、团队执行力、青年就业与社会影响力。话术应更具‘活力’与‘实干’感。",
+        "数模": "重点关注：数学模型的严密性、数据驱动的决策逻辑、复杂问题的量化拆解。话术应逻辑严密，极度推崇‘量化’与‘确定性’。"
+    }
+    
+    focus_point = COMP_FOCUS.get(target_comp, COMP_FOCUS["互联网+"])
+    
+    system_prompt = (
+        f"你是一名顶级‘双创’赛事金牌辅导专家（针对 {target_comp} 赛道）。\n"
+        f"你的任务是根据提供的碎片化项目信息与对话对话历史，通过‘超联想’能力，合成为一份极具竞争力的商业计划书初稿。\n\n"
+        f"【{target_comp} 赛道生成偏好】：\n{focus_point}\n\n"
+        "【输出格式规定】：请严格按照以下 Markdown 结构生成，每一节内容必须要有深度，严禁空话：\n"
+        "## 1. 项目概况 (Executive Summary)\n"
+        "一句话定义价值 + 核心指标概览。\n\n"
+        "## 2. 痛点深度剖析 (Pain Points)\n"
+        "描述具体场景，引用数据或用户原话，揭示现有方案的‘逻辑崩溃’点。\n\n"
+        "## 3. 核心方案与技术护城河 (Solution & Technology)\n"
+        "不仅描述功能，更要阐述底层原理和竞争对手不可复制的壁垒。\n\n"
+        "## 4. 市场规模与竞争格矩阵 (Market & Competition)\n"
+        "基于 TAM/SAM 测算的市场潜力和针对主要竞品的差异化优势。\n\n"
+        "## 5. 商业模式与可持续财务计划 (Business Model & Finance)\n"
+        "清晰的收入来源、单位经济模型分析、盈亏平衡测算及未来 3 年营收预测。\n\n"
+        "## 6. 团队展示与发展里程碑 (Team & Roadmap)\n"
+        "团队背景背书 + 未来 12 个月的具体攻关计划。\n\n"
+        "注意：对于缺失的数据，请根据行业常识给出‘极其专业且合理’的填充值，并用加粗字体提示（如 **[行业基准：XX%]**）。"
+    )
+
+    accumulated = project_data.get("accumulated_info", {})
+    extracted = project_data.get("extracted_nodes", {})
+    history = project_data.get("conversation_history", [])
+    
+    # 序列化历史记录以便于 LLM 理解
+    history_text = "\n".join([f"{m.get('role')}: {m.get('content')}" for m in history[-10:]]) # 取最近10轮
+    
+    context = {
+        "target_competition": target_comp,
+        "history_context": history_text,
+        "extracted_nodes": extracted,
+        "accumulated_info": accumulated,
+        "detected_fallacies": project_data.get("frequent_fallacies", [])
+    }
+
+    human_prompt = f"对话上下文与商业数据信息：\n{json.dumps(context, ensure_ascii=False, indent=2)}\n\n请立即合成一份成熟的、高质量的 {target_comp} 赛道商业计划书。"
+
+    try:
+        return _call_openai_manual(system_prompt, human_prompt)
+    except Exception as e:
+        LOGGER.error(f"Error generating business plan: {e}")
+        return f"合成商业计划书失败：{e}"
+
+
 def check_input_safety(text: str) -> bool:
     """A7: 基础的鲁棒与合规检查，拦截乱码和常见的越狱前缀"""
     import re
@@ -2271,6 +2329,7 @@ def run_langgraph_cycle(
     accumulated_info: Dict[str, Any] = None,
     target_competition: str = "互联网+",
     student_id: int = None,
+    skip_ghostwriting_guard: bool = False,
 ) -> AgentState:
     from src.utils.database import get_active_intervention_rules, get_connection
     
@@ -2311,7 +2370,7 @@ def run_langgraph_cycle(
 
     # A2: 反代写硬拦截 (Anti-Ghostwriting Hard Block)
     ghostwriting_keywords = ["帮我写", "代写", "生成一份", "写一段", "帮我做", "完整方案", "直接给我一份", "给我写"]
-    if any(k in student_input for k in ghostwriting_keywords):
+    if not skip_ghostwriting_guard and any(k in student_input for k in ghostwriting_keywords):
         state = AgentState(
             student_input=student_input, 
             conversation_history=conversation_history or [], 
