@@ -309,12 +309,14 @@ def extract_text_from_upload(uploaded_file) -> str:
     try:
         if filename.endswith('.pdf'):
             reader = pypdf.PdfReader(uploaded_file)
-            text = []
+            text_parts = []
             for page in reader.pages:
                 extracted = page.extract_text()
                 if extracted:
-                    text.append(extracted)
-            return "\n".join(text)
+                    # 洗涤非法代理字符 (Surrogates)，防止数据库保存时触发 UnicodeEncodeError
+                    cleaned = "".join(c for c in extracted if not ('\ud800' <= c <= '\udfff'))
+                    text_parts.append(cleaned)
+            return "\n".join(text_parts)
         elif filename.endswith('.docx'):
             document = zipfile.ZipFile(uploaded_file)
             xml_content = document.read('word/document.xml')

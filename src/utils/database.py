@@ -275,6 +275,17 @@ def delete_user(user_id: int) -> bool:
         conn.close()
 
 
+def _sanitize_data(data: Any) -> Any:
+    """递归洗浓数据，剔除无法经过 UTF-8 编码的非法代理字符 (Surrogates)。"""
+    if isinstance(data, str):
+        return "".join(c for c in data if not ('\ud800' <= c <= '\udfff'))
+    elif isinstance(data, list):
+        return [_sanitize_data(item) for item in data]
+    elif isinstance(data, dict):
+        return {k: _sanitize_data(v) for k, v in data.items()}
+    return data
+
+
 def save_user_session(
     user_id: int,
     session_id: str,
@@ -292,8 +303,13 @@ def save_user_session(
     existing = cursor.fetchone()
     
     now = datetime.now().isoformat()
-    messages_json = json.dumps(messages, ensure_ascii=False)
-    info_json = json.dumps(accumulated_info, ensure_ascii=False)
+    
+    # 紧急防御：清洗可能包含 PDF 乱码的非法代理字符
+    sanitized_messages = _sanitize_data(messages)
+    sanitized_info = _sanitize_data(accumulated_info)
+    
+    messages_json = json.dumps(sanitized_messages, ensure_ascii=False)
+    info_json = json.dumps(sanitized_info, ensure_ascii=False)
     
     if existing:
         cursor.execute(
