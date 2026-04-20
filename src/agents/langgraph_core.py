@@ -272,6 +272,7 @@ def _openai_client():
         client = openai.OpenAI(
             api_key=OPENAI_API_KEY,
             base_url=OPENAI_API_BASE or None,
+            timeout=180.0,
         )
         _OPENAI_CLIENT = client
         return client
