@@ -80,6 +80,8 @@ class KGQueryDetail(BaseModel):
     related_projects: List[str] = Field(default_factory=list, description="相关项目")
     success: bool = Field(default=False, description="查询是否成功")
     message: str = Field(default="", description="查询结果消息")
+    category: str = Field(default="Business Strategy", description="知识节点分类：Market/Tech/Risk/Business")
+    retrieval_reason: str = Field(default="语义关联匹配", description="Retrieval reasoning for why this node was fetched.")
 
 
 class AgentState(BaseModel):
@@ -1178,6 +1180,8 @@ def hypergraph_critic(state: AgentState) -> AgentState:
         match_scores=h1_match_details.get('match_scores', {}),
         success=h1_passed,
         message=h1_detail,
+        category="Market Insight",
+        retrieval_reason=f"针对技术点 '{tech[:10]}...' 与市场点 '{market[:10]}...' 执行跨表层知识匹配。"
     ))
     
     # H1 强化：即使图谱匹配，如果学生原文中没有"调研/数据/验证"等深度关键词，按"缺乏验证"扣分
@@ -1371,6 +1375,8 @@ def hypergraph_critic(state: AgentState) -> AgentState:
         query_attempts=h12_details.get('query_attempts', []),
         success=has_risks,
         message=f"发现 {len(graph_risks) if graph_risks else 0} 个相关风险",
+        category="Tech Moat",
+        retrieval_reason="基于项目核心技术栈，自动对标图谱中同类技术的历史失败案例与风险点。"
     ))
     
     if has_risks and graph_risks:
@@ -1408,7 +1414,11 @@ def hypergraph_critic(state: AgentState) -> AgentState:
         else:
             state.evidence.append(EvidenceItem(step="H14", detail=f"市场规模比例合理。", source_excerpt=excerpt))
 
-    # H15: 区分"数据完全缺失"(GAP) vs "有渠道和客户但利润链不通"(Fatal)
+    # H15 & H16: 商业闭环诊断分类 (Req 4, 5)
+    cat_biz = "Business Strategy"
+    reason_biz = "针对商业模型闭环完整性，调取同行业单位经济模型 (UE) 基准点。"
+
+    # H15: 逻辑检查
     has_biz_keywords = any(kw in state.student_input for kw in ["盈利", "变现", "商业模式", "收费", "付费", "价格", "定价", "营收", "月收", "年收"])
     if channel and customer and revenue > 0:
         if ltv > 0 and cac > 0:
@@ -1982,8 +1992,28 @@ def rubric_scorer(state: AgentState) -> AgentState:
             dim_result["missing_evidence"] = RUBRIC_MISSING_FIX[dim]["missing"]
             dim_result["minimal_fix"] = RUBRIC_MISSING_FIX[dim]["fix"]
 
+        # A5-5: 增加实证证据关联 (Req 9)
+        dim_result["evidence_list"] = [
+            {"label": ev.step, "detail": ev.detail} 
+            for ev in state.evidence if ev.step in triggered
+        ]
         scores[dim] = dim_result
 
+    # A5-4: 构建实证证据链 (Req 9)
+    # 为评分低于 4.0 的维度寻找“实证”
+    new_evidence = []
+    for dim, res in scores.items():
+        if dim == "_summary": continue
+        if res["score"] < 4.0:
+            for rule in res["triggered_rules"]:
+                rule_desc = FALLACY_STRATEGY_LIBRARY.get(rule, "未定义的逻辑缺陷")
+                # 寻找导致此规则触发的输入片段 (简单演示版：直接说明逻辑匹配点)
+                new_evidence.append({
+                    "step": res["name"],
+                    "detail": f"触发漏洞【{rule}】：{rule_desc.split('：')[0]}。逻辑判定点：学生在描述中对该维度的实质性支撑不足。"
+                })
+    
+    state.evidence = new_evidence
     # 动态切换赛事权重
     target_comp = state.target_competition
     if target_comp not in COMPETITION_WEIGHTS:
@@ -2274,6 +2304,11 @@ def generate_business_plan(project_data: Dict[str, Any], target_comp: str = "互
         "1. **文风要求**：语料风格必须对标麦肯锡/普华永道等咨询公司报告，使用战略性词汇（如：非对称竞争优势、结构性博弈、高边际壁垒等）。\n"
         "2. **内容深度**：每一章必须包含深度逻辑推论，严禁短句，单节字数不少于 250 字，全文需有极强的叙事张力。\n"
         "3. **结构指引**：请严格按照以下 12 个模块生成 Markdown 内容：\n\n"
+        "【特定：公益性项目/挑战杯赛道特殊要求】：\n"
+        "如果项目属于公益性质（通过‘挑战杯’识别），生成内容将自动转向：\n"
+        "- **Outcome 锚点**：重点阐述受益人群的实质性改变，而非单纯的产出。\n"
+        "- **自我造血机制**：说明项目如何在非营利前提下通过服务性收入实现资金平衡。\n"
+        "- **公信力构建**：通过透明化治理与第三方背书展示项目的持续影响力。\n"
         "## 1. 项目愿景与 Slogan (Vision & Tagline)\n"
         "【路演级开篇】用一句话定义项目的‘终局感’。阐述企业存在的根本使命与其在行业中的标签化地位。\n\n"
         "## 2. 行业底层痛点映射 (The Problem)\n"
@@ -2298,7 +2333,9 @@ def generate_business_plan(project_data: Dict[str, Any], target_comp: str = "互
         "【关键模块】明确融资额度分配。制定跨度 24 个月的里程碑计划，每个节点需包含明确的可交付成果与验证指标。\n\n"
         "## 12. 团队基因与社会使命 (Team & Vision)\n"
         "论证创始人背景与项目的高度契合性。阐述项目在社会责任（如绿色环保、就业）方面的长期愿景。\n\n"
-        "注意：对于缺失的数据，请根据行业常识给出‘极其专业且合理’的预测值，并用加粗字体提示（如 **[基于行业 Benchmark 及战略推演：XX%]**）。"
+        "注意：对于缺失的数据，请根据行业常识给出‘极其专业且合理’的预测值，并用加粗字体提示（如 **[基于行业 Benchmark 及战略推演：XX%]**）。\n\n"
+        "【特定：公益性项目/挑战杯赛道特殊要求】：\n"
+        "如果项目属于公益性质，请重点阐述：1. 项目的社会边际效益；2. 核心受众的改变（Outcome vs Output）；3. 资金筹措与自我造血逻辑（而非纯营收）；4. 公信力与影响力闭环。"
     )
 
     accumulated = project_data.get("accumulated_info", {})

@@ -5,7 +5,8 @@ import pypdf
 import zipfile
 import xml.etree.ElementTree as ET
 
-from src.agents.langgraph_core import run_langgraph_cycle, COMPETITION_WEIGHTS, RUBRIC_DIM_NAMES, generate_financial_report, generate_business_plan
+from src.agents.langgraph_core import run_langgraph_cycle, COMPETITION_WEIGHTS, RUBRIC_DIM_NAMES, generate_financial_report, generate_business_plan, generate_intervention_plan
+from src.utils.exporters import export_markdown_to_docx
 from src.utils.database import (
     authenticate_user,
     create_user,
@@ -598,6 +599,14 @@ def render_sidebar():
                 rounds_left = (6 - msg_count + 1) // 2
                 st.info(f"💡 再进行 {rounds_left} 轮深度对话，即可解锁‘商业计划书自动合成’功能！", icon="🔒")
         
+        # [NEW] 教师视图/班级画像入口 (Req 7, 9)
+        if user["role"] in ["teacher", "admin"]:
+            st.divider()
+            st.markdown("**👩‍🏫 教师/助教控制塔**")
+            if st.button("📊 进入班级能力画像看板", use_container_width=True, type="secondary"):
+                st.session_state.view = "teacher_dashboard"
+                st.rerun()
+        
         st.divider()
 
         if st.button("➕ 新建对话", use_container_width=True):
@@ -799,6 +808,68 @@ def render_kg_query_visualization(kg_query_details: list):
                 st.markdown(f"{', '.join(related_projects[:5])}")
 
 
+def render_teacher_dashboard():
+    """👩‍🏫 教师控制塔：班级画像看板与干预计划 (Req 7, 9)"""
+    st.title("👩‍🏫 教师控制塔 - 班级能力画像看板")
+    if st.button("🔙 返回导师工作台"):
+        st.session_state.view = "student"
+        st.rerun()
+    
+    st.divider()
+    
+    # 1. 聚合数据
+    weights = COMPETITION_WEIGHTS.get(st.session_state.target_competition, COMPETITION_WEIGHTS["互联网+"])
+    all_scores = get_student_scores(weights)
+    
+    if not all_scores:
+        st.warning("暂无学生数据。")
+        return
+    
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        st.subheader("📊 班级整体能力分布")
+        # 简单计算平均分
+        avg_scores = {
+            "pain_point": sum(s["pain_point_score"] for s in all_scores) / len(all_scores),
+            "planning": sum(s["planning_score"] for s in all_scores) / len(all_scores),
+            "modeling": sum(s["modeling_score"] for s in all_scores) / len(all_scores),
+            "leverage": sum(s["leverage_score"] for s in all_scores) / len(all_scores),
+            "presentation": sum(s["presentation_score"] for s in all_scores) / len(all_scores),
+        }
+        
+        # 利用 Markdown 表格模拟展示 (验收版后期可换 Plotly)
+        st.write(f"**平均总分：{sum(s['total_score'] for s in all_scores)/len(all_scores):.1f}**")
+        st.table([{"评估维度": RUBRIC_DIM_NAMES[k], "全班均分": f"{v:.1f}"} for k,v in avg_scores.items()])
+        
+        st.subheader("👥 学生能力排行榜 (风险预警)")
+        display_list = []
+        for s in all_scores:
+            display_list.append({
+                "学生名": s["display_name"],
+                "总得分": s["total_score"],
+                "风险等级": s["risk_level"],
+                "活跃度": f"{s['session_count']} 轮对话",
+                "高频谬误": " | ".join(s["fallacies"][:3])
+            })
+        st.dataframe(display_list, use_container_width=True)
+
+    with col2:
+        st.subheader("🧠 AI 教学干预建议")
+        if st.button("🚀 生成针对性干预计划", use_container_width=True):
+            common_fallacies = {}
+            for s in all_scores:
+                for f in s["fallacies"]:
+                    common_fallacies[f] = common_fallacies.get(f, 0) + 1
+            
+            top_fallacies = sorted(common_fallacies.items(), key=lambda x: x[1], reverse=True)[:5]
+            stats = {"top_errors": top_fallacies, "avg_scores": avg_scores}
+            
+            with st.spinner("AI 正在分析班级共性痛点..."):
+                plan = generate_intervention_plan(stats)
+                st.markdown(plan)
+
+
 def render_chat_message(role: str, content: str, state: dict = None):
     if role == "user":
         with st.chat_message("user", avatar="👤"):
@@ -825,9 +896,26 @@ def render_chat_message(role: str, content: str, state: dict = None):
                         else:
                             st.success("逻辑通畅")
                     
-                    with st.expander("证据链追溯"):
-                        for item in state.get("evidence", []):
-                            st.markdown(f"**{item.get('step')}**: {item.get('detail')}")
+                    # 知识图谱诊断轨迹 (Req 4, 5) - 独立展示，不嵌套在else中
+                    if state and state.get("kg_query_details"):
+                        st.markdown("---")
+                        st.markdown("**🌐 知识图谱 / 超图检索轨迹**")
+                        for detail in state["kg_query_details"]:
+                            cat_icon = "📍"
+                            if "Market" in detail.get("category", ""): cat_icon = "📊"
+                            elif "Tech" in detail.get("category", ""): cat_icon = "🛠️"
+                            elif "Risk" in detail.get("category", ""): cat_icon = "⚠️"
+                            
+                            st.markdown(f"**{cat_icon} {detail['step']}**")
+                            st.caption(f"🔍 检索逻辑：{detail.get('retrieval_reason', '语义关联匹配')}")
+                            st.write(f"_{detail['message']}_")
+                    
+                    # 证据链溯源 (Req 9)
+                    if state and state.get("evidence"):
+                        st.markdown("---")
+                        st.markdown("**🧬 能力维度实证溯源**")
+                        for ev in state["evidence"]:
+                            st.markdown(f"**{ev['step']}**: {ev['detail']}")
                 
                 # ── A5: 赛事 Rubric 评分面板 ──
                 rubric = state.get("rubric_scores", {})
@@ -906,6 +994,13 @@ def main():
         admin_main()
         return
     
+    if st.session_state.view == "teacher_dashboard":
+        if st.session_state.user.get("role") not in ["teacher", "admin"]:
+            st.session_state.view = "student"
+            st.rerun()
+        render_teacher_dashboard()
+        return
+
     render_sidebar()
     
     if st.session_state.get("show_student_profile", False) and st.session_state.view == "student":
@@ -942,6 +1037,21 @@ def main():
             
         st.divider()
         st.markdown(st.session_state.get("full_bp_content", "生成失败"))
+        
+        # [NEW] Word 下载功能 (Req 10)
+        st.divider()
+        docx_bytes = export_markdown_to_docx(
+            st.session_state["full_bp_content"], 
+            title=f"{st.session_state.target_competition} 商业计划书",
+            subtitle=f"项目名称：{st.session_state.accumulated_info.get('project_name', '未命名')} | 生成时间：{datetime.now().strftime('%Y-%m-%d')}"
+        )
+        st.download_button(
+            label="📄 下载完整版商业计划书 (.docx)",
+            data=docx_bytes,
+            file_name=f"商业计划书_{st.session_state.accumulated_info.get('project_name', '未命名')}.docx",
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            use_container_width=True
+        )
         return
     
     col_t1, col_t2 = st.columns([3, 1.2])
