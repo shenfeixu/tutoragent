@@ -5,7 +5,17 @@ import pypdf
 import zipfile
 import xml.etree.ElementTree as ET
 
-from src.agents.langgraph_core import run_langgraph_cycle, COMPETITION_WEIGHTS, RUBRIC_DIM_NAMES, generate_financial_report, generate_business_plan, generate_intervention_plan
+from src.agents.langgraph_core import (
+    run_langgraph_cycle, 
+    COMPETITION_WEIGHTS, 
+    RUBRIC_DIM_NAMES, 
+    generate_financial_report, 
+    generate_business_plan, 
+    generate_intervention_plan,
+    FALLACY_STRATEGY_LIBRARY,
+    FALLACY_SEVERITY,
+    generate_student_profile
+)
 from src.utils.exporters import export_markdown_to_docx
 from src.utils.database import (
     authenticate_user,
@@ -838,9 +848,11 @@ def render_teacher_dashboard():
             "presentation": sum(s["presentation_score"] for s in all_scores) / len(all_scores),
         }
         
-        # 利用 Markdown 表格模拟展示 (验收版后期可换 Plotly)
-        st.write(f"**平均总分：{sum(s['total_score'] for s in all_scores)/len(all_scores):.1f}**")
-        st.table([{"评估维度": RUBRIC_DIM_NAMES[k], "全班均分": f"{v:.1f}"} for k,v in avg_scores.items()])
+        # 恢复简洁统计表格
+        st.markdown("**班级维度得分总览：**")
+        st.table(avg_scores)
+        
+        st.write(f"**班级加权全均分：{sum(s['total_score'] for s in all_scores)/len(all_scores):.1f}**")
         
         st.subheader("👥 学生能力排行榜 (风险预警)")
         display_list = []
@@ -910,13 +922,52 @@ def render_chat_message(role: str, content: str, state: dict = None):
                             st.caption(f"🔍 检索逻辑：{detail.get('retrieval_reason', '语义关联匹配')}")
                             st.write(f"_{detail['message']}_")
                     
-                    # 证据链溯源 (Req 9)
-                    if state and state.get("evidence"):
+                    # 证据链溯源
+                    if state.get("evidence"):
                         st.markdown("---")
-                        st.markdown("**🧬 能力维度实证溯源**")
+                        st.markdown("**🧬 逻辑溯源（超图审计证据）**")
                         for ev in state["evidence"]:
                             st.markdown(f"**{ev['step']}**: {ev['detail']}")
                 
+                # ── 评估细则与过程 (Req 4, 5) ──
+                with st.expander("📋 评估细则与过程（点击展开查看完整规则）", expanded=False):
+                    from src.agents.langgraph_core import FALLACY_STRATEGY_LIBRARY, FALLACY_SEVERITY
+                    
+                    st.markdown("#### 📖 超图评估规则库（H1-H20）")
+                    st.caption("以下为系统内置的全部逻辑审计规则，每条规则均通过与大模型反复讨论后确定。")
+                    
+                    # 按严重程度分组展示
+                    severity_groups = {
+                        "🔴 致命伤 (Fatal)": [],
+                        "🟠 重大问题 (Major)": [],
+                        "🟡 显著影响 (Significant)": [],
+                        "🟢 轻微瑕疵 (Minor)": [],
+                    }
+                    for rule_id, desc in FALLACY_STRATEGY_LIBRARY.items():
+                        severity = FALLACY_SEVERITY.get(rule_id, 0.5)
+                        if severity >= 2.5:
+                            severity_groups["🔴 致命伤 (Fatal)"].append((rule_id, desc))
+                        elif severity >= 1.5:
+                            severity_groups["🟠 重大问题 (Major)"].append((rule_id, desc))
+                        elif severity >= 1.2:
+                            severity_groups["🟡 显著影响 (Significant)"].append((rule_id, desc))
+                        else:
+                            severity_groups["🟢 轻微瑕疵 (Minor)"].append((rule_id, desc))
+                    
+                    for group_name, rules in severity_groups.items():
+                        if rules:
+                            st.markdown(f"**{group_name}**")
+                            for rule_id, desc in rules:
+                                triggered = "⚡" if state and rule_id in state.get("detected_fallacies", []) else ""
+                                st.markdown(f"- `{rule_id}` {triggered} {desc}")
+                    
+                    st.markdown("---")
+                    st.markdown("#### 🔄 本轮评估过程")
+                    fallacies = state.get("detected_fallacies", []) if state else []
+                    total_rules = len(FALLACY_STRATEGY_LIBRARY)
+                    st.markdown(f"- 共检查 **{total_rules}** 条规则")
+                    st.markdown(f"- 本轮触发 **{len(fallacies)}** 条：{', '.join(fallacies) if fallacies else '无'}")
+                    st.markdown(f"- 评估方式：LLM实体提取 → 知识图谱对标 → 超图逻辑审计 → Rubric评分")
                 # ── A5: 赛事 Rubric 评分面板 ──
                 rubric = state.get("rubric_scores", {})
                 if rubric:
@@ -1009,6 +1060,8 @@ def main():
             st.session_state["show_student_profile"] = False
             st.rerun()
             
+        # 已移除雷达图，直接展示剖析报告
+        
         st.markdown(st.session_state.get("my_ai_profile_content", "生成失败"))
         return
     
