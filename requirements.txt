@@ -21,6 +21,7 @@ tiktoken>=0.5.0
 
 # Neo4j
 neo4j>=5.15.0
+plotly>=5.15.0
 
 # Utilities
 requests>=2.31.0

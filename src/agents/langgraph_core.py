@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+from pathlib import Path
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
@@ -46,6 +47,7 @@ except ImportError:
     OPENAI_AVAILABLE = False
 
 _OPENAI_CLIENT: Optional[Any] = None
+_SEED_KG_CACHE: Optional[Dict[str, Any]] = None
 
 load_dotenv()
 
@@ -57,6 +59,7 @@ NEO4J_USER = os.getenv("NEO4J_USER")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD")
 NEO4J_DATABASE = os.getenv("NEO4J_DATABASE", "neo4j")
 _NEO4J_DRIVER: Optional[Any] = None
+SEED_KG_PATH = Path(__file__).resolve().parents[2] / "data" / "seed_kg.json"
 
 
 class EvidenceItem(BaseModel):
@@ -82,6 +85,8 @@ class KGQueryDetail(BaseModel):
     message: str = Field(default="", description="查询结果消息")
     category: str = Field(default="Business Strategy", description="知识节点分类：Market/Tech/Risk/Business")
     retrieval_reason: str = Field(default="语义关联匹配", description="Retrieval reasoning for why this node was fetched.")
+    graph_nodes: List[Dict[str, Any]] = Field(default_factory=list, description="用于前端子图可视化的节点")
+    graph_edges: List[Dict[str, Any]] = Field(default_factory=list, description="用于前端子图可视化的边")
 
 
 class AgentState(BaseModel):
@@ -341,6 +346,383 @@ def _get_neo4j_driver():
     return _NEO4J_DRIVER
 
 
+def _load_seed_kg() -> Dict[str, Any]:
+    global _SEED_KG_CACHE
+    if _SEED_KG_CACHE is not None:
+        return _SEED_KG_CACHE
+
+    if not SEED_KG_PATH.exists():
+        LOGGER.warning("Seed KG JSON not found at %s", SEED_KG_PATH)
+        _SEED_KG_CACHE = {"metadata": {}, "projects": []}
+        return _SEED_KG_CACHE
+
+    try:
+        with SEED_KG_PATH.open("r", encoding="utf-8") as f:
+            _SEED_KG_CACHE = json.load(f)
+    except Exception as e:
+        LOGGER.warning("Failed to load seed KG JSON: %s", e)
+        _SEED_KG_CACHE = {"metadata": {}, "projects": []}
+    return _SEED_KG_CACHE
+
+
+def _flatten_seed_project(project: Dict[str, Any]) -> Dict[str, str]:
+    tech = project.get("tech", {}) or {}
+    market = project.get("market", {}) or {}
+    risk = project.get("risk", {}) or {}
+    value_loop = project.get("value_loop_edge", {}) or {}
+    risk_pattern = project.get("risk_pattern_edge", {}) or {}
+    metrics = value_loop.get("metrics", {}) or {}
+
+    return {
+        "project_name": str(project.get("name", "") or ""),
+        "project_desc": str(project.get("description", "") or ""),
+        "tech_name": str(tech.get("name", "") or ""),
+        "tech_maturity": str(tech.get("maturity", "") or ""),
+        "tech_barrier": str(tech.get("barrier", "") or ""),
+        "market_name": str(market.get("name", "") or ""),
+        "risk_name": str(risk.get("name", "") or ""),
+        "risk_severity": str(risk.get("severity", "") or ""),
+        "value_loop_name": str(value_loop.get("name", "") or ""),
+        "value_loop_desc": str(value_loop.get("description", "") or ""),
+        "risk_pattern_name": str(risk_pattern.get("name", "") or ""),
+        "risk_pattern_desc": str(risk_pattern.get("description", "") or ""),
+        "risk_mitigation": str(risk_pattern.get("mitigation", "") or ""),
+        "revenue_model": str(metrics.get("revenue_model", "") or ""),
+    }
+
+
+def _build_learning_query_text(student_input: str, accumulated_info: Optional[Dict[str, Any]] = None) -> str:
+    parts = [student_input or ""]
+    for key in [
+        "project_name",
+        "tech_description",
+        "target_market",
+        "target_customer",
+        "value_proposition",
+        "channel",
+        "key_risks",
+        "additional_context",
+    ]:
+        value = (accumulated_info or {}).get(key)
+        if value:
+            parts.append(str(value))
+    return "\n".join([part for part in parts if part]).strip()
+
+
+def _text_bigrams(text: str) -> set[str]:
+    compact = "".join(ch for ch in (text or "").lower() if ch.strip())
+    if len(compact) < 2:
+        return set()
+    return {compact[i:i + 2] for i in range(len(compact) - 1)}
+
+
+def _dedupe_keywords(keywords: List[str], max_keywords: int = 12) -> List[str]:
+    cleaned: List[str] = []
+    seen = set()
+    stopwords = {
+        "项目", "学生", "创业", "比赛", "大赛", "创新创业", "想法", "方案", "系统", "平台", "技术", "市场", "用户",
+        "产品", "服务", "分析", "帮助", "需要", "现在", "不知道", "怎么做",
+    }
+    for keyword in keywords:
+        kw = (keyword or "").strip()
+        if not kw or len(kw) < 2 or kw in stopwords:
+            continue
+        normalized = kw.lower()
+        if normalized in seen:
+            continue
+        seen.add(normalized)
+        cleaned.append(kw)
+        if len(cleaned) >= max_keywords:
+            break
+    return cleaned
+
+
+def _expand_keyword_variants(keywords: List[str], max_keywords: int = 24) -> List[str]:
+    expanded: List[str] = []
+    for keyword in keywords:
+        kw = (keyword or "").strip()
+        if not kw:
+            continue
+        expanded.append(kw)
+
+        if len(kw) >= 4:
+            expanded.append(kw[:2])
+            expanded.append(kw[:3])
+            expanded.append(kw[-2:])
+            expanded.append(kw[-3:])
+
+        if len(kw) >= 5:
+            for i in range(len(kw) - 1):
+                fragment2 = kw[i:i + 2]
+                if len(fragment2) == 2:
+                    expanded.append(fragment2)
+            for i in range(len(kw) - 2):
+                fragment3 = kw[i:i + 3]
+                if len(fragment3) == 3:
+                    expanded.append(fragment3)
+
+        if "AI" in kw or "ai" in kw:
+            expanded.append(kw.replace("AI", "").replace("ai", ""))
+        if "校园" in kw:
+            expanded.append("校园")
+        if "二手" in kw:
+            expanded.append("二手")
+        if "医疗" in kw:
+            expanded.append("医疗")
+        if "影像" in kw:
+            expanded.append("影像")
+
+    return _dedupe_keywords(expanded, max_keywords=max_keywords)
+
+
+def extract_learning_query_profile(
+    student_input: str,
+    accumulated_info: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    combined_query = _build_learning_query_text(student_input, accumulated_info)
+    fallback_keywords = extract_keywords_local(combined_query, max_keywords=12)
+    fallback_profile = {
+        "intent_summary": student_input[:80],
+        "project_keywords": fallback_keywords[:4],
+        "tech_keywords": fallback_keywords[:4],
+        "market_keywords": fallback_keywords[:4],
+        "user_keywords": [],
+        "problem_keywords": fallback_keywords[:4],
+        "risk_keywords": [],
+        "exclude_keywords": [],
+    }
+
+    if not OPENAI_AVAILABLE or not OPENAI_API_KEY:
+        fallback_profile["project_keywords"] = _expand_keyword_variants(fallback_profile["project_keywords"], max_keywords=8)
+        fallback_profile["tech_keywords"] = _expand_keyword_variants(fallback_profile["tech_keywords"], max_keywords=8)
+        fallback_profile["market_keywords"] = _expand_keyword_variants(fallback_profile["market_keywords"], max_keywords=8)
+        fallback_profile["problem_keywords"] = _expand_keyword_variants(fallback_profile["problem_keywords"], max_keywords=8)
+        fallback_profile["all_keywords"] = _expand_keyword_variants(fallback_keywords, max_keywords=18)
+        return fallback_profile
+
+    system_prompt = (
+        "你是创新创业导师系统里的检索意图分析器。"
+        "你的任务是把学生输入拆成适合知识图谱检索的结构化关键词。"
+        "只输出 JSON，不要解释。"
+    )
+    human_prompt = f"""
+请阅读下面的学生输入与已知项目信息，提取最能代表检索意图的关键词。
+
+【学生输入】
+{student_input}
+
+【已知项目信息】
+{json.dumps(accumulated_info or {}, ensure_ascii=False, indent=2)}
+
+请返回 JSON，格式如下：
+{{
+  "intent_summary": "一句话概括学生真正想问什么",
+  "project_keywords": ["项目或商业模式关键词"],
+  "tech_keywords": ["技术或方法关键词"],
+  "market_keywords": ["行业/赛道/场景关键词"],
+  "user_keywords": ["目标用户关键词"],
+  "problem_keywords": ["痛点/任务/需求关键词"],
+  "risk_keywords": ["风险/障碍关键词"],
+  "exclude_keywords": ["应避免误匹配的词"]
+}}
+
+要求：
+1. 每类最多 5 个，优先保留具体词，不要泛词。
+2. 如果学生问题很初级，也要尽量提炼真实场景词，比如“校园二手书”“新生报名”“宿舍收纳”。
+3. 如果信息不足，可以留空数组。
+"""
+    try:
+        raw = _call_openai_manual(system_prompt, human_prompt)
+        parsed = json.loads(_sanitize_llm_json(raw))
+        profile = {
+            "intent_summary": str(parsed.get("intent_summary", fallback_profile["intent_summary"])).strip(),
+            "project_keywords": _expand_keyword_variants(parsed.get("project_keywords", []), max_keywords=8),
+            "tech_keywords": _expand_keyword_variants(parsed.get("tech_keywords", []), max_keywords=8),
+            "market_keywords": _expand_keyword_variants(parsed.get("market_keywords", []), max_keywords=8),
+            "user_keywords": _expand_keyword_variants(parsed.get("user_keywords", []), max_keywords=6),
+            "problem_keywords": _expand_keyword_variants(parsed.get("problem_keywords", []), max_keywords=8),
+            "risk_keywords": _expand_keyword_variants(parsed.get("risk_keywords", []), max_keywords=8),
+            "exclude_keywords": _dedupe_keywords(parsed.get("exclude_keywords", []), max_keywords=5),
+        }
+        profile["all_keywords"] = _dedupe_keywords(
+            profile["project_keywords"]
+            + profile["tech_keywords"]
+            + profile["market_keywords"]
+            + profile["user_keywords"]
+            + profile["problem_keywords"]
+            + profile["risk_keywords"],
+            max_keywords=18,
+        )
+        if not profile["all_keywords"]:
+            profile["all_keywords"] = _dedupe_keywords(fallback_keywords, max_keywords=15)
+        return profile
+    except Exception as e:
+        LOGGER.warning("Learning query profile extraction failed, falling back to local keywords: %s", e)
+        fallback_profile["project_keywords"] = _expand_keyword_variants(fallback_profile["project_keywords"], max_keywords=8)
+        fallback_profile["tech_keywords"] = _expand_keyword_variants(fallback_profile["tech_keywords"], max_keywords=8)
+        fallback_profile["market_keywords"] = _expand_keyword_variants(fallback_profile["market_keywords"], max_keywords=8)
+        fallback_profile["problem_keywords"] = _expand_keyword_variants(fallback_profile["problem_keywords"], max_keywords=8)
+        fallback_profile["all_keywords"] = _expand_keyword_variants(fallback_keywords, max_keywords=18)
+        return fallback_profile
+
+
+def query_seed_kg_cases(
+    query_text: str,
+    accumulated_info: Optional[Dict[str, Any]] = None,
+    query_profile: Optional[Dict[str, Any]] = None,
+    top_k: int = 3,
+) -> List[Dict[str, Any]]:
+    kg = _load_seed_kg()
+    projects = kg.get("projects", []) or []
+    if not projects:
+        return []
+
+    combined_query = _build_learning_query_text(query_text, accumulated_info)
+    query_profile = query_profile or extract_learning_query_profile(query_text, accumulated_info)
+    all_keywords = query_profile.get("all_keywords", [])
+    query_lower = combined_query.lower()
+    results: List[Dict[str, Any]] = []
+
+    for project in projects:
+        flattened = _flatten_seed_project(project)
+        score = 0
+        matched_terms: List[str] = []
+
+        field_groups = {
+            "project": ["project_name", "project_desc", "value_loop_name", "revenue_model"],
+            "tech": ["tech_name", "value_loop_desc"],
+            "market": ["market_name", "project_desc", "value_loop_desc"],
+            "user": ["project_desc", "market_name", "value_loop_desc"],
+            "problem": ["project_desc", "value_loop_desc", "risk_pattern_desc"],
+            "risk": ["risk_name", "risk_pattern_name", "risk_pattern_desc", "risk_mitigation"],
+        }
+        group_keywords = {
+            "project": query_profile.get("project_keywords", []),
+            "tech": query_profile.get("tech_keywords", []),
+            "market": query_profile.get("market_keywords", []),
+            "user": query_profile.get("user_keywords", []),
+            "problem": query_profile.get("problem_keywords", []),
+            "risk": query_profile.get("risk_keywords", []),
+        }
+        group_weights = {
+            "project": 8,
+            "tech": 10,
+            "market": 10,
+            "user": 8,
+            "problem": 8,
+            "risk": 7,
+        }
+
+        matched_groups = set()
+        strong_phrase_match = False
+
+        for group_name, keywords in group_keywords.items():
+            if not keywords:
+                continue
+            searchable_text = " ".join(flattened.get(field, "") for field in field_groups[group_name]).lower()
+            for keyword in keywords:
+                keyword_lower = keyword.lower()
+                if not keyword_lower or keyword_lower in query_profile.get("exclude_keywords", []):
+                    continue
+                if keyword_lower in searchable_text:
+                    matched_groups.add(group_name)
+                    score += group_weights[group_name] + min(len(keyword), 6)
+                    if keyword not in matched_terms:
+                        matched_terms.append(keyword)
+                    if len(keyword) >= 4 and group_name in {"project", "tech", "market", "problem"}:
+                        strong_phrase_match = True
+
+        intent_summary = str(query_profile.get("intent_summary", "") or "")
+        if intent_summary:
+            intent_keywords = _dedupe_keywords(extract_keywords_local(intent_summary, max_keywords=6), max_keywords=6)
+            searchable = " ".join(flattened.values()).lower()
+            summary_hits = sum(1 for kw in intent_keywords if kw.lower() in searchable)
+            score += summary_hits * 4
+            if summary_hits >= 2:
+                strong_phrase_match = True
+
+        if query_lower:
+            if flattened["tech_name"] and flattened["tech_name"].lower() in query_lower:
+                score += 14
+                matched_groups.add("tech")
+                strong_phrase_match = True
+            if flattened["market_name"] and flattened["market_name"].lower() in query_lower:
+                score += 14
+                matched_groups.add("market")
+                strong_phrase_match = True
+            if flattened["project_name"] and flattened["project_name"].lower() in query_lower:
+                score += 10
+                matched_groups.add("project")
+
+        if any(kw.lower() in " ".join(flattened.values()).lower() for kw in query_profile.get("exclude_keywords", [])):
+            score -= 8
+
+        primary_groups = []
+        if group_keywords["project"]:
+            primary_groups.append("project")
+        if group_keywords["market"] or group_keywords["user"]:
+            primary_groups.append("market")
+        if group_keywords["problem"]:
+            primary_groups.append("problem")
+        if group_keywords["tech"]:
+            primary_groups.append("tech")
+
+        matched_primary_count = len([group for group in primary_groups if group in matched_groups])
+
+        if primary_groups and matched_primary_count == 0:
+            continue
+
+        if len(matched_terms) < 2 and not strong_phrase_match and matched_primary_count < 1:
+            continue
+
+        min_score = 12 if matched_primary_count >= 2 or strong_phrase_match else 9
+        if score < min_score:
+            continue
+
+        value_loop = project.get("value_loop_edge", {}) or {}
+        risk_pattern = project.get("risk_pattern_edge", {}) or {}
+        metrics = value_loop.get("metrics", {}) or {}
+        results.append({
+            "project_id": project.get("id"),
+            "project_name": flattened["project_name"],
+            "project_desc": flattened["project_desc"],
+            "tech_name": flattened["tech_name"],
+            "tech_maturity": flattened["tech_maturity"],
+            "market_name": flattened["market_name"],
+            "risk_name": flattened["risk_name"],
+            "risk_severity": flattened["risk_severity"],
+            "value_loop_name": flattened["value_loop_name"],
+            "value_loop_desc": flattened["value_loop_desc"],
+            "risk_pattern": flattened["risk_pattern_name"],
+            "pattern_description": flattened["risk_pattern_desc"],
+            "mitigation": flattened["risk_mitigation"],
+            "revenue_model": flattened["revenue_model"],
+            "ltv": metrics.get("ltv"),
+            "cac": metrics.get("cac"),
+            "matched_terms": matched_terms[:6],
+            "risks": [flattened["risk_name"]] if flattened["risk_name"] else [],
+            "_match_score": score,
+            "_matched_groups": sorted(matched_groups),
+        })
+
+    if not results:
+        return []
+
+    results.sort(key=lambda item: item.get("_match_score", 0), reverse=True)
+
+    tech_query = " ".join(query_profile.get("tech_keywords", []) or query_profile.get("project_keywords", []))
+    market_query = " ".join(
+        query_profile.get("market_keywords", [])
+        + query_profile.get("user_keywords", [])
+        + query_profile.get("problem_keywords", [])
+    )
+    reranked = llm_semantic_rerank(tech_query, market_query, results[: min(len(results), 8)], top_k=top_k)
+    for item in reranked:
+        item.pop("_match_score", None)
+        item.pop("_matched_groups", None)
+    return reranked[:top_k]
+
+
 def extract_keywords_with_llm(text: str, max_keywords: int = 20) -> List[str]:
     """使用 LLM 从文本中提取关键词，不回退到本地算法
     
@@ -405,62 +787,51 @@ def extract_keywords_local(text: str, max_keywords: int = 5) -> List[str]:
     """本地算法提取关键词（作为后备方案）"""
     if not text:
         return []
-    
-    import re
-    
-    match_details["query_attempts"].append({
-        "stage": "步骤2: 精确拓扑结构匹配",
-        "found": len(unique_projects),
-        "projects": [p["project_name"] for p in unique_projects[:5]],
-        "message": f"执行图谱连边寻址: (p:Project)-[:USE]->(t:Tech) AND (p)-[:TARGET]->(m:Market), 命中技术节点: {tech_match_count}, 市场节点: {market_match_count}。图谱投影出 {len(unique_projects)} 个相关实体",
-    })
 
-    # Step 3: Cross-matching (Tech keywords in Market or vice versa)
-    initial_count = len(unique_projects)
-    
-    stopwords = {"的", "和", "与", "及", "等", "是", "在", "有", "为", "对", "将", "能", "可", "以", "了", "着", "过", "被", "把", "让", "给", "向", "从", "到", "基于", "通过", "进行", "实现", "提供", "支持", "系统", "平台", "服务", "产品", "技术", "解决方案", "应用", "开发", "研究", "设计", "构建", "打造", "创建", "建立", "帮助", "制定", "分析", "诊断", "调控", "制备", "制造", "加工", "检测", "监测", "管理", "控制"}
-    
+    import re
+
+    stopwords = {
+        "的", "和", "与", "及", "等", "是", "在", "有", "为", "对", "将", "能", "可", "以", "了", "着", "过",
+        "被", "把", "让", "给", "向", "从", "到", "基于", "通过", "进行", "实现", "提供", "支持", "系统", "平台",
+        "服务", "产品", "技术", "解决方案", "应用", "开发", "研究", "设计", "构建", "打造", "创建", "建立", "帮助",
+        "制定", "分析", "诊断", "管理", "控制", "项目", "团队", "用户", "学生",
+    }
+
     entity_patterns = [
-        r'[\u4e00-\u9fa5]{2,4}(?:无人机|机器人|传感器|激光|雷达|成像|遥感|光谱|智能|精密|量子|芯片|算法|模型|平台|网络|数据|云|大数据|人工智能|机器学习|深度学习|物联网|区块链)',
-        r'(?:无人机|机器人|传感器|激光|雷达|成像|遥感|光谱|智能|精密|量子|芯片|算法|模型)[\u4e00-\u9fa5]{0,4}',
-        r'[A-Z][a-z]+(?:[A-Z][a-z]+)*',
-        r'[A-Z]{2,}',
+        r"[\u4e00-\u9fa5]{2,4}(?:无人机|机器人|传感器|激光|雷达|成像|遥感|光谱|智能|精密|量子|芯片|算法|模型|平台|网络|数据)",
+        r"(?:无人机|机器人|传感器|激光|雷达|成像|遥感|光谱|智能|精密|量子|芯片|算法|模型|校园|二手|电商|医疗|农业|包装|卫星)[\u4e00-\u9fa5]{0,4}",
+        r"[A-Z][a-z]+(?:[A-Z][a-z]+)*",
+        r"[A-Z]{2,}",
     ]
-    
-    keywords = []
-    
+
+    keywords: List[str] = []
     for pattern in entity_patterns:
-        matches = re.findall(pattern, text)
-        keywords.extend(matches)
-    
-    english_words = re.findall(r'[A-Za-z]{2,}', text)
-    for word in english_words:
-        if word.lower() not in ['the', 'and', 'for', 'with', 'from', 'this', 'that', 'has', 'have', 'are', 'was', 'were', 'been']:
-            keywords.append(word)
-    
-    chinese_chunks = re.findall(r'[\u4e00-\u9fa5]{2,}', text)
+        keywords.extend(re.findall(pattern, text))
+
+    english_words = re.findall(r"[A-Za-z]{2,}", text)
+    keywords.extend(
+        word for word in english_words
+        if word.lower() not in {"the", "and", "for", "with", "from", "this", "that", "have", "been"}
+    )
+
+    chinese_chunks = re.findall(r"[\u4e00-\u9fa5]{2,}", text)
     for chunk in chinese_chunks:
         if chunk in stopwords:
             continue
-        if len(chunk) == 2:
+        if len(chunk) <= 4:
             keywords.append(chunk)
-        elif len(chunk) == 3:
-            keywords.append(chunk)
-        elif len(chunk) == 4:
-            keywords.append(chunk)
-        elif len(chunk) >= 5:
-            keywords.append(chunk[:4])
-            keywords.append(chunk[:3])
-            keywords.append(chunk[1:4] if len(chunk) >= 4 else chunk[1:])
-    
-    unique_keywords = []
+        else:
+            keywords.extend([chunk[:4], chunk[:3], chunk[-4:], chunk[-3:]])
+
+    unique_keywords: List[str] = []
     seen = set()
     for kw in keywords:
-        kw_lower = kw.lower() if kw.isascii() else kw
-        if kw_lower not in seen and kw not in stopwords and len(kw) >= 2:
-            seen.add(kw_lower)
-            unique_keywords.append(kw)
-    
+        normalized = kw.lower() if kw.isascii() else kw
+        if normalized in seen or kw in stopwords or len(kw) < 2:
+            continue
+        seen.add(normalized)
+        unique_keywords.append(kw)
+
     return unique_keywords[:max_keywords]
 
 
@@ -910,7 +1281,18 @@ def get_value_loop_examples(tech: Optional[str] = None, market: Optional[str] = 
     """获取价值闭环超边示例"""
     driver = _get_neo4j_driver()
     if not driver:
-        return []
+        return [
+            {
+                "project": case.get("project_name"),
+                "value_loop": case.get("value_loop_name"),
+                "description": case.get("value_loop_desc"),
+                "ltv": case.get("ltv"),
+                "cac": case.get("cac"),
+                "revenue_model": case.get("revenue_model"),
+            }
+            for case in query_seed_kg_cases(" ".join([tech or "", market or ""]).strip(), top_k=5)
+            if case.get("value_loop_name") or case.get("value_loop_desc")
+        ]
     
     tech_keywords = extract_keywords_with_llm(tech) if tech else []
     market_keywords = extract_keywords_with_llm(market) if market else []
@@ -931,14 +1313,35 @@ def get_value_loop_examples(tech: Optional[str] = None, market: Optional[str] = 
             return [dict(record) for record in result]
     except Exception as e:
         LOGGER.warning(f"Value loop query failed: {e}")
-        return []
+        return [
+            {
+                "project": case.get("project_name"),
+                "value_loop": case.get("value_loop_name"),
+                "description": case.get("value_loop_desc"),
+                "ltv": case.get("ltv"),
+                "cac": case.get("cac"),
+                "revenue_model": case.get("revenue_model"),
+            }
+            for case in query_seed_kg_cases(" ".join([tech or "", market or ""]).strip(), top_k=5)
+            if case.get("value_loop_name") or case.get("value_loop_desc")
+        ]
 
 
 def get_risk_pattern_examples(tech: Optional[str] = None) -> List[Dict[str, Any]]:
     """获取风险模式超边示例"""
     driver = _get_neo4j_driver()
     if not driver:
-        return []
+        return [
+            {
+                "project": case.get("project_name"),
+                "risk_pattern": case.get("risk_pattern"),
+                "description": case.get("pattern_description"),
+                "mitigation": case.get("mitigation"),
+                "risk": case.get("risk_name"),
+            }
+            for case in query_seed_kg_cases(tech or "", top_k=5)
+            if case.get("risk_pattern") or case.get("pattern_description")
+        ]
     
     tech_keywords = extract_keywords_with_llm(tech) if tech else []
     
@@ -957,14 +1360,33 @@ def get_risk_pattern_examples(tech: Optional[str] = None) -> List[Dict[str, Any]
             return [dict(record) for record in result]
     except Exception as e:
         LOGGER.warning(f"Risk pattern query failed: {e}")
-        return []
+        return [
+            {
+                "project": case.get("project_name"),
+                "risk_pattern": case.get("risk_pattern"),
+                "description": case.get("pattern_description"),
+                "mitigation": case.get("mitigation"),
+                "risk": case.get("risk_name"),
+            }
+            for case in query_seed_kg_cases(tech or "", top_k=5)
+            if case.get("risk_pattern") or case.get("pattern_description")
+        ]
 
 
 def get_teaching_cases_for_risk(risk_keyword: str) -> List[Dict[str, Any]]:
     """根据风险关键词从知识图谱获取相关教学案例"""
     driver = _get_neo4j_driver()
     if not driver:
-        return []
+        return [
+            {
+                "project_name": case.get("project_name"),
+                "risk": case.get("risk_name"),
+                "techs": [case.get("tech_name")] if case.get("tech_name") else [],
+                "markets": [case.get("market_name")] if case.get("market_name") else [],
+            }
+            for case in query_seed_kg_cases(risk_keyword, top_k=5)
+            if case.get("risk_name")
+        ]
     
     query = """
     MATCH (p:Project)-[:TRIGGER_RISK]->(r:Risk)
@@ -991,7 +1413,16 @@ def get_teaching_cases_for_risk(risk_keyword: str) -> List[Dict[str, Any]]:
             return cases
     except Exception as e:
         LOGGER.warning(f"Teaching case query failed: {e}")
-        return []
+        return [
+            {
+                "project_name": case.get("project_name"),
+                "risk": case.get("risk_name"),
+                "techs": [case.get("tech_name")] if case.get("tech_name") else [],
+                "markets": [case.get("market_name")] if case.get("market_name") else [],
+            }
+            for case in query_seed_kg_cases(risk_keyword, top_k=5)
+            if case.get("risk_name")
+        ]
 
 
 def get_teaching_cases_for_fallacy(fallacy_code: str) -> List[Dict[str, Any]]:
@@ -2371,6 +2802,51 @@ def generate_business_plan(project_data: Dict[str, Any], target_comp: str = "互
         return f"合成商业计划书失败：{e}"
 
 
+def revise_business_plan_with_feedback(
+    project_data: Dict[str, Any],
+    draft_markdown: str,
+    teacher_feedback: str,
+    target_comp: str = "互联网+",
+) -> str:
+    """Use teacher feedback to revise an existing business plan into the final version."""
+    accumulated = project_data.get("accumulated_info", {})
+    extracted = project_data.get("extracted_nodes", {})
+    history = project_data.get("conversation_history", [])
+    history_text = "\n".join([f"{m.get('role')}: {m.get('content')}" for m in history[-10:]])
+
+    system_prompt = (
+        f"你是一名同时具备项目教练、竞赛顾问与高校导师评审经验的双创专家，正在将一份 {target_comp} 赛道商业计划书初稿修订为终稿。\n"
+        "你的目标不是重写无关内容，而是严格吸收导师评审意见，对初稿做有依据的增强、纠偏与补足。\n\n"
+        "【修订原则】\n"
+        "1. 必须保留原有项目设定、叙事主线与章节结构，输出仍为 Markdown。\n"
+        "2. 必须逐条落实教师意见，优先修正逻辑漏洞、证据不足、商业模式不清、市场论证薄弱、财务与风险缺项等问题。\n"
+        "3. 若教师意见要求补充数据但上下文没有精确值，可以给出合理假设，并显式标注为“基于行业假设”。\n"
+        "4. 终稿要比初稿更适合直接交付教师和学生查看，语言专业但不要空泛。\n"
+        "5. 在正文最前面新增“## 0. 导师反馈落实摘要”，用 3-6 条说明本次重点修改了什么。\n"
+    )
+
+    context = {
+        "target_competition": target_comp,
+        "history_context": history_text,
+        "extracted_nodes": extracted,
+        "accumulated_info": accumulated,
+        "detected_fallacies": project_data.get("frequent_fallacies", []),
+    }
+
+    human_prompt = (
+        f"【教师评审意见】\n{teacher_feedback}\n\n"
+        f"【项目上下文】\n{json.dumps(context, ensure_ascii=False, indent=2)}\n\n"
+        f"【商业计划书初稿】\n{draft_markdown}\n\n"
+        "请输出修订后的最终版商业计划书。"
+    )
+
+    try:
+        return _call_openai_manual(system_prompt, human_prompt)
+    except Exception as e:
+        LOGGER.error(f"Error revising business plan: {e}")
+        return f"商业计划书终稿修订失败：{e}"
+
+
 def check_input_safety(text: str) -> bool:
     """A7: 基础的鲁棒与合规检查，拦截乱码和常见的越狱前缀"""
     import re
@@ -2382,6 +2858,371 @@ def check_input_safety(text: str) -> bool:
         if word in text_lower:
             return False
     return True
+
+
+def _format_learning_cases(cases: List[Dict[str, Any]]) -> str:
+    if not cases:
+        return "暂无匹配案例。"
+
+    blocks = []
+    for idx, case in enumerate(cases, start=1):
+        blocks.append(
+            f"{idx}. 项目：{case.get('project_name', '未知项目')}\n"
+            f"   技术：{case.get('tech_name', '未知')}\n"
+            f"   市场：{case.get('market_name', '未知')}\n"
+            f"   价值闭环：{case.get('value_loop_desc', '暂无')}\n"
+            f"   风险链：{case.get('risk_name', '暂无')}；{case.get('pattern_description', '暂无')}\n"
+            f"   应对方式：{case.get('mitigation', '暂无')}\n"
+            f"   收入模式：{case.get('revenue_model', '暂无')}"
+        )
+    return "\n\n".join(blocks)
+
+
+def _build_learning_subgraph(cases: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    nodes: List[Dict[str, Any]] = []
+    edges: List[Dict[str, Any]] = []
+    seen_nodes = set()
+    seen_edges = set()
+
+    def add_node(node_id: str, label: str, node_type: str) -> None:
+        key = (node_id, node_type)
+        if not node_id or key in seen_nodes:
+            return
+        seen_nodes.add(key)
+        nodes.append({"id": node_id, "label": label or node_id, "type": node_type})
+
+    def add_edge(source: str, target: str, label: str) -> None:
+        key = (source, target, label)
+        if not source or not target or key in seen_edges:
+            return
+        seen_edges.add(key)
+        edges.append({"source": source, "target": target, "label": label})
+
+    for idx, case in enumerate(cases, start=1):
+        project_id = f"project::{idx}::{case.get('project_name', '')}"
+        tech_id = f"tech::{idx}::{case.get('tech_name', '')}"
+        market_id = f"market::{idx}::{case.get('market_name', '')}"
+        risk_id = f"risk::{idx}::{case.get('risk_name', '')}"
+        value_loop_id = f"value_loop::{idx}::{case.get('value_loop_name', '')}"
+        risk_pattern_id = f"risk_pattern::{idx}::{case.get('risk_pattern', '')}"
+
+        add_node(project_id, case.get("project_name", "项目"), "project")
+        add_node(tech_id, case.get("tech_name", "技术"), "tech")
+        add_node(market_id, case.get("market_name", "市场"), "market")
+
+        add_edge(project_id, tech_id, "USE")
+        add_edge(project_id, market_id, "TARGET")
+
+        if case.get("risk_name"):
+            add_node(risk_id, case.get("risk_name", "风险"), "risk")
+            add_edge(project_id, risk_id, "TRIGGER_RISK")
+
+        if case.get("value_loop_name") or case.get("value_loop_desc"):
+            add_node(value_loop_id, case.get("value_loop_name", "价值闭环"), "value_loop")
+            add_edge(project_id, value_loop_id, "HAS_VALUE_LOOP")
+            add_edge(value_loop_id, tech_id, "INVOLVES_TECH")
+            add_edge(value_loop_id, market_id, "INVOLVES_MARKET")
+
+        if case.get("risk_pattern") or case.get("pattern_description"):
+            add_node(risk_pattern_id, case.get("risk_pattern", "风险模式"), "risk_pattern")
+            add_edge(project_id, risk_pattern_id, "HAS_RISK_PATTERN")
+            add_edge(risk_pattern_id, tech_id, "INVOLVES_TECH")
+            if case.get("risk_name"):
+                add_edge(risk_pattern_id, risk_id, "INVOLVES_RISK")
+
+    return nodes, edges
+
+
+DEFENSE_EXPERT_PROFILES: Dict[str, Dict[str, str]] = {
+    "激进型VC": {
+        "focus": "市场规模、增长速度、团队执行力、融资故事与壁垒",
+        "style": "尖锐、直接、强压迫感，喜欢追问为什么是你、为什么是现在、为什么能做大。",
+    },
+    "技术流专家": {
+        "focus": "技术可行性、算法/系统壁垒、数据来源、工程落地与技术替代风险",
+        "style": "专业、挑剔，喜欢追问核心技术是不是伪创新，能否真正落地。",
+    },
+    "保守型银行家": {
+        "focus": "现金流、合规、偿付能力、稳健性、坏账和风控",
+        "style": "谨慎、冷静，偏向质疑财务假设是否过于乐观。",
+    },
+    "产业操盘手": {
+        "focus": "渠道、供应链、交付效率、客户转化、产业协同",
+        "style": "务实，专盯从想法走到真实交付过程中最容易掉链子的环节。",
+    },
+    "政策合规顾问": {
+        "focus": "监管、行业准入、数据安全、知识产权、伦理与资质",
+        "style": "严苛，喜欢问项目是否踩线，是否具备进入目标行业的资格。",
+    },
+}
+
+
+def run_defense_mode_cycle(
+    student_input: str,
+    conversation_history: List[Dict[str, str]] = None,
+    accumulated_info: Dict[str, Any] = None,
+    target_competition: str = "互联网+",
+    student_id: int = None,
+) -> AgentState:
+    state = AgentState(
+        student_input=student_input,
+        conversation_history=conversation_history or [],
+        accumulated_info=dict(accumulated_info or {}),
+        target_competition=target_competition,
+    )
+
+    try:
+        if LANGCHAIN_AVAILABLE:
+            state = extract_entities(state)
+    except Exception as e:
+        LOGGER.warning("Defense mode entity extraction failed: %s", e)
+
+    if state.extracted_nodes:
+        merged_info = dict(state.accumulated_info or {})
+        for key, value in state.extracted_nodes.items():
+            if value not in [None, "", [], {}]:
+                merged_info[key] = value
+        state.accumulated_info = merged_info
+
+    state.accumulated_info["student_mode"] = "答辩模式"
+
+    query_text = _build_learning_query_text(student_input, state.accumulated_info)
+    query_profile = extract_learning_query_profile(student_input, state.accumulated_info)
+    matched_cases = query_seed_kg_cases(query_text, state.accumulated_info, query_profile=query_profile, top_k=3)
+    graph_nodes, graph_edges = _build_learning_subgraph(matched_cases)
+
+    expert_name = "激进型VC"
+    expert_reason = "当前问题更像是在接受市场与商业化压力测试。"
+    intent_text = " ".join(
+        query_profile.get(key, []) for key in [
+            "tech_keywords", "market_keywords", "risk_keywords", "problem_keywords", "project_keywords"
+        ]
+    ) if False else ""
+    combined_text = " ".join(
+        query_profile.get("tech_keywords", [])
+        + query_profile.get("market_keywords", [])
+        + query_profile.get("risk_keywords", [])
+        + query_profile.get("problem_keywords", [])
+        + query_profile.get("project_keywords", [])
+    ) + " " + student_input + " " + json.dumps(state.accumulated_info, ensure_ascii=False)
+
+    if any(token in combined_text for token in ["技术", "算法", "模型", "系统", "专利", "数据", "AI", "影像", "芯片"]):
+        expert_name = "技术流专家"
+        expert_reason = "你的描述里技术实现与壁垒是关键争议点。"
+    if any(token in combined_text for token in ["现金流", "营收", "利润", "还款", "成本", "财务", "贷款", "回本"]):
+        expert_name = "保守型银行家"
+        expert_reason = "当前更需要验证财务稳健性和现金流安全边界。"
+    if any(token in combined_text for token in ["合规", "审批", "医疗", "数据安全", "隐私", "监管", "资质", "药监"]):
+        expert_name = "政策合规顾问"
+        expert_reason = "当前问题里合规和准入风险优先级更高。"
+    if any(token in combined_text for token in ["供应链", "交付", "工厂", "渠道", "商家", "校园", "地推", "履约"]):
+        expert_name = "产业操盘手"
+        expert_reason = "项目更容易在渠道、交付和落地环节被追问。"
+
+    expert_profile = DEFENSE_EXPERT_PROFILES.get(expert_name, DEFENSE_EXPERT_PROFILES["激进型VC"])
+    state.agent_insights = {
+        "selected_expert": expert_name,
+        "expert_focus": expert_profile["focus"],
+        "expert_reason": expert_reason,
+    }
+
+    state.kg_query_details = [
+        KGQueryDetail(
+            step="DEFENSE_MODE_CASE_RETRIEVAL",
+            query_type="defense_mode_case_search",
+            tech_keywords=query_profile.get("tech_keywords", []) or query_profile.get("project_keywords", []),
+            market_keywords=(
+                query_profile.get("market_keywords", [])
+                + query_profile.get("user_keywords", [])
+                + query_profile.get("problem_keywords", [])
+            )[:8],
+            matched_projects=[case.get("project_name", "") for case in matched_cases],
+            project_details=matched_cases,
+            success=bool(matched_cases),
+            message=f"Retrieved {len(matched_cases)} local KG cases for defense mode.",
+            category="Defense",
+            retrieval_reason=f"Selected expert: {expert_name}; reason: {expert_reason}",
+            graph_nodes=graph_nodes,
+            graph_edges=graph_edges,
+        )
+    ]
+
+    state.evidence.append(
+        EvidenceItem(
+            step="defense_mode",
+            detail=f"系统自动选择了“{expert_name}”作为本轮压力测试专家，并检索到 {len(matched_cases)} 个相关案例。",
+            source_excerpt=f"学生原文：{_excerpt(student_input)}",
+        )
+    )
+
+    case_text = _format_learning_cases(matched_cases)
+    history_text = "\n".join(
+        [
+            f"{'学生' if msg.get('role') == 'user' else '导师'}: {msg.get('content', '')}"
+            for msg in (conversation_history or [])[-6:]
+        ]
+    )
+    nodes_text = json.dumps(state.extracted_nodes or {}, ensure_ascii=False, indent=2)
+
+    fallback_response = (
+        f"本轮我切到 **{expert_name}** 来做答辩压力测试。\n\n"
+        f"我最想追问你的核心点是：{expert_profile['focus']}。\n\n"
+        "毒舌提问：如果把你的项目最漂亮的包装都拿掉，你到底凭什么让别人相信这不是一个讲得很好听、但做不出来或赚不到钱的想法？\n\n"
+        "你可以先用三句话回答：\n"
+        "1. 你解决的是谁在什么场景下的什么刚需。\n"
+        "2. 你比现有替代方案强在哪里。\n"
+        "3. 如果一个月内必须验证，你最先验证哪一个指标。\n\n"
+        f"你可以参考这些相关案例：\n{case_text}"
+    )
+
+    if OPENAI_AVAILABLE and OPENAI_API_KEY:
+        system_prompt = (
+            "你正在学生端的“答辩模式”中扮演创业评审专家。\n"
+            "你要根据学生当前输入，自动采用最合适的专家身份进行高压提问，但目标是帮助学生准备答辩，而不是单纯打击他。\n"
+            "你的输出必须包含四段，且顺序固定：\n"
+            "1. 【本轮专家】说明你是谁、为什么由你来提问；\n"
+            "2. 【毒舌提问】给出 2-4 个尖锐问题；\n"
+            "3. 【招架思路】告诉学生这些问题应该怎么回答，给出答辩框架；\n"
+            "4. 【案例借鉴】结合相关案例提醒学生可以借什么思路。\n"
+            "语言要有压迫感，但不能侮辱学生；要像真实答辩现场。"
+        )
+        human_prompt = (
+            f"【自动选择的专家】{expert_name}\n"
+            f"【专家关注点】{expert_profile['focus']}\n"
+            f"【选择原因】{expert_reason}\n\n"
+            f"【最近对话】\n{history_text or '暂无'}\n\n"
+            f"【学生本轮输入】\n{student_input}\n\n"
+            f"【已提取项目实体】\n{nodes_text}\n\n"
+            f"【相关图谱案例】\n{case_text}\n"
+        )
+        try:
+            state.response = _call_openai_manual(system_prompt, human_prompt)
+        except Exception as e:
+            LOGGER.warning("Defense mode response generation failed: %s", e)
+            state.response = fallback_response
+    else:
+        state.response = fallback_response
+
+    return state
+
+
+def run_learning_mode_cycle(
+    student_input: str,
+    conversation_history: List[Dict[str, str]] = None,
+    accumulated_info: Dict[str, Any] = None,
+    target_competition: str = "互联网+",
+    student_id: int = None,
+) -> AgentState:
+    state = AgentState(
+        student_input=student_input,
+        conversation_history=conversation_history or [],
+        accumulated_info=dict(accumulated_info or {}),
+        target_competition=target_competition,
+    )
+
+    try:
+        if LANGCHAIN_AVAILABLE:
+            state = extract_entities(state)
+    except Exception as e:
+        LOGGER.warning("Learning mode entity extraction failed: %s", e)
+
+    if state.extracted_nodes:
+        merged_info = dict(state.accumulated_info or {})
+        for key, value in state.extracted_nodes.items():
+            if value not in [None, "", [], {}]:
+                merged_info[key] = value
+        state.accumulated_info = merged_info
+
+    state.accumulated_info["student_mode"] = "自由对话学习模式"
+
+    query_text = _build_learning_query_text(student_input, state.accumulated_info)
+    query_profile = extract_learning_query_profile(student_input, state.accumulated_info)
+    matched_cases = query_seed_kg_cases(query_text, state.accumulated_info, query_profile=query_profile, top_k=3)
+    graph_nodes, graph_edges = _build_learning_subgraph(matched_cases)
+    state.kg_query_details = [
+        KGQueryDetail(
+            step="LEARNING_MODE_CASE_RETRIEVAL",
+            query_type="learning_mode_case_search",
+            tech_keywords=query_profile.get("tech_keywords", []) or query_profile.get("project_keywords", []),
+            market_keywords=(
+                query_profile.get("market_keywords", [])
+                + query_profile.get("user_keywords", [])
+                + query_profile.get("problem_keywords", [])
+            )[:8],
+            matched_projects=[case.get("project_name", "") for case in matched_cases],
+            project_details=matched_cases,
+            success=bool(matched_cases),
+            message=f"Retrieved {len(matched_cases)} local KG cases for learning mode.",
+            category="Learning",
+            retrieval_reason=f"LLM extracted intent: {query_profile.get('intent_summary', '语义匹配')}",
+            graph_nodes=graph_nodes,
+            graph_edges=graph_edges,
+        )
+    ]
+
+    state.evidence.append(
+        EvidenceItem(
+            step="learning_mode",
+            detail=f"基于 seed_kg.json 匹配到 {len(matched_cases)} 个案例，用于自由对话教学。",
+            source_excerpt=f"学生原文：{_excerpt(student_input)}",
+        )
+    )
+
+    case_text = _format_learning_cases(matched_cases)
+    history_text = "\n".join(
+        [
+            f"{'学生' if msg.get('role') == 'user' else '导师'}: {msg.get('content', '')}"
+            for msg in (conversation_history or [])[-6:]
+        ]
+    )
+    nodes_text = json.dumps(state.extracted_nodes or {}, ensure_ascii=False, indent=2)
+
+    fallback_response = (
+        "我先陪你把这个想法拆开想清楚。\n\n"
+        "从创新创业比赛的角度，第一步通常不是立刻写方案，而是先明确三件事：谁是你的第一批用户、他们在什么场景下最痛、你比现有办法好在哪里。\n\n"
+        f"给你一个图谱案例参考：\n{case_text}\n\n"
+        "你可以先想两个问题：\n"
+        "1. 你最想帮助的第一类人是谁？\n"
+        "2. 他们现在最麻烦、最愿意为之改变的一件事是什么？\n\n"
+        "你下一条可以只回答这两个问题，我再陪你把项目继续往下收敛。"
+    )
+
+    if OPENAI_AVAILABLE and OPENAI_API_KEY:
+        system_prompt = (
+            "你是一位面向中国高校大一新生的创新创业导师。"
+            "当前是学生端的自由对话学习模式。"
+            "你要边回答边教学，不能只给结论。"
+            "请始终做到："
+            "1. 先回答学生当前问题；"
+            "2. 再用提问引导学生思考；"
+            "3. 再结合知识图谱案例帮助理解；"
+            "4. 最后给一个很小、可执行的下一步。"
+            "语气耐心、鼓励、清楚，不要代写完整商业计划书。"
+        )
+        human_prompt = (
+            f"【学生输入】\n{student_input}\n\n"
+            f"【历史对话】\n{history_text or '暂无'}\n\n"
+            f"【已提取项目信息】\n{nodes_text}\n\n"
+            f"【图谱匹配案例】\n{case_text}\n\n"
+            "请输出自然的中文回复，并明确包含这三部分短句：\n"
+            "1. 回答与解释\n"
+            "2. 你可以先想两个问题：\n"
+            "3. 给你一个图谱案例参考：\n"
+            "不要写成评审报告，不要用太强的批判口吻。"
+        )
+        try:
+            state.response = _call_openai_manual(system_prompt, human_prompt).strip()
+        except Exception as e:
+            LOGGER.warning("Learning mode response generation failed: %s", e)
+            state.response = fallback_response
+    else:
+        state.response = fallback_response
+
+    disclaimer = "\n\n> ⚖️ AI 免责声明：以上内容用于教学辅导与思路启发，不构成投资、法律或财务决策依据。"
+    if state.response and "AI 免责声明" not in state.response:
+        state.response += disclaimer
+
+    return state
 
 
 def run_langgraph_cycle(
