@@ -1166,8 +1166,8 @@ def hypergraph_critic(state: AgentState) -> AgentState:
     # Check if this is a high-quality D003 project
     is_high_quality = (nodes.get("revenue") or 0) > 1000000 and len(nodes.get("moat") or "") > 20
     
-    tech = nodes.get("tech_description", "")
-    market = nodes.get("target_market", "")
+    tech = nodes.get("tech_description") or ""
+    market = nodes.get("target_market") or ""
     h1_passed, h1_detail, h1_match_details = check_tech_market_match(tech, market)
     
     state.kg_query_details.append(KGQueryDetail(
