@@ -4,9 +4,11 @@ import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime
 from pathlib import Path
-import json
-
-from src.agents.langgraph_core import get_teaching_cases_for_risk, COMPETITION_WEIGHTS
+from src.agents.langgraph_core import (
+    get_teaching_cases_for_risk,
+    COMPETITION_WEIGHTS,
+    revise_business_plan_with_feedback,
+)
 from src.utils.database import (
     get_class_fallacy_stats,
     get_student_scores,
@@ -28,6 +30,9 @@ from src.utils.database import (
     get_class_students,
     get_students_not_in_class,
     get_all_students_for_teacher,
+    list_business_plan_workflows_for_teacher,
+    get_business_plan_workflow,
+    finalize_business_plan_workflow,
 )
 
 st.set_page_config(
@@ -358,6 +363,80 @@ def render_student_management(user):
                         st.error("创建失败，请重试")
 
 
+def render_bp_review_queue(user):
+    workflows = list_business_plan_workflows_for_teacher(user["id"])
+    st.subheader("商业计划书评审流转")
+
+    if not workflows:
+        st.info("当前还没有学生提交到你名下的商业计划书初稿。")
+        return
+
+    pending_count = sum(1 for item in workflows if item.get("status") == "draft_ready")
+    st.caption(f"待评审 {pending_count} 份，列表每 5 秒自动刷新一次。")
+
+    workflow_options = {
+        f"{item['student_name']} | {item.get('project_name') or '未命名项目'} | {item.get('status')}": item["id"]
+        for item in workflows
+    }
+    selected_label = st.selectbox(
+        "选择要查看的商业计划书",
+        list(workflow_options.keys()),
+        key="bp_workflow_select",
+    )
+    workflow = get_business_plan_workflow(workflow_options[selected_label])
+    if not workflow:
+        st.warning("未找到对应的商业计划书记录。")
+        return
+
+    status_text = "待教师评审" if workflow.get("status") == "draft_ready" else "终稿已完成"
+    st.info(
+        f"学生：**{workflow.get('student_name')}**\n\n"
+        f"项目：**{workflow.get('project_name') or '未命名项目'}**\n\n"
+        f"状态：**{status_text}**"
+    )
+
+    with st.expander("查看学生提交的商业计划书初稿", expanded=True):
+        st.markdown(workflow.get("draft_content") or "暂无初稿内容。")
+
+    existing_feedback = workflow.get("teacher_feedback") or ""
+    feedback_text = st.text_area(
+        "教师评审意见",
+        value=existing_feedback,
+        key=f"feedback_text_area_{workflow['id']}",
+        placeholder="请给出需要补强或修改的意见，例如：商业模式闭环不够清晰、市场测算需要补逻辑、财务假设过于乐观等。",
+        height=180,
+    )
+
+    if workflow.get("final_content"):
+        with st.expander("查看已生成的终稿", expanded=False):
+            st.markdown(workflow["final_content"])
+
+    if st.button("提交评审意见并生成终稿", key=f"submit_bp_review_{workflow['id']}"):
+        if not feedback_text.strip():
+            st.error("请先输入教师评审意见。")
+        else:
+            with st.spinner("正在根据教师意见修订商业计划书终稿..."):
+                final_content = revise_business_plan_with_feedback(
+                    project_data=workflow.get("context") or {},
+                    draft_markdown=workflow.get("draft_content") or "",
+                    teacher_feedback=feedback_text.strip(),
+                    target_comp=workflow.get("target_competition") or "互联网+",
+                )
+                finalize_business_plan_workflow(
+                    workflow_id=workflow["id"],
+                    teacher_id=user["id"],
+                    teacher_feedback=feedback_text.strip(),
+                    final_content=final_content,
+                )
+            st.success("评审意见已提交，终稿已经生成并回传到学生端。")
+            st.rerun()
+
+
+_fragment_api = getattr(st, "fragment", None)
+if callable(_fragment_api):
+    render_bp_review_queue = _fragment_api(run_every="5s")(render_bp_review_queue)
+
+
 def render_detailed_analysis(user):
     st.header("📈 详细分析")
     
@@ -413,6 +492,7 @@ def render_detailed_analysis(user):
             range_r=[0, 100],
         )
         st.plotly_chart(fig_radar, use_container_width=True)
+        render_bp_review_queue(user)
         
         # 新增：A7 教师评价反馈下发流转模块
         st.divider()

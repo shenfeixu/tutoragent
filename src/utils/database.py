@@ -22,7 +22,10 @@ DB_PATH = DATA_DIR / "tutoragent.db"
 
 
 def get_connection() -> sqlite3.Connection:
-    conn = sqlite3.connect(str(DB_PATH))
+    conn = sqlite3.connect(str(DB_PATH), timeout=30, check_same_thread=False)
+    conn.execute("PRAGMA journal_mode = WAL;")
+    conn.execute("PRAGMA synchronous = NORMAL;")
+    conn.execute("PRAGMA busy_timeout = 5000;")
     # 【极速修复】服务器主盘爆满防御机制：强令数据库操作不依赖磁盘缓存，全转为服务器闲置的超大内存(RAM)!
     conn.execute("PRAGMA temp_store = MEMORY;")
     conn.row_factory = sqlite3.Row
@@ -105,6 +108,28 @@ def init_database():
         FOREIGN KEY (class_id) REFERENCES classes (id),
         FOREIGN KEY (student_id) REFERENCES users (id),
         UNIQUE(class_id, student_id)
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS business_plan_workflows (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        student_id INTEGER NOT NULL,
+        session_id TEXT,
+        target_competition TEXT,
+        project_name TEXT,
+        status TEXT NOT NULL DEFAULT 'draft_ready',
+        draft_content TEXT NOT NULL,
+        context_json TEXT DEFAULT '{}',
+        teacher_feedback TEXT,
+        feedback_teacher_id INTEGER,
+        feedback_submitted_at TEXT,
+        final_content TEXT,
+        final_generated_at TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        FOREIGN KEY (student_id) REFERENCES users (id),
+        FOREIGN KEY (feedback_teacher_id) REFERENCES users (id)
     )
     """)
     
@@ -269,6 +294,7 @@ def delete_user(user_id: int) -> bool:
         cursor.execute("DELETE FROM sessions WHERE user_id = ?", (user_id,))
         cursor.execute("DELETE FROM teacher_students WHERE teacher_id = ? OR student_id = ?", (user_id, user_id))
         cursor.execute("DELETE FROM intervention_rules WHERE teacher_id = ? OR student_id = ?", (user_id, user_id))
+        cursor.execute("DELETE FROM business_plan_workflows WHERE student_id = ? OR feedback_teacher_id = ?", (user_id, user_id))
         
         # 2. 删除用户主记录
         cursor.execute("DELETE FROM users WHERE id = ?", (user_id,))
@@ -696,6 +722,167 @@ def get_student_scores(competition_weights: Dict[str, float] = None) -> List[Dic
         })
     
     return sorted(results, key=lambda x: x["total_score"])
+
+
+def create_business_plan_workflow(
+    student_id: int,
+    session_id: str,
+    draft_content: str,
+    target_competition: str = None,
+    project_name: str = None,
+    context: Optional[Dict[str, Any]] = None,
+) -> int:
+    conn = get_connection()
+    cursor = conn.cursor()
+    now = datetime.now().isoformat()
+    cursor.execute(
+        """
+        INSERT INTO business_plan_workflows (
+            student_id, session_id, target_competition, project_name, status,
+            draft_content, context_json, created_at, updated_at
+        )
+        VALUES (?, ?, ?, ?, 'draft_ready', ?, ?, ?, ?)
+        """,
+        (
+            student_id,
+            session_id,
+            target_competition,
+            project_name,
+            draft_content,
+            json.dumps(_sanitize_data(context or {}), ensure_ascii=False),
+            now,
+            now,
+        ),
+    )
+    workflow_id = cursor.lastrowid
+    conn.commit()
+    conn.close()
+    return workflow_id
+
+
+def get_business_plan_workflow(workflow_id: int) -> Optional[Dict[str, Any]]:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        SELECT bp.*, u.display_name AS student_name, u.username AS student_username,
+               t.display_name AS teacher_name
+        FROM business_plan_workflows bp
+        JOIN users u ON u.id = bp.student_id
+        LEFT JOIN users t ON t.id = bp.feedback_teacher_id
+        WHERE bp.id = ?
+        """,
+        (workflow_id,),
+    )
+    row = cursor.fetchone()
+    conn.close()
+    if not row:
+        return None
+    data = dict(row)
+    data["context"] = json.loads(data.get("context_json") or "{}")
+    return data
+
+
+def get_latest_business_plan_workflow_for_student(
+    student_id: int,
+    session_id: Optional[str] = None,
+) -> Optional[Dict[str, Any]]:
+    conn = get_connection()
+    cursor = conn.cursor()
+    query = """
+        SELECT bp.*, u.display_name AS student_name, u.username AS student_username,
+               t.display_name AS teacher_name
+        FROM business_plan_workflows bp
+        JOIN users u ON u.id = bp.student_id
+        LEFT JOIN users t ON t.id = bp.feedback_teacher_id
+        WHERE bp.student_id = ?
+    """
+    params: List[Any] = [student_id]
+    if session_id:
+        query += " AND bp.session_id = ?"
+        params.append(session_id)
+    query += " ORDER BY bp.updated_at DESC, bp.id DESC LIMIT 1"
+    cursor.execute(query, params)
+    row = cursor.fetchone()
+    conn.close()
+    if not row:
+        return None
+    data = dict(row)
+    data["context"] = json.loads(data.get("context_json") or "{}")
+    return data
+
+
+def list_business_plan_workflows_for_teacher(
+    teacher_id: int,
+    status: Optional[str] = None,
+) -> List[Dict[str, Any]]:
+    conn = get_connection()
+    cursor = conn.cursor()
+    params: List[Any] = [teacher_id, teacher_id]
+    status_clause = ""
+    if status:
+        status_clause = " AND bp.status = ?"
+        params.append(status)
+
+    cursor.execute(
+        f"""
+        SELECT DISTINCT
+            bp.*,
+            u.display_name AS student_name,
+            u.username AS student_username,
+            t.display_name AS teacher_name
+        FROM business_plan_workflows bp
+        JOIN users u ON u.id = bp.student_id
+        LEFT JOIN users t ON t.id = bp.feedback_teacher_id
+        LEFT JOIN teacher_students ts
+            ON ts.student_id = bp.student_id AND ts.teacher_id = ?
+        LEFT JOIN class_students cs
+            ON cs.student_id = bp.student_id
+        LEFT JOIN classes c
+            ON c.id = cs.class_id AND c.teacher_id = ?
+        WHERE (ts.teacher_id IS NOT NULL OR c.teacher_id IS NOT NULL)
+        {status_clause}
+        ORDER BY bp.updated_at DESC, bp.id DESC
+        """,
+        params,
+    )
+    rows = cursor.fetchall()
+    conn.close()
+    results = []
+    for row in rows:
+        item = dict(row)
+        item["context"] = json.loads(item.get("context_json") or "{}")
+        results.append(item)
+    return results
+
+
+def finalize_business_plan_workflow(
+    workflow_id: int,
+    teacher_id: int,
+    teacher_feedback: str,
+    final_content: str,
+) -> bool:
+    conn = get_connection()
+    cursor = conn.cursor()
+    now = datetime.now().isoformat()
+    cursor.execute(
+        """
+        UPDATE business_plan_workflows
+        SET status = 'final_ready',
+            teacher_feedback = ?,
+            feedback_teacher_id = ?,
+            feedback_submitted_at = ?,
+            final_content = ?,
+            final_generated_at = ?,
+            updated_at = ?
+        WHERE id = ?
+        """,
+        (teacher_feedback, teacher_id, now, final_content, now, now, workflow_id),
+    )
+    success = cursor.rowcount > 0
+    conn.commit()
+    conn.close()
+    return success
 
 
 class Neo4jManager:

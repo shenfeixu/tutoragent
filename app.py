@@ -10,6 +10,7 @@ import plotly.graph_objects as go
 from src.agents.langgraph_core import (
     run_langgraph_cycle,
     run_learning_mode_cycle,
+    run_defense_mode_cycle,
     COMPETITION_WEIGHTS, 
     RUBRIC_DIM_NAMES, 
     generate_financial_report, 
@@ -31,6 +32,8 @@ from src.utils.database import (
     delete_user_session,
     get_user_memory,
     get_student_scores,
+    create_business_plan_workflow,
+    get_latest_business_plan_workflow_for_student,
 )
 
 st.set_page_config(
@@ -317,6 +320,142 @@ def init_session_state():
         st.session_state.student_mode = "竞赛教练模式"
 
 
+def ensure_session_assets() -> dict:
+    assets = st.session_state.accumulated_info.setdefault("session_assets", {})
+    assets.setdefault("finance_report", "")
+    assets.setdefault("finance_generated_at", "")
+    assets.setdefault("bp_draft", "")
+    assets.setdefault("bp_generated_at", "")
+    return assets
+
+
+def collect_current_session_defense_records() -> list:
+    records = []
+    for msg in st.session_state.get("messages", []):
+        if msg.get("role") != "assistant" or not msg.get("state"):
+            continue
+        state = msg["state"]
+        if state.get("accumulated_info", {}).get("student_mode") != "答辩模式":
+            continue
+        records.append({
+            "timestamp": msg.get("timestamp", ""),
+            "expert": state.get("agent_insights", {}).get("selected_expert", "未识别专家"),
+            "focus": state.get("agent_insights", {}).get("expert_focus", ""),
+            "reason": state.get("agent_insights", {}).get("expert_reason", ""),
+            "content": msg.get("content", ""),
+        })
+    return records
+
+
+def render_project_assets_panel(user):
+    current_session_id = st.session_state.get("current_session_id")
+    if not current_session_id:
+        return
+
+    assets = ensure_session_assets()
+    workflow = get_latest_business_plan_workflow_for_student(user["id"], session_id=current_session_id)
+    defense_records = collect_current_session_defense_records()
+
+    has_bp = bool(workflow or assets.get("bp_draft"))
+    has_finance = bool(assets.get("finance_report"))
+    has_defense = bool(defense_records)
+    if not any([has_bp, has_finance, has_defense]):
+        return
+
+    st.markdown("### 当前会话项目资产")
+    cols = st.columns(3)
+
+    with cols[0]:
+        bp_status = "终稿已回传" if workflow and workflow.get("final_content") else ("初稿已生成" if has_bp else "未生成")
+        st.metric("商业计划书", bp_status)
+        if workflow and workflow.get("final_content"):
+            if st.button("打开 BP 终稿", key=f"asset_bp_final_{current_session_id}", use_container_width=True):
+                st.session_state["full_bp_content"] = workflow["final_content"]
+                st.session_state["show_full_bp"] = True
+                st.rerun()
+        elif workflow and workflow.get("draft_content"):
+            with st.expander("查看当前会话 BP 初稿", expanded=False):
+                st.markdown(workflow["draft_content"])
+
+    with cols[1]:
+        finance_status = "已生成" if has_finance else "未生成"
+        st.metric("财务报告", finance_status)
+        if has_finance:
+            if st.button("打开财务报告", key=f"asset_finance_{current_session_id}", use_container_width=True):
+                st.session_state["finance_report_content"] = assets.get("finance_report", "")
+                st.session_state["show_finance_report"] = True
+                st.rerun()
+            if assets.get("finance_generated_at"):
+                st.caption(f"生成于 {assets['finance_generated_at'][:19].replace('T', ' ')}")
+
+    with cols[2]:
+        st.metric("答辩记录", len(defense_records))
+        if has_defense:
+            latest = defense_records[-1]
+            st.caption(f"最近专家：{latest['expert']}")
+
+    if has_defense:
+        with st.expander("查看当前会话答辩记录", expanded=False):
+            for idx, record in enumerate(defense_records, start=1):
+                ts = (record.get("timestamp") or "")[:19].replace("T", " ")
+                st.markdown(f"**第 {idx} 轮｜{record['expert']}**")
+                if ts:
+                    st.caption(ts)
+                if record.get("reason"):
+                    st.markdown(f"- 触发原因：{record['reason']}")
+                if record.get("focus"):
+                    st.markdown(f"- 关注重点：{record['focus']}")
+                    st.markdown(record["content"])
+                if idx != len(defense_records):
+                    st.markdown("---")
+
+
+_fragment_api = getattr(st, "fragment", None)
+if callable(_fragment_api):
+    render_project_assets_panel = _fragment_api(run_every="5s")(render_project_assets_panel)
+
+
+def render_business_plan_workflow_panel(user):
+    current_session_id = st.session_state.get("current_session_id")
+    workflow = get_latest_business_plan_workflow_for_student(user["id"], session_id=current_session_id)
+    if not workflow:
+        return
+
+    status_labels = {
+        "draft_ready": "初稿已生成，等待教师评审",
+        "final_ready": "终稿已完成，可直接查看",
+    }
+    status_text = status_labels.get(workflow.get("status"), workflow.get("status", "处理中"))
+    project_name = workflow.get("project_name") or "未命名项目"
+
+    st.markdown("### 商业计划书协同流转")
+    st.info(
+        f"当前项目：**{project_name}**\n\n"
+        f"当前状态：**{status_text}**\n\n"
+        f"最近更新时间：`{(workflow.get('updated_at') or '')[:19].replace('T', ' ')}`"
+    )
+
+    if workflow.get("teacher_feedback"):
+        teacher_name = workflow.get("teacher_name") or "教师"
+        st.markdown(f"**{teacher_name} 评审意见**")
+        st.markdown(workflow["teacher_feedback"])
+
+    with st.expander("查看提交给教师的商业计划书初稿", expanded=False):
+        st.markdown(workflow.get("draft_content") or "暂无初稿内容。")
+
+    if workflow.get("final_content"):
+        st.success("教师意见已经吸收完成，终稿已回传到学生端。")
+        with st.expander("查看商业计划书终稿", expanded=False):
+            st.markdown(workflow["final_content"])
+        if st.button("查看完整计划书页面", key=f"open_bp_{workflow['id']}"):
+            st.session_state["full_bp_content"] = workflow["final_content"]
+            st.session_state["show_full_bp"] = True
+            st.rerun()
+
+if callable(_fragment_api):
+    render_business_plan_workflow_panel = _fragment_api(run_every="5s")(render_business_plan_workflow_panel)
+
+
 def generate_session_id() -> str:
     return datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + uuid.uuid4().hex[:6]
 
@@ -357,6 +496,10 @@ def create_new_session():
     st.session_state.current_session_id = generate_session_id()
     st.session_state.messages = []
     st.session_state.session_title = "新对话"
+    st.session_state["show_full_bp"] = False
+    st.session_state["show_finance_report"] = False
+    st.session_state["full_bp_content"] = ""
+    st.session_state["finance_report_content"] = ""
     
     memory = None
     if getattr(st.session_state, "user", None):
@@ -366,6 +509,12 @@ def create_new_session():
     if memory:
         st.session_state.accumulated_info["student_memory"] = memory
     st.session_state.accumulated_info["student_mode"] = st.session_state.get("student_mode", "竞赛教练模式")
+    st.session_state.accumulated_info["session_assets"] = {
+        "finance_report": "",
+        "finance_generated_at": "",
+        "bp_draft": "",
+        "bp_generated_at": "",
+    }
 
 
 def load_session_to_state(session_id: str):
@@ -377,6 +526,9 @@ def load_session_to_state(session_id: str):
         st.session_state.session_title = data.get("title", "新对话")
         st.session_state.accumulated_info = data.get("accumulated_info", {})
         st.session_state.student_mode = st.session_state.accumulated_info.get("student_mode", "竞赛教练模式")
+        ensure_session_assets()
+        st.session_state["show_full_bp"] = False
+        st.session_state["show_finance_report"] = False
 
 
 def save_current_session():
@@ -516,13 +668,16 @@ def render_sidebar():
         st.divider()
 
         if user["role"] == "student":
+            mode_options = ["竞赛教练模式", "自由对话学习模式", "答辩模式"]
+            current_mode = st.session_state.get("student_mode", "竞赛教练模式")
+            current_index = mode_options.index(current_mode) if current_mode in mode_options else 0
             st.markdown("**🧭 学习模式**")
             st.session_state.student_mode = st.radio(
                 "选择当前对话方式：",
-                ["竞赛教练模式", "自由对话学习模式"],
-                index=0 if st.session_state.get("student_mode", "竞赛教练模式") == "竞赛教练模式" else 1,
+                mode_options,
+                index=current_index,
             )
-            st.caption("自由对话模式会边回答边追问，并结合图谱案例帮助理解。")
+            st.caption("自由对话会边回答边引导；答辩模式会自动切换成最合适的毒舌专家来压力测试你。")
             st.divider()
         
         st.markdown("**🏆 赛事目标设置**")
@@ -599,6 +754,9 @@ def render_sidebar():
                     
                     if finance_data["extracted_nodes"] or finance_data["accumulated_info"]:
                         report_md = generate_financial_report(finance_data, for_student=True)
+                        assets = ensure_session_assets()
+                        assets["finance_report"] = report_md
+                        assets["finance_generated_at"] = datetime.now().isoformat()
                         st.session_state["finance_report_content"] = report_md
                         st.session_state["show_finance_report"] = True
                         st.rerun()
@@ -635,21 +793,32 @@ def render_sidebar():
                                 break
                         
                         full_bp_md = generate_business_plan(bp_data, target_comp=st.session_state.target_competition)
+                        assets = ensure_session_assets()
+                        assets["bp_draft"] = full_bp_md
+                        assets["bp_generated_at"] = datetime.now().isoformat()
                         st.session_state["full_bp_content"] = full_bp_md
                         st.session_state["show_full_bp"] = True
+                        create_business_plan_workflow(
+                            student_id=user["id"],
+                            session_id=st.session_state.current_session_id,
+                            draft_content=full_bp_md,
+                            target_competition=st.session_state.target_competition,
+                            project_name=bp_data["accumulated_info"].get("project_name"),
+                            context=bp_data,
+                        )
                         
                         # 自动将生成的BP存档，供教师端审阅
                         import json
                         from pathlib import Path
                         bp_file = Path("data/student_bps.json")
                         bps_data = {}
-                        if bp_file.exists():
+                        if False and bp_file.exists():
                             try:
                                 bps_data = json.loads(bp_file.read_text(encoding="utf-8"))
                             except:
                                 pass
-                        bps_data[user.get("display_name", user["username"])] = full_bp_md
-                        bp_file.write_text(json.dumps(bps_data, ensure_ascii=False), encoding="utf-8")
+                        pass
+                        pass
                         
                         st.rerun()
             else:
@@ -729,7 +898,7 @@ def render_sidebar():
                 st.write("等待对话开始...")
 
 
-def render_kg_query_visualization(kg_query_details: list):
+def render_kg_query_visualization(kg_query_details: list, key_prefix: str = "kg"):
     """渲染知识图谱查询过程可视化组件"""
     if not kg_query_details:
         return
@@ -813,7 +982,7 @@ def render_kg_query_visualization(kg_query_details: list):
 
         return nodes, edges
 
-    def render_subgraph(graph_nodes, graph_edges, title="**🕸️ 相关案例子图**"):
+    def render_subgraph(graph_nodes, graph_edges, title="**🕸️ 相关案例子图**", chart_key=None):
         if not graph_nodes:
             return
 
@@ -899,7 +1068,7 @@ def render_kg_query_visualization(kg_query_details: list):
             yaxis=dict(visible=False),
             legend=dict(orientation="h"),
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True, key=chart_key)
     
     st.markdown("---")
     st.markdown("### 🔍 知识图谱查询轨迹")
@@ -946,6 +1115,7 @@ def render_kg_query_visualization(kg_query_details: list):
                     graph_nodes,
                     graph_edges,
                     title="**🕸️ 相关案例子图**" if is_learning_mode else "**🕸️ 图谱命中案例子图**",
+                    chart_key=f"{key_prefix}_subgraph_{idx}_{query_type}_{step}",
                 )
 
             query_attempts = detail.get("query_attempts", [])
@@ -1129,7 +1299,7 @@ def render_teacher_dashboard():
                 st.markdown(plan)
 
 
-def render_chat_message(role: str, content: str, state: dict = None):
+def render_chat_message(role: str, content: str, state: dict = None, message_key: str = ""):
     if role == "user":
         with st.chat_message("user", avatar="👤"):
             st.markdown(content)
@@ -1142,13 +1312,17 @@ def render_chat_message(role: str, content: str, state: dict = None):
                 fallacies = state.get("detected_fallacies", [])
                 student_mode = state.get("accumulated_info", {}).get("student_mode", "竞赛教练模式")
                 is_learning_mode = student_mode == "自由对话学习模式"
+                is_defense_mode = student_mode == "答辩模式"
                 if "GENTLE_INTERCEPTION" in fallacies or "GHOSTWRITING_INTERCEPTION" in fallacies:
                     return
                 
                 with st.expander("📊 详细分析", expanded=False):
-                    if is_learning_mode:
+                    if is_learning_mode or is_defense_mode:
                         st.markdown("**抽取的项目线索**")
                         st.json(state.get("extracted_nodes", {}))
+                        if is_defense_mode and state.get("agent_insights"):
+                            st.markdown("**本轮答辩专家**")
+                            st.json(state.get("agent_insights", {}))
                     else:
                         col1, col2 = st.columns(2)
                         with col1:
@@ -1164,7 +1338,7 @@ def render_chat_message(role: str, content: str, state: dict = None):
                     # 知识图谱诊断轨迹 (Req 4, 5) - 独立展示，不嵌套在else中
                     if state and state.get("kg_query_details"):
                         st.markdown("---")
-                        st.markdown("**🌐 知识图谱检索结果**" if is_learning_mode else "**🌐 知识图谱 / 超图检索轨迹**")
+                        st.markdown("**🌐 知识图谱检索结果**" if (is_learning_mode or is_defense_mode) else "**🌐 知识图谱 / 超图检索轨迹**")
                         for detail in state["kg_query_details"]:
                             cat_icon = "📍"
                             if "Market" in detail.get("category", ""): cat_icon = "📊"
@@ -1178,12 +1352,15 @@ def render_chat_message(role: str, content: str, state: dict = None):
                     # 证据链溯源
                     if state.get("evidence"):
                         st.markdown("---")
-                        st.markdown("**🧬 学习辅助线索**" if is_learning_mode else "**🧬 逻辑溯源（超图审计证据）**")
+                        st.markdown("**🧬 学习辅助线索**" if (is_learning_mode or is_defense_mode) else "**🧬 逻辑溯源（超图审计证据）**")
                         for ev in state["evidence"]:
                             st.markdown(f"**{ev['step']}**: {ev['detail']}")
+
+                if is_defense_mode:
+                    return
                 
                 # ── 评估细则与过程 (Req 4, 5) ──
-                if not is_learning_mode:
+                if not is_learning_mode and student_mode != "绛旇京妯″紡":
                     with st.expander("📋 评估细则与过程（点击展开查看完整规则）", expanded=False):
                         from src.agents.langgraph_core import FALLACY_STRATEGY_LIBRARY, FALLACY_SEVERITY
                         
@@ -1271,7 +1448,10 @@ def render_chat_message(role: str, content: str, state: dict = None):
                 kg_query_details = state.get("kg_query_details", [])
                 if kg_query_details:
                     with st.expander("🔍 知识图谱查询轨迹", expanded=True):
-                        render_kg_query_visualization(kg_query_details)
+                        render_kg_query_visualization(
+                            kg_query_details,
+                            key_prefix=f"kg_{message_key or 'assistant'}",
+                        )
 
 def main():
     init_session_state()
@@ -1317,6 +1497,7 @@ def main():
         return
     
     if st.session_state.get("show_finance_report", False) and st.session_state.view == "student":
+        finance_report_content = ensure_session_assets().get("finance_report") or st.session_state.get("finance_report_content", "")
         st.title("💰 项目财务健康诊断报告")
         st.caption("基于 AI 多维度财务分析引擎生成")
         if st.button("🔙 返回当前对话列表", type="primary"):
@@ -1324,13 +1505,23 @@ def main():
             st.rerun()
         
         st.divider()
-        st.markdown(st.session_state.get("finance_report_content", "生成失败"))
+        st.markdown(finance_report_content or "生成失败")
         return
 
     if st.session_state.get("show_full_bp", False) and st.session_state.view == "student":
+        workflow = get_latest_business_plan_workflow_for_student(
+            st.session_state.user["id"],
+            session_id=st.session_state.get("current_session_id"),
+        )
+        bp_content = (
+            (workflow.get("final_content") if workflow and workflow.get("final_content") else None)
+            or ensure_session_assets().get("bp_draft")
+            or st.session_state.get("full_bp_content", "")
+        )
         st.title(f"✨ {st.session_state.target_competition} 商业计划书 (AI 合成版)")
         st.caption("基于全量对话逻辑深度合成，仅供参赛参考")
         
+        render_business_plan_workflow_panel(st.session_state.user)
         col_b1, col_b2 = st.columns([1, 4])
         with col_b1:
             if st.button("🔙 返回对话列表", type="primary", use_container_width=True):
@@ -1340,12 +1531,12 @@ def main():
             st.info("💡 提示：您可以直接全选、复制以下内容到您的正式 Word/PPT 文档中。")
             
         st.divider()
-        st.markdown(st.session_state.get("full_bp_content", "生成失败"))
+        st.markdown(bp_content or "生成失败")
         
         # [NEW] Word 下载功能 (Req 10)
         st.divider()
         docx_bytes = export_markdown_to_docx(
-            st.session_state["full_bp_content"], 
+            bp_content, 
             title=f"{st.session_state.target_competition} 商业计划书",
             subtitle=f"项目名称：{st.session_state.accumulated_info.get('project_name', '未命名')} | 生成时间：{datetime.now().strftime('%Y-%m-%d')}"
         )
@@ -1364,9 +1555,9 @@ def main():
         st.markdown("基于知识图谱与超图推理的创业项目诊断助手。")
         
         # 加载教师评审反馈
-        import json
-        feedback_file = Path("data/teacher_feedback.json")
-        if feedback_file.exists():
+        # legacy feedback file disabled; workflow panel below is session-scoped
+        if False:
+            pass
             try:
                 feedbacks = json.loads(feedback_file.read_text(encoding="utf-8"))
                 display_name = st.session_state.user.get("display_name", st.session_state.user["username"])
@@ -1374,6 +1565,8 @@ def main():
                     st.info(f"**👨‍🏫 你的商业计划书已收到主教练最新评审意见：**\n\n{feedbacks[display_name]}")
             except:
                 pass
+        render_project_assets_panel(st.session_state.user)
+        render_business_plan_workflow_panel(st.session_state.user)
     with col_t2:
         st.write("")
         st.write("")
@@ -1418,7 +1611,8 @@ def main():
             render_chat_message(
                 msg.get("role"),
                 msg.get("content"),
-                msg.get("state") if msg.get("role") == "assistant" else None
+                msg.get("state") if msg.get("role") == "assistant" else None,
+                message_key=msg.get("timestamp", ""),
             )
             
     # Handle File Upload Submission logic
@@ -1428,6 +1622,10 @@ def main():
         if current_mode == "竞赛教练模式"
         else "可以直接提问：比如我不知道怎么找用户痛点、怎么选赛道、怎么做商业模式..."
     )
+    if current_mode == "绛旇京妯″紡":
+        chat_placeholder = "现在就把你的项目想法丢过来，我会用评委视角直接发问。"
+    if current_mode == "\u7b54\u8fa9\u6a21\u5f0f":
+        chat_placeholder = "现在就把你的项目想法丢过来，我会用评委视角直接发问。"
     prompt = st.chat_input(chat_placeholder)
     
     # Process either a file upload OR text chat input
@@ -1465,7 +1663,7 @@ def main():
         })
         
         with chat_container:
-            render_chat_message("user", display_text)
+            render_chat_message("user", display_text, message_key=st.session_state.messages[-1]["timestamp"])
         
         conversation_history = []
         for msg in st.session_state.messages[:-1]:
@@ -1479,6 +1677,12 @@ def main():
         if current_mode == "自由对话学习模式":
             spinner_text = "AI 导师正在结合知识图谱组织讲解与案例..."
             cycle_runner = run_learning_mode_cycle
+        elif current_mode == "\u7b54\u8fa9\u6a21\u5f0f":
+            spinner_text = "AI 答辩评委正在选择最适合的专家视角并准备高压提问..."
+            cycle_runner = run_defense_mode_cycle
+        elif current_mode == "绛旇京妯″紡":
+            spinner_text = "AI 答辩评委正在选择最适合的专家视角并准备高压提问..."
+            cycle_runner = run_defense_mode_cycle
         else:
             spinner_text = "AI 教练正在全量分析档案内容..."
             cycle_runner = run_langgraph_cycle
@@ -1503,7 +1707,12 @@ def main():
         st.session_state.messages.append(assistant_msg)
         
         with chat_container:
-            render_chat_message("assistant", state.response, assistant_msg["state"])
+            render_chat_message(
+                "assistant",
+                state.response,
+                assistant_msg["state"],
+                message_key=assistant_msg["timestamp"],
+            )
         
         if len(st.session_state.messages) == 2:
             title_source = prompt if prompt else (uploaded_file.name if uploaded_file else "新对话")

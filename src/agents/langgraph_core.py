@@ -2802,6 +2802,51 @@ def generate_business_plan(project_data: Dict[str, Any], target_comp: str = "互
         return f"合成商业计划书失败：{e}"
 
 
+def revise_business_plan_with_feedback(
+    project_data: Dict[str, Any],
+    draft_markdown: str,
+    teacher_feedback: str,
+    target_comp: str = "互联网+",
+) -> str:
+    """Use teacher feedback to revise an existing business plan into the final version."""
+    accumulated = project_data.get("accumulated_info", {})
+    extracted = project_data.get("extracted_nodes", {})
+    history = project_data.get("conversation_history", [])
+    history_text = "\n".join([f"{m.get('role')}: {m.get('content')}" for m in history[-10:]])
+
+    system_prompt = (
+        f"你是一名同时具备项目教练、竞赛顾问与高校导师评审经验的双创专家，正在将一份 {target_comp} 赛道商业计划书初稿修订为终稿。\n"
+        "你的目标不是重写无关内容，而是严格吸收导师评审意见，对初稿做有依据的增强、纠偏与补足。\n\n"
+        "【修订原则】\n"
+        "1. 必须保留原有项目设定、叙事主线与章节结构，输出仍为 Markdown。\n"
+        "2. 必须逐条落实教师意见，优先修正逻辑漏洞、证据不足、商业模式不清、市场论证薄弱、财务与风险缺项等问题。\n"
+        "3. 若教师意见要求补充数据但上下文没有精确值，可以给出合理假设，并显式标注为“基于行业假设”。\n"
+        "4. 终稿要比初稿更适合直接交付教师和学生查看，语言专业但不要空泛。\n"
+        "5. 在正文最前面新增“## 0. 导师反馈落实摘要”，用 3-6 条说明本次重点修改了什么。\n"
+    )
+
+    context = {
+        "target_competition": target_comp,
+        "history_context": history_text,
+        "extracted_nodes": extracted,
+        "accumulated_info": accumulated,
+        "detected_fallacies": project_data.get("frequent_fallacies", []),
+    }
+
+    human_prompt = (
+        f"【教师评审意见】\n{teacher_feedback}\n\n"
+        f"【项目上下文】\n{json.dumps(context, ensure_ascii=False, indent=2)}\n\n"
+        f"【商业计划书初稿】\n{draft_markdown}\n\n"
+        "请输出修订后的最终版商业计划书。"
+    )
+
+    try:
+        return _call_openai_manual(system_prompt, human_prompt)
+    except Exception as e:
+        LOGGER.error(f"Error revising business plan: {e}")
+        return f"商业计划书终稿修订失败：{e}"
+
+
 def check_input_safety(text: str) -> bool:
     """A7: 基础的鲁棒与合规检查，拦截乱码和常见的越狱前缀"""
     import re
@@ -2886,6 +2931,179 @@ def _build_learning_subgraph(cases: List[Dict[str, Any]]) -> Tuple[List[Dict[str
                 add_edge(risk_pattern_id, risk_id, "INVOLVES_RISK")
 
     return nodes, edges
+
+
+DEFENSE_EXPERT_PROFILES: Dict[str, Dict[str, str]] = {
+    "激进型VC": {
+        "focus": "市场规模、增长速度、团队执行力、融资故事与壁垒",
+        "style": "尖锐、直接、强压迫感，喜欢追问为什么是你、为什么是现在、为什么能做大。",
+    },
+    "技术流专家": {
+        "focus": "技术可行性、算法/系统壁垒、数据来源、工程落地与技术替代风险",
+        "style": "专业、挑剔，喜欢追问核心技术是不是伪创新，能否真正落地。",
+    },
+    "保守型银行家": {
+        "focus": "现金流、合规、偿付能力、稳健性、坏账和风控",
+        "style": "谨慎、冷静，偏向质疑财务假设是否过于乐观。",
+    },
+    "产业操盘手": {
+        "focus": "渠道、供应链、交付效率、客户转化、产业协同",
+        "style": "务实，专盯从想法走到真实交付过程中最容易掉链子的环节。",
+    },
+    "政策合规顾问": {
+        "focus": "监管、行业准入、数据安全、知识产权、伦理与资质",
+        "style": "严苛，喜欢问项目是否踩线，是否具备进入目标行业的资格。",
+    },
+}
+
+
+def run_defense_mode_cycle(
+    student_input: str,
+    conversation_history: List[Dict[str, str]] = None,
+    accumulated_info: Dict[str, Any] = None,
+    target_competition: str = "互联网+",
+    student_id: int = None,
+) -> AgentState:
+    state = AgentState(
+        student_input=student_input,
+        conversation_history=conversation_history or [],
+        accumulated_info=dict(accumulated_info or {}),
+        target_competition=target_competition,
+    )
+
+    try:
+        if LANGCHAIN_AVAILABLE:
+            state = extract_entities(state)
+    except Exception as e:
+        LOGGER.warning("Defense mode entity extraction failed: %s", e)
+
+    if state.extracted_nodes:
+        merged_info = dict(state.accumulated_info or {})
+        for key, value in state.extracted_nodes.items():
+            if value not in [None, "", [], {}]:
+                merged_info[key] = value
+        state.accumulated_info = merged_info
+
+    state.accumulated_info["student_mode"] = "答辩模式"
+
+    query_text = _build_learning_query_text(student_input, state.accumulated_info)
+    query_profile = extract_learning_query_profile(student_input, state.accumulated_info)
+    matched_cases = query_seed_kg_cases(query_text, state.accumulated_info, query_profile=query_profile, top_k=3)
+    graph_nodes, graph_edges = _build_learning_subgraph(matched_cases)
+
+    expert_name = "激进型VC"
+    expert_reason = "当前问题更像是在接受市场与商业化压力测试。"
+    intent_text = " ".join(
+        query_profile.get(key, []) for key in [
+            "tech_keywords", "market_keywords", "risk_keywords", "problem_keywords", "project_keywords"
+        ]
+    ) if False else ""
+    combined_text = " ".join(
+        query_profile.get("tech_keywords", [])
+        + query_profile.get("market_keywords", [])
+        + query_profile.get("risk_keywords", [])
+        + query_profile.get("problem_keywords", [])
+        + query_profile.get("project_keywords", [])
+    ) + " " + student_input + " " + json.dumps(state.accumulated_info, ensure_ascii=False)
+
+    if any(token in combined_text for token in ["技术", "算法", "模型", "系统", "专利", "数据", "AI", "影像", "芯片"]):
+        expert_name = "技术流专家"
+        expert_reason = "你的描述里技术实现与壁垒是关键争议点。"
+    if any(token in combined_text for token in ["现金流", "营收", "利润", "还款", "成本", "财务", "贷款", "回本"]):
+        expert_name = "保守型银行家"
+        expert_reason = "当前更需要验证财务稳健性和现金流安全边界。"
+    if any(token in combined_text for token in ["合规", "审批", "医疗", "数据安全", "隐私", "监管", "资质", "药监"]):
+        expert_name = "政策合规顾问"
+        expert_reason = "当前问题里合规和准入风险优先级更高。"
+    if any(token in combined_text for token in ["供应链", "交付", "工厂", "渠道", "商家", "校园", "地推", "履约"]):
+        expert_name = "产业操盘手"
+        expert_reason = "项目更容易在渠道、交付和落地环节被追问。"
+
+    expert_profile = DEFENSE_EXPERT_PROFILES.get(expert_name, DEFENSE_EXPERT_PROFILES["激进型VC"])
+    state.agent_insights = {
+        "selected_expert": expert_name,
+        "expert_focus": expert_profile["focus"],
+        "expert_reason": expert_reason,
+    }
+
+    state.kg_query_details = [
+        KGQueryDetail(
+            step="DEFENSE_MODE_CASE_RETRIEVAL",
+            query_type="defense_mode_case_search",
+            tech_keywords=query_profile.get("tech_keywords", []) or query_profile.get("project_keywords", []),
+            market_keywords=(
+                query_profile.get("market_keywords", [])
+                + query_profile.get("user_keywords", [])
+                + query_profile.get("problem_keywords", [])
+            )[:8],
+            matched_projects=[case.get("project_name", "") for case in matched_cases],
+            project_details=matched_cases,
+            success=bool(matched_cases),
+            message=f"Retrieved {len(matched_cases)} local KG cases for defense mode.",
+            category="Defense",
+            retrieval_reason=f"Selected expert: {expert_name}; reason: {expert_reason}",
+            graph_nodes=graph_nodes,
+            graph_edges=graph_edges,
+        )
+    ]
+
+    state.evidence.append(
+        EvidenceItem(
+            step="defense_mode",
+            detail=f"系统自动选择了“{expert_name}”作为本轮压力测试专家，并检索到 {len(matched_cases)} 个相关案例。",
+            source_excerpt=f"学生原文：{_excerpt(student_input)}",
+        )
+    )
+
+    case_text = _format_learning_cases(matched_cases)
+    history_text = "\n".join(
+        [
+            f"{'学生' if msg.get('role') == 'user' else '导师'}: {msg.get('content', '')}"
+            for msg in (conversation_history or [])[-6:]
+        ]
+    )
+    nodes_text = json.dumps(state.extracted_nodes or {}, ensure_ascii=False, indent=2)
+
+    fallback_response = (
+        f"本轮我切到 **{expert_name}** 来做答辩压力测试。\n\n"
+        f"我最想追问你的核心点是：{expert_profile['focus']}。\n\n"
+        "毒舌提问：如果把你的项目最漂亮的包装都拿掉，你到底凭什么让别人相信这不是一个讲得很好听、但做不出来或赚不到钱的想法？\n\n"
+        "你可以先用三句话回答：\n"
+        "1. 你解决的是谁在什么场景下的什么刚需。\n"
+        "2. 你比现有替代方案强在哪里。\n"
+        "3. 如果一个月内必须验证，你最先验证哪一个指标。\n\n"
+        f"你可以参考这些相关案例：\n{case_text}"
+    )
+
+    if OPENAI_AVAILABLE and OPENAI_API_KEY:
+        system_prompt = (
+            "你正在学生端的“答辩模式”中扮演创业评审专家。\n"
+            "你要根据学生当前输入，自动采用最合适的专家身份进行高压提问，但目标是帮助学生准备答辩，而不是单纯打击他。\n"
+            "你的输出必须包含四段，且顺序固定：\n"
+            "1. 【本轮专家】说明你是谁、为什么由你来提问；\n"
+            "2. 【毒舌提问】给出 2-4 个尖锐问题；\n"
+            "3. 【招架思路】告诉学生这些问题应该怎么回答，给出答辩框架；\n"
+            "4. 【案例借鉴】结合相关案例提醒学生可以借什么思路。\n"
+            "语言要有压迫感，但不能侮辱学生；要像真实答辩现场。"
+        )
+        human_prompt = (
+            f"【自动选择的专家】{expert_name}\n"
+            f"【专家关注点】{expert_profile['focus']}\n"
+            f"【选择原因】{expert_reason}\n\n"
+            f"【最近对话】\n{history_text or '暂无'}\n\n"
+            f"【学生本轮输入】\n{student_input}\n\n"
+            f"【已提取项目实体】\n{nodes_text}\n\n"
+            f"【相关图谱案例】\n{case_text}\n"
+        )
+        try:
+            state.response = _call_openai_manual(system_prompt, human_prompt)
+        except Exception as e:
+            LOGGER.warning("Defense mode response generation failed: %s", e)
+            state.response = fallback_response
+    else:
+        state.response = fallback_response
+
+    return state
 
 
 def run_learning_mode_cycle(
