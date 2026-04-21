@@ -5,9 +5,11 @@ import uuid
 import pypdf
 import zipfile
 import xml.etree.ElementTree as ET
+import plotly.graph_objects as go
 
 from src.agents.langgraph_core import (
-    run_langgraph_cycle, 
+    run_langgraph_cycle,
+    run_learning_mode_cycle,
     COMPETITION_WEIGHTS, 
     RUBRIC_DIM_NAMES, 
     generate_financial_report, 
@@ -311,6 +313,8 @@ def init_session_state():
         st.session_state.target_competition = "互联网+"
     if "user_profile" not in st.session_state:
         st.session_state.user_profile = {}
+    if "student_mode" not in st.session_state:
+        st.session_state.student_mode = "竞赛教练模式"
 
 
 def generate_session_id() -> str:
@@ -361,6 +365,7 @@ def create_new_session():
     st.session_state.accumulated_info = {}
     if memory:
         st.session_state.accumulated_info["student_memory"] = memory
+    st.session_state.accumulated_info["student_mode"] = st.session_state.get("student_mode", "竞赛教练模式")
 
 
 def load_session_to_state(session_id: str):
@@ -371,11 +376,13 @@ def load_session_to_state(session_id: str):
         st.session_state.messages = data.get("messages", [])
         st.session_state.session_title = data.get("title", "新对话")
         st.session_state.accumulated_info = data.get("accumulated_info", {})
+        st.session_state.student_mode = st.session_state.accumulated_info.get("student_mode", "竞赛教练模式")
 
 
 def save_current_session():
     if st.session_state.user and st.session_state.current_session_id and st.session_state.messages:
         user_id = st.session_state.user["id"]
+        st.session_state.accumulated_info["student_mode"] = st.session_state.get("student_mode", "竞赛教练模式")
         save_user_session(
             user_id=user_id,
             session_id=st.session_state.current_session_id,
@@ -507,6 +514,16 @@ def render_sidebar():
         st.caption(f"身份: {'教师' if user['role'] == 'teacher' else ('管理员' if user['role'] == 'admin' else '学生')}")
         
         st.divider()
+
+        if user["role"] == "student":
+            st.markdown("**🧭 学习模式**")
+            st.session_state.student_mode = st.radio(
+                "选择当前对话方式：",
+                ["竞赛教练模式", "自由对话学习模式"],
+                index=0 if st.session_state.get("student_mode", "竞赛教练模式") == "竞赛教练模式" else 1,
+            )
+            st.caption("自由对话模式会边回答边追问，并结合图谱案例帮助理解。")
+            st.divider()
         
         st.markdown("**🏆 赛事目标设置**")
         st.session_state.target_competition = st.selectbox(
@@ -716,6 +733,173 @@ def render_kg_query_visualization(kg_query_details: list):
     """渲染知识图谱查询过程可视化组件"""
     if not kg_query_details:
         return
+
+    def build_detail_subgraph(detail: dict):
+        nodes = []
+        edges = []
+        seen_nodes = set()
+        seen_edges = set()
+
+        def add_node(node_id, label, node_type):
+            if not node_id or node_id in seen_nodes:
+                return
+            seen_nodes.add(node_id)
+            nodes.append({"id": node_id, "label": label, "type": node_type})
+
+        def add_edge(source, target, label):
+            key = (source, target, label)
+            if not source or not target or key in seen_edges:
+                return
+            seen_edges.add(key)
+            edges.append({"source": source, "target": target, "label": label})
+
+        project_details = detail.get("project_details", []) or []
+        if project_details:
+            for idx, proj in enumerate(project_details[:5], start=1):
+                project_name = proj.get("project_name", f"项目{idx}")
+                project_id = f"project::{idx}::{project_name}"
+                add_node(project_id, project_name, "project")
+
+                tech_name = proj.get("tech_name")
+                if tech_name:
+                    tech_id = f"tech::{idx}::{tech_name}"
+                    add_node(tech_id, tech_name, "tech")
+                    add_edge(project_id, tech_id, "USE")
+
+                market_name = proj.get("market_name")
+                if market_name:
+                    market_id = f"market::{idx}::{market_name}"
+                    add_node(market_id, market_name, "market")
+                    add_edge(project_id, market_id, "TARGET")
+
+                for risk_name in (proj.get("risks", []) or [])[:2]:
+                    risk_id = f"risk::{idx}::{risk_name}"
+                    add_node(risk_id, risk_name, "risk")
+                    add_edge(project_id, risk_id, "TRIGGER_RISK")
+
+                if proj.get("value_loop_name") or proj.get("value_loop_desc"):
+                    value_loop_name = proj.get("value_loop_name") or "价值闭环"
+                    value_loop_id = f"value_loop::{idx}::{value_loop_name}"
+                    add_node(value_loop_id, value_loop_name, "value_loop")
+                    add_edge(project_id, value_loop_id, "HAS_VALUE_LOOP")
+                    if tech_name:
+                        add_edge(value_loop_id, f"tech::{idx}::{tech_name}", "INVOLVES_TECH")
+                    if market_name:
+                        add_edge(value_loop_id, f"market::{idx}::{market_name}", "INVOLVES_MARKET")
+
+        for idx, risk in enumerate((detail.get("risk_details", []) or [])[:5], start=1):
+            risk_name = risk.get("risk_name")
+            if not risk_name:
+                continue
+            risk_id = f"risk_detail::{idx}::{risk_name}"
+            add_node(risk_id, risk_name, "risk")
+
+            risk_pattern = risk.get("risk_pattern")
+            if risk_pattern:
+                pattern_id = f"risk_pattern::{idx}::{risk_pattern}"
+                add_node(pattern_id, risk_pattern, "risk_pattern")
+                add_edge(pattern_id, risk_id, "INVOLVES_RISK")
+
+            for proj_name in (risk.get("related_projects", []) or [])[:3]:
+                project_id = f"risk_project::{idx}::{proj_name}"
+                add_node(project_id, proj_name, "project")
+                add_edge(project_id, risk_id, "TRIGGER_RISK")
+                if risk_pattern:
+                    add_edge(project_id, f"risk_pattern::{idx}::{risk_pattern}", "HAS_RISK_PATTERN")
+
+        if not nodes:
+            for idx, proj_name in enumerate((detail.get("matched_projects", []) or [])[:5], start=1):
+                add_node(f"matched_project::{idx}::{proj_name}", proj_name, "project")
+
+        return nodes, edges
+
+    def render_subgraph(graph_nodes, graph_edges, title="**🕸️ 相关案例子图**"):
+        if not graph_nodes:
+            return
+
+        st.markdown(title)
+        color_map = {
+            "project": "#38bdf8",
+            "tech": "#22c55e",
+            "market": "#f59e0b",
+            "risk": "#ef4444",
+            "value_loop": "#a855f7",
+            "risk_pattern": "#f97316",
+        }
+        type_order = {
+            "project": 0,
+            "tech": 1,
+            "market": 2,
+            "value_loop": 3,
+            "risk_pattern": 4,
+            "risk": 5,
+        }
+
+        grouped = {}
+        for node in graph_nodes:
+            grouped.setdefault(node.get("type", "other"), []).append(node)
+
+        positions = {}
+        for node_type, nodes_in_type in grouped.items():
+            x = type_order.get(node_type, len(type_order))
+            count = len(nodes_in_type)
+            for j, node in enumerate(nodes_in_type):
+                y = 0 if count == 1 else (count - 1) / 2 - j
+                positions[node["id"]] = (x, y)
+
+        edge_x, edge_y = [], []
+        for edge in graph_edges:
+            src = positions.get(edge.get("source"))
+            dst = positions.get(edge.get("target"))
+            if not src or not dst:
+                continue
+            edge_x.extend([src[0], dst[0], None])
+            edge_y.extend([src[1], dst[1], None])
+
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(
+            x=edge_x, y=edge_y, mode="lines",
+            line=dict(width=1.5, color="#64748b"),
+            hoverinfo="skip", showlegend=False,
+        ))
+
+        for node_type, nodes_in_type in grouped.items():
+            xs, ys, labels = [], [], []
+            for node in nodes_in_type:
+                x, y = positions[node["id"]]
+                xs.append(x)
+                ys.append(y)
+                labels.append(node.get("label", node["id"]))
+            fig.add_trace(go.Scatter(
+                x=xs, y=ys, mode="markers+text", text=labels, textposition="top center",
+                marker=dict(size=28, color=color_map.get(node_type, "#94a3b8")),
+                name=node_type, hovertemplate="%{text}<extra></extra>",
+            ))
+
+        for edge in graph_edges:
+            src = positions.get(edge.get("source"))
+            dst = positions.get(edge.get("target"))
+            if not src or not dst:
+                continue
+            fig.add_annotation(
+                x=(src[0] + dst[0]) / 2,
+                y=(src[1] + dst[1]) / 2,
+                text=edge.get("label", ""),
+                showarrow=False,
+                font=dict(size=10, color="#cbd5e1"),
+                bgcolor="rgba(15,23,42,0.75)",
+            )
+
+        fig.update_layout(
+            height=460,
+            margin=dict(l=20, r=20, t=20, b=20),
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            xaxis=dict(visible=False),
+            yaxis=dict(visible=False),
+            legend=dict(orientation="h"),
+        )
+        st.plotly_chart(fig, use_container_width=True)
     
     st.markdown("---")
     st.markdown("### 🔍 知识图谱查询轨迹")
@@ -725,6 +909,7 @@ def render_kg_query_visualization(kg_query_details: list):
             step = detail.get("step", "未知查询")
             query_type = detail.get("query_type", "")
             success = detail.get("success", False)
+            is_learning_mode = query_type == "learning_mode_case_search"
             
             status_icon = "✅" if success else "❌"
             status_color = "#10a37f" if success else "#ef4444"
@@ -751,9 +936,20 @@ def render_kg_query_visualization(kg_query_details: list):
                     st.markdown("**🎯 提取的市场关键词:**")
                     kw_html = " ".join([f'<span style="background-color: #8b5cf6; color: white; padding: 0.2rem 0.5rem; border-radius: 0.25rem; margin: 0.1rem; display: inline-block;">{kw}</span>' for kw in market_keywords])
                     st.markdown(f'<div style="margin-bottom: 0.5rem;">{kw_html}</div>', unsafe_allow_html=True)
-            
+
+            graph_nodes = detail.get("graph_nodes", [])
+            graph_edges = detail.get("graph_edges", [])
+            if not graph_nodes:
+                graph_nodes, graph_edges = build_detail_subgraph(detail)
+            if graph_nodes:
+                render_subgraph(
+                    graph_nodes,
+                    graph_edges,
+                    title="**🕸️ 相关案例子图**" if is_learning_mode else "**🕸️ 图谱命中案例子图**",
+                )
+
             query_attempts = detail.get("query_attempts", [])
-            if query_attempts:
+            if query_attempts and not is_learning_mode:
                 st.markdown("**📊 查询阶段记录:**")
                 for attempt in query_attempts:
                     stage = attempt.get("stage", "查询")
@@ -773,8 +969,11 @@ def render_kg_query_visualization(kg_query_details: list):
             if project_details:
                 st.markdown(f"**📋 匹配项目详情 ({len(project_details)}个):**")
                 for proj in project_details[:5]:
-                    score = detail.get("match_scores", {}).get(proj.get('project_name', ''), 0)
-                    with st.expander(f"📁 {proj.get('project_name', '未知项目')} (分数: {score})", expanded=False):
+                    title = f"📁 {proj.get('project_name', '未知项目')}"
+                    if not is_learning_mode:
+                        score = detail.get("match_scores", {}).get(proj.get('project_name', ''), 0)
+                        title = f"{title} (分数: {score})"
+                    with st.expander(title, expanded=False):
                         cols = st.columns(2)
                         with cols[0]:
                             st.markdown(f"**技术:** {proj.get('tech_name', 'N/A')}")
@@ -802,7 +1001,7 @@ def render_kg_query_visualization(kg_query_details: list):
                             st.markdown(f"**收入模式:** {proj.get('revenue_model', 'N/A')}")
                 
                 match_scores = detail.get("match_scores", {})
-                if match_scores:
+                if match_scores and not is_learning_mode:
                     st.markdown("**📈 匹配分数排序:**")
                     sorted_scores = sorted(match_scores.items(), key=lambda x: x[1], reverse=True)
                     score_text = " > ".join([f"{name}({score})" for name, score in sorted_scores[:5]])
@@ -941,25 +1140,31 @@ def render_chat_message(role: str, content: str, state: dict = None):
             if state:
                 # Hide detailed analysis and rubric if it's a strict interception
                 fallacies = state.get("detected_fallacies", [])
+                student_mode = state.get("accumulated_info", {}).get("student_mode", "竞赛教练模式")
+                is_learning_mode = student_mode == "自由对话学习模式"
                 if "GENTLE_INTERCEPTION" in fallacies or "GHOSTWRITING_INTERCEPTION" in fallacies:
                     return
                 
                 with st.expander("📊 详细分析", expanded=False):
-                    col1, col2 = st.columns(2)
-                    with col1:
-                        st.markdown("**抽取的商业实体**")
+                    if is_learning_mode:
+                        st.markdown("**抽取的项目线索**")
                         st.json(state.get("extracted_nodes", {}))
-                    with col2:
-                        st.markdown("**触发的超图逻辑**")
-                        if fallacies:
-                            st.warning("已触发: " + ", ".join(fallacies))
-                        else:
-                            st.success("逻辑通畅")
+                    else:
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.markdown("**抽取的商业实体**")
+                            st.json(state.get("extracted_nodes", {}))
+                        with col2:
+                            st.markdown("**触发的超图逻辑**")
+                            if fallacies:
+                                st.warning("已触发: " + ", ".join(fallacies))
+                            else:
+                                st.success("逻辑通畅")
                     
                     # 知识图谱诊断轨迹 (Req 4, 5) - 独立展示，不嵌套在else中
                     if state and state.get("kg_query_details"):
                         st.markdown("---")
-                        st.markdown("**🌐 知识图谱 / 超图检索轨迹**")
+                        st.markdown("**🌐 知识图谱检索结果**" if is_learning_mode else "**🌐 知识图谱 / 超图检索轨迹**")
                         for detail in state["kg_query_details"]:
                             cat_icon = "📍"
                             if "Market" in detail.get("category", ""): cat_icon = "📊"
@@ -973,97 +1178,95 @@ def render_chat_message(role: str, content: str, state: dict = None):
                     # 证据链溯源
                     if state.get("evidence"):
                         st.markdown("---")
-                        st.markdown("**🧬 逻辑溯源（超图审计证据）**")
+                        st.markdown("**🧬 学习辅助线索**" if is_learning_mode else "**🧬 逻辑溯源（超图审计证据）**")
                         for ev in state["evidence"]:
                             st.markdown(f"**{ev['step']}**: {ev['detail']}")
                 
                 # ── 评估细则与过程 (Req 4, 5) ──
-                with st.expander("📋 评估细则与过程（点击展开查看完整规则）", expanded=False):
-                    from src.agents.langgraph_core import FALLACY_STRATEGY_LIBRARY, FALLACY_SEVERITY
-                    
-                    st.markdown("#### 📖 超图评估规则库（H1-H20）")
-                    st.caption("以下为系统内置的全部逻辑审计规则，每条规则均通过与大模型反复讨论后确定。")
-                    
-                    # 按严重程度分组展示
-                    severity_groups = {
-                        "🔴 致命伤 (Fatal)": [],
-                        "🟠 重大问题 (Major)": [],
-                        "🟡 显著影响 (Significant)": [],
-                        "🟢 轻微瑕疵 (Minor)": [],
-                    }
-                    for rule_id, desc in FALLACY_STRATEGY_LIBRARY.items():
-                        severity = FALLACY_SEVERITY.get(rule_id, 0.5)
-                        if severity >= 2.5:
-                            severity_groups["🔴 致命伤 (Fatal)"].append((rule_id, desc))
-                        elif severity >= 1.5:
-                            severity_groups["🟠 重大问题 (Major)"].append((rule_id, desc))
-                        elif severity >= 1.2:
-                            severity_groups["🟡 显著影响 (Significant)"].append((rule_id, desc))
-                        else:
-                            severity_groups["🟢 轻微瑕疵 (Minor)"].append((rule_id, desc))
-                    
-                    for group_name, rules in severity_groups.items():
-                        if rules:
-                            st.markdown(f"**{group_name}**")
-                            for rule_id, desc in rules:
-                                triggered = "⚡" if state and rule_id in state.get("detected_fallacies", []) else ""
-                                st.markdown(f"- `{rule_id}` {triggered} {desc}")
-                    
-                    st.markdown("---")
-                    st.markdown("#### 🔄 本轮评估过程")
-                    fallacies = state.get("detected_fallacies", []) if state else []
-                    total_rules = len(FALLACY_STRATEGY_LIBRARY)
-                    st.markdown(f"- 共检查 **{total_rules}** 条规则")
-                    st.markdown(f"- 本轮触发 **{len(fallacies)}** 条：{', '.join(fallacies) if fallacies else '无'}")
-                    st.markdown(f"- 评估方式：LLM实体提取 → 知识图谱对标 → 超图逻辑审计 → Rubric评分")
-                # ── A5: 赛事 Rubric 评分面板 ──
-                rubric = state.get("rubric_scores", {})
-                if rubric:
-                    with st.expander("🏆 赛事 Rubric 评分", expanded=True):
-                        # Use the sidebar's choice as the default to ensure reactivity
-                        default_comp = st.session_state.get("target_competition", "互联网+")
-                        comp_options = list(COMPETITION_WEIGHTS.keys())
-                        try:
-                            default_idx = comp_options.index(default_comp)
-                        except ValueError:
-                            default_idx = 0
+                if not is_learning_mode:
+                    with st.expander("📋 评估细则与过程（点击展开查看完整规则）", expanded=False):
+                        from src.agents.langgraph_core import FALLACY_STRATEGY_LIBRARY, FALLACY_SEVERITY
+                        
+                        st.markdown("#### 📖 超图评估规则库（H1-H20）")
+                        st.caption("以下为系统内置的全部逻辑审计规则，每条规则均通过与大模型反复讨论后确定。")
+                        
+                        severity_groups = {
+                            "🔴 致命伤 (Fatal)": [],
+                            "🟠 重大问题 (Major)": [],
+                            "🟡 显著影响 (Significant)": [],
+                            "🟢 轻微瑕疵 (Minor)": [],
+                        }
+                        for rule_id, desc in FALLACY_STRATEGY_LIBRARY.items():
+                            severity = FALLACY_SEVERITY.get(rule_id, 0.5)
+                            if severity >= 2.5:
+                                severity_groups["🔴 致命伤 (Fatal)"].append((rule_id, desc))
+                            elif severity >= 1.5:
+                                severity_groups["🟠 重大问题 (Major)"].append((rule_id, desc))
+                            elif severity >= 1.2:
+                                severity_groups["🟡 显著影响 (Significant)"].append((rule_id, desc))
+                            else:
+                                severity_groups["🟢 轻微瑕疵 (Minor)"].append((rule_id, desc))
+                        
+                        for group_name, rules in severity_groups.items():
+                            if rules:
+                                st.markdown(f"**{group_name}**")
+                                for rule_id, desc in rules:
+                                    triggered = "⚡" if state and rule_id in state.get("detected_fallacies", []) else ""
+                                    st.markdown(f"- `{rule_id}` {triggered} {desc}")
+                        
+                        st.markdown("---")
+                        st.markdown("#### 🔄 本轮评估过程")
+                        fallacies = state.get("detected_fallacies", []) if state else []
+                        total_rules = len(FALLACY_STRATEGY_LIBRARY)
+                        st.markdown(f"- 共检查 **{total_rules}** 条规则")
+                        st.markdown(f"- 本轮触发 **{len(fallacies)}** 条：{', '.join(fallacies) if fallacies else '无'}")
+                        st.markdown(f"- 评估方式：LLM实体提取 → 知识图谱对标 → 超图逻辑审计 → Rubric评分")
 
-                        comp_name = st.selectbox(
-                            "选择赛事权重",
-                            comp_options,
-                            index=default_idx,
-                            key=f"comp_{id(state)}_{st.session_state.target_competition}",
-                        )
-                        weights = COMPETITION_WEIGHTS.get(comp_name, COMPETITION_WEIGHTS["互联网+"])
-                        
-                        score_cols = st.columns(5)
-                        weighted_total = 0.0
-                        for idx, (dim, dim_name) in enumerate(RUBRIC_DIM_NAMES.items()):
-                            dim_data = rubric.get(dim, {})
-                            score = dim_data.get("score", 0)
-                            w = weights.get(dim, 0.2)
-                            weighted_total += score * w
-                            with score_cols[idx]:
-                                color = "🔴" if score <= 2 else ("🟡" if score <= 3 else "🟢")
-                                st.metric(f"{color} {dim_name}", f"{score}/5")
-                        
-                        st.metric(f"📊 {comp_name} 加权综合分", f"{weighted_total:.2f}/5.00")
-                        
-                        # Missing Evidence & Minimal Fix
-                        weak_dims = [
-                            (dim, rubric.get(dim, {}))
-                            for dim in RUBRIC_DIM_NAMES
-                            if rubric.get(dim, {}).get("score", 5) <= 2
-                        ]
-                        if weak_dims:
-                            st.divider()
-                            st.markdown("**⚠️ 薄弱项行动建议**")
-                            for dim, dim_data in weak_dims:
-                                st.error(
-                                    f"**{RUBRIC_DIM_NAMES[dim]}** (得分 {dim_data.get('score', 0)}/5)\n\n"
-                                    f"❌ 缺失证据: {dim_data.get('missing_evidence', 'N/A')}\n\n"
-                                    f"✅ 最小修复: {dim_data.get('minimal_fix', 'N/A')}"
-                                )
+                    rubric = state.get("rubric_scores", {})
+                    if rubric:
+                        with st.expander("🏆 赛事 Rubric 评分", expanded=True):
+                            default_comp = st.session_state.get("target_competition", "互联网+")
+                            comp_options = list(COMPETITION_WEIGHTS.keys())
+                            try:
+                                default_idx = comp_options.index(default_comp)
+                            except ValueError:
+                                default_idx = 0
+
+                            comp_name = st.selectbox(
+                                "选择赛事权重",
+                                comp_options,
+                                index=default_idx,
+                                key=f"comp_{id(state)}_{st.session_state.target_competition}",
+                            )
+                            weights = COMPETITION_WEIGHTS.get(comp_name, COMPETITION_WEIGHTS["互联网+"])
+                            
+                            score_cols = st.columns(5)
+                            weighted_total = 0.0
+                            for idx, (dim, dim_name) in enumerate(RUBRIC_DIM_NAMES.items()):
+                                dim_data = rubric.get(dim, {})
+                                score = dim_data.get("score", 0)
+                                w = weights.get(dim, 0.2)
+                                weighted_total += score * w
+                                with score_cols[idx]:
+                                    color = "🔴" if score <= 2 else ("🟡" if score <= 3 else "🟢")
+                                    st.metric(f"{color} {dim_name}", f"{score}/5")
+                            
+                            st.metric(f"📊 {comp_name} 加权综合分", f"{weighted_total:.2f}/5.00")
+                            
+                            weak_dims = [
+                                (dim, rubric.get(dim, {}))
+                                for dim in RUBRIC_DIM_NAMES
+                                if rubric.get(dim, {}).get("score", 5) <= 2
+                            ]
+                            if weak_dims:
+                                st.divider()
+                                st.markdown("**⚠️ 薄弱项行动建议**")
+                                for dim, dim_data in weak_dims:
+                                    st.error(
+                                        f"**{RUBRIC_DIM_NAMES[dim]}** (得分 {dim_data.get('score', 0)}/5)\n\n"
+                                        f"❌ 缺失证据: {dim_data.get('missing_evidence', 'N/A')}\n\n"
+                                        f"✅ 最小修复: {dim_data.get('minimal_fix', 'N/A')}"
+                                    )
                 
                 kg_query_details = state.get("kg_query_details", [])
                 if kg_query_details:
@@ -1219,7 +1422,13 @@ def main():
             )
             
     # Handle File Upload Submission logic
-    prompt = st.chat_input("请描述你的创业想法，或与我交流...")
+    current_mode = st.session_state.get("student_mode", "竞赛教练模式")
+    chat_placeholder = (
+        "请描述你的创业想法，或与我交流..."
+        if current_mode == "竞赛教练模式"
+        else "可以直接提问：比如我不知道怎么找用户痛点、怎么选赛道、怎么做商业模式..."
+    )
+    prompt = st.chat_input(chat_placeholder)
     
     # Process either a file upload OR text chat input
     input_text = None
@@ -1265,15 +1474,24 @@ def main():
                 "content": msg.get("raw_payload", msg.get("content"))
             })
         
-        with st.spinner("AI 教练正在全量分析档案内容..."):
-            state = run_langgraph_cycle(
+        st.session_state.accumulated_info["student_mode"] = current_mode
+
+        if current_mode == "自由对话学习模式":
+            spinner_text = "AI 导师正在结合知识图谱组织讲解与案例..."
+            cycle_runner = run_learning_mode_cycle
+        else:
+            spinner_text = "AI 教练正在全量分析档案内容..."
+            cycle_runner = run_langgraph_cycle
+
+        with st.spinner(spinner_text):
+            state = cycle_runner(
                 input_text, # We feed the giant input text directly to backend
                 conversation_history=conversation_history,
                 accumulated_info=st.session_state.accumulated_info,
                 target_competition=st.session_state.target_competition,
                 student_id=st.session_state.user["id"],
             )
-        
+
         st.session_state.accumulated_info = state.accumulated_info
         
         assistant_msg = {
