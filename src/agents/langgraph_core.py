@@ -1699,6 +1699,11 @@ def generate_rebuttal(state: AgentState) -> AgentState:
     if student_memory and student_memory not in ["该学生暂无长期记忆。", "新学生，暂无历史交互记忆"]:
         intervention_text += f"\n### 🧠 【系统过往交互记忆档案】\n> {student_memory}\n（你的反馈语气必须带连贯性记忆，如果本次该错误依然没改，可以类似这样开场：'上次我提醒过你...，但你这次依然...'）\n"
 
+    # 新增：项目类型的指令注入
+    project_type = state.accumulated_info.get("project_type", "商业型")
+    if project_type == "公益型":
+        intervention_text += "\n### 🌍 特别指令：公益项目优先\n该项目为【公益型】。在考察 H7、H8、H15、H16 相关盈利指标时，请**显著弱化**营收要求，将焦点转移至『如何自我造血维持社会服务』以及『社会效益覆盖面』。\n"
+
 
     expert_panel_text = ""
     if state.agent_insights:
@@ -2305,11 +2310,6 @@ def generate_business_plan(project_data: Dict[str, Any], target_comp: str = "互
         "1. **文风要求**：语料风格必须对标麦肯锡/普华永道等咨询公司报告，使用战略性词汇（如：非对称竞争优势、结构性博弈、高边际壁垒等）。\n"
         "2. **内容深度**：每一章必须包含深度逻辑推论，严禁短句，单节字数不少于 250 字，全文需有极强的叙事张力。\n"
         "3. **结构指引**：请严格按照以下 12 个模块生成 Markdown 内容：\n\n"
-        "【特定：公益性项目/挑战杯赛道特殊要求】：\n"
-        "如果项目属于公益性质（通过‘挑战杯’识别），生成内容将自动转向：\n"
-        "- **Outcome 锚点**：重点阐述受益人群的实质性改变，而非单纯的产出。\n"
-        "- **自我造血机制**：说明项目如何在非营利前提下通过服务性收入实现资金平衡。\n"
-        "- **公信力构建**：通过透明化治理与第三方背书展示项目的持续影响力。\n"
         "## 1. 项目愿景与 Slogan (Vision & Tagline)\n"
         "【路演级开篇】用一句话定义项目的‘终局感’。阐述企业存在的根本使命与其在行业中的标签化地位。\n\n"
         "## 2. 行业底层痛点映射 (The Problem)\n"
@@ -2334,10 +2334,18 @@ def generate_business_plan(project_data: Dict[str, Any], target_comp: str = "互
         "【关键模块】明确融资额度分配。制定跨度 24 个月的里程碑计划，每个节点需包含明确的可交付成果与验证指标。\n\n"
         "## 12. 团队基因与社会使命 (Team & Vision)\n"
         "论证创始人背景与项目的高度契合性。阐述项目在社会责任（如绿色环保、就业）方面的长期愿景。\n\n"
-        "注意：对于缺失的数据，请根据行业常识给出‘极其专业且合理’的预测值，并用加粗字体提示（如 **[基于行业 Benchmark 及战略推演：XX%]**）。\n\n"
-        "【特定：公益性项目/挑战杯赛道特殊要求】：\n"
-        "如果项目属于公益性质，请重点阐述：1. 项目的社会边际效益；2. 核心受众的改变（Outcome vs Output）；3. 资金筹措与自我造血逻辑（而非纯营收）；4. 公信力与影响力闭环。"
+        "注意：对于缺失的数据，请根据行业常识给出‘极其专业且合理’的预测值，并用加粗字体提示（如 **[基于行业 Benchmark 及战略推演：XX%]**）。\n"
     )
+    
+    project_type = project_data.get("accumulated_info", {}).get("project_type", "商业型")
+    if project_type == "公益型":
+        system_prompt += (
+            "\n\n【🌍 赛道强制指令：公益型项目】\n"
+            "该项目已标记为**公益/红旅赛道**，你必须在生成内容时全面转向公益评价体系：\n"
+            "1. **商业模式变现要求降低**：不用过分苛求 LTV/CAC，转而重点阐述【自我造血机制】（如何通过服务覆盖成本）与资金筹措透明度。\n"
+            "2. **Outcome 锚点**：在“市场规模”与“痛点”章节，重点阐述受益人群的实质性改变（如教育公平、可持续发展），而非单纯计算 TAM/SAM。\n"
+            "3. **公信力与影响力飞轮**：将“增长飞轮”替换为“社会影响力飞轮”，通过第三方背书展示项目的长期普惠价值。"
+        )
 
     accumulated = project_data.get("accumulated_info", {})
     extracted = project_data.get("extracted_nodes", {})

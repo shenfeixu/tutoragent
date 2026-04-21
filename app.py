@@ -1,5 +1,6 @@
 import streamlit as st
 from datetime import datetime
+from pathlib import Path
 import uuid
 import pypdf
 import zipfile
@@ -513,6 +514,11 @@ def render_sidebar():
             ["互联网+", "挑战杯", "创青春", "数模"],
             index=["互联网+", "挑战杯", "创青春", "数模"].index(st.session_state.target_competition)
         )
+        st.session_state.project_type = st.selectbox(
+            "选择项目类型：",
+            ["商业型", "公益型"],
+            index=0 if st.session_state.get("project_type", "商业型") == "商业型" else 1
+        )
         
         st.divider()
         
@@ -587,13 +593,23 @@ def render_sidebar():
             msg_count = len(st.session_state.get("messages", []))
             if msg_count >= 6:
                 if st.button("🌟 合成完整项目商业计划书", use_container_width=True):
-                    with st.spinner("AI 正在深度扫描对话上下文，合成 BP 初稿..."):
+                    with st.status("🚀 深度智慧合成中 (全程可能需要60-180秒)...", expanded=True) as status:
+                        st.write("🟢 [项目教练] 正在提取对话上下文特征...")
+                        import time
+                        time.sleep(1.0)
+                        st.write("🟢 [知识图谱] 正在构建专家风险匹配子图与纠缠度网络...")
+                        time.sleep(1.5)
+                        st.write("🟢 [竞赛顾问] 介入，根据项目类型自适应打磨专属商业叙事...")
+                        time.sleep(0.5)
+                        st.write("⏳ 正在等待大模型推理合成 12 章节标准计划书，请耐心等待...")
+                        
                         bp_data = {
                             "accumulated_info": st.session_state.get("accumulated_info", {}),
                             "conversation_history": st.session_state.get("messages", []),
                             "extracted_nodes": {},
                             "frequent_fallacies": [],
                         }
+                        bp_data["accumulated_info"]["project_type"] = st.session_state.get("project_type", "商业型")
                         # 提取最新状态
                         for msg in reversed(st.session_state.messages):
                             if msg.get("role") == "assistant" and msg.get("state"):
@@ -604,6 +620,20 @@ def render_sidebar():
                         full_bp_md = generate_business_plan(bp_data, target_comp=st.session_state.target_competition)
                         st.session_state["full_bp_content"] = full_bp_md
                         st.session_state["show_full_bp"] = True
+                        
+                        # 自动将生成的BP存档，供教师端审阅
+                        import json
+                        from pathlib import Path
+                        bp_file = Path("data/student_bps.json")
+                        bps_data = {}
+                        if bp_file.exists():
+                            try:
+                                bps_data = json.loads(bp_file.read_text(encoding="utf-8"))
+                            except:
+                                pass
+                        bps_data[user.get("display_name", user["username"])] = full_bp_md
+                        bp_file.write_text(json.dumps(bps_data, ensure_ascii=False), encoding="utf-8")
+                        
                         st.rerun()
             else:
                 rounds_left = (6 - msg_count + 1) // 2
@@ -865,6 +895,24 @@ def render_teacher_dashboard():
                 "高频谬误": " | ".join(s["fallacies"][:3])
             })
         st.dataframe(display_list, use_container_width=True)
+        
+        st.subheader("✉️ 下发赛事指导意见")
+        student_names = [s["学生名"] for s in display_list]
+        if student_names:
+            selected_student = st.selectbox("选择评审对象：", student_names)
+            feedback_text = st.text_area("导师点评 (学生登录后将在顶部看到该反馈)：")
+            if st.button("发送评审结论"):
+                import json
+                feedback_file = Path("data/teacher_feedback.json")
+                feedbacks = {}
+                if feedback_file.exists():
+                    try:
+                        feedbacks = json.loads(feedback_file.read_text(encoding="utf-8"))
+                    except:
+                        pass
+                feedbacks[selected_student] = feedback_text
+                feedback_file.write_text(json.dumps(feedbacks, ensure_ascii=False), encoding="utf-8")
+                st.success(f"✅ 已成功将评估意见下发给 {selected_student}")
 
     with col2:
         st.subheader("🧠 AI 教学干预建议")
@@ -1111,6 +1159,18 @@ def main():
     with col_t1:
         st.title("🎯 创新创业教学智能体")
         st.markdown("基于知识图谱与超图推理的创业项目诊断助手。")
+        
+        # 加载教师评审反馈
+        import json
+        feedback_file = Path("data/teacher_feedback.json")
+        if feedback_file.exists():
+            try:
+                feedbacks = json.loads(feedback_file.read_text(encoding="utf-8"))
+                display_name = st.session_state.user.get("display_name", st.session_state.user["username"])
+                if display_name in feedbacks:
+                    st.info(f"**👨‍🏫 你的商业计划书已收到主教练最新评审意见：**\n\n{feedbacks[display_name]}")
+            except:
+                pass
     with col_t2:
         st.write("")
         st.write("")
