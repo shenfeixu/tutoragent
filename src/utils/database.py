@@ -23,6 +23,8 @@ DB_PATH = DATA_DIR / "tutoragent.db"
 
 def get_connection() -> sqlite3.Connection:
     conn = sqlite3.connect(str(DB_PATH))
+    # 【极速修复】服务器主盘爆满防御机制：强令数据库操作不依赖磁盘缓存，全转为服务器闲置的超大内存(RAM)!
+    conn.execute("PRAGMA temp_store = MEMORY;")
     conn.row_factory = sqlite3.Row
     return conn
 
