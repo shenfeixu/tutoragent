@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import sqlite3
 import json
+import os
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -10,6 +11,12 @@ import hashlib
 
 DATA_DIR = Path(__file__).parent.parent.parent / "data"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+# 【关键修复】绕过系统盘故障：
+# 发现虽然 /home/.../datastore 还有2TB，但系统根目录 / (/dev/sda2) 已经100%爆满。
+# SQLite 默认将所有缓存执行文件写在根目录的 /tmp/ 下，导致崩溃。
+# 现将 SQLite 的临时文件存放地强制重定向到我们自带的有 2TB 剩余的 data 盘。
+os.environ["SQLITE_TMPDIR"] = str(DATA_DIR)
 
 DB_PATH = DATA_DIR / "tutoragent.db"
 
