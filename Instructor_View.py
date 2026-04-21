@@ -493,41 +493,6 @@ def render_detailed_analysis(user):
         )
         st.plotly_chart(fig_radar, use_container_width=True)
         render_bp_review_queue(user)
-        
-        # 新增：A7 教师评价反馈下发流转模块
-        st.divider()
-        st.subheader("✉️ 下发赛事指导意见")
-        student_names = [s["display_name"] for s in student_scores]
-        if student_names:
-            selected_student = st.selectbox("选择评审对象：", student_names, key="feedback_student_select")
-            
-            # --- 渲染该学生的商业计划书 ---
-            bp_file = Path("data/student_bps.json")
-            if bp_file.exists():
-                try:
-                    bps_data = json.loads(bp_file.read_text(encoding="utf-8"))
-                    student_bp = bps_data.get(selected_student)
-                    if student_bp:
-                        with st.expander(f"📖 查阅 {selected_student} 的最新商业计划书原件", expanded=False):
-                            st.markdown(student_bp)
-                    else:
-                        st.info("该学生暂未生成商业计划书", icon="📭")
-                except:
-                    pass
-            # -------------------------------
-            
-            feedback_text = st.text_area("导师点评 (学生登录后将在顶部看见该反馈)：", key="feedback_text_area")
-            if st.button("发送评审结论"):
-                feedback_file = Path("data/teacher_feedback.json")
-                feedbacks = {}
-                if feedback_file.exists():
-                    try:
-                        feedbacks = json.loads(feedback_file.read_text(encoding="utf-8"))
-                    except:
-                        pass
-                feedbacks[selected_student] = feedback_text
-                feedback_file.write_text(json.dumps(feedbacks, ensure_ascii=False), encoding="utf-8")
-                st.success(f"✅ 已成功将评估意见下发给 {selected_student}")
     
     with tab2:
         st.subheader("⚠️ 高风险项目清单")
